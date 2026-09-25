@@ -88,11 +88,19 @@ export class ColonyScene {
   }
 
   fitArena():void {
-    const aspect=Math.max(.4,this.host.clientWidth/Math.max(1,this.host.clientHeight));
-    const tangent=Math.tan(this.camera.fov*Math.PI/360);
-    const distance=Math.max(12.5/tangent,15.3/(tangent*aspect));
-    this.controls.target.set(0,0,0);this.camera.position.set(0,distance*.94,distance*.342);
-    this.camera.lookAt(0,0,0);this.controls.update();
+    this.camera.aspect=Math.max(.4,this.host.clientWidth/Math.max(1,this.host.clientHeight));
+    this.camera.zoom=1;this.camera.updateProjectionMatrix();
+    const damping=this.controls.enableDamping;this.controls.enableDamping=false;this.controls.reset();
+    this.controls.target.set(0,0,0);
+    let distance=32;
+    // 用真实投影边界验收全景，而不是只根据窗口比例猜镜头距离。
+    for(let attempt=0;attempt<20;attempt++){
+      this.camera.position.set(0,distance*.94,distance*.342);this.camera.lookAt(0,0,0);this.camera.updateMatrixWorld();
+      const corners=[[-14.5,-10.5],[-14.5,10.5],[14.5,-10.5],[14.5,10.5]];
+      const fits=corners.every(([x,z])=>{const p=new THREE.Vector3(x,0,z).project(this.camera);return Math.abs(p.x)<.93&&Math.abs(p.y)<.88;});
+      if(fits)break;distance*=1.06;
+    }
+    this.controls.update();this.controls.enableDamping=damping;
   }
 
   private label(text:string,x:number,y:number,z:number,color:number):THREE.Sprite {
@@ -106,9 +114,16 @@ export class ColonyScene {
     if(!this.previous){this.gaits.clear();this.visualTime=frame.seconds;}
     this.frame=frame;this.received=performance.now();
     if(this.tool==='wall')this.wallPreview.refresh();
+    if(this.tool==='food')this.foodPreview.refresh();
     const raw=atob(frame.pheromones),n=frame.field_width*frame.field_height;
     const rgba=this.fieldTexture.image.data as Uint8Array;
-    for(let i=0;i<n;i++){const home=raw.charCodeAt(i),food=raw.charCodeAt(i+n);rgba[4*i]=food;rgba[4*i+1]=Math.min(255,home*.75+food*.68);rgba[4*i+2]=home*.9;rgba[4*i+3]=Math.min(100,Math.max(home*.65,food));}
+    for(let i=0;i<n;i++){
+      const home=raw.charCodeAt(i),food=raw.charCodeAt(i+n),total=home+food;
+      // 仅改变显示曲线；决策仍读取模拟器的原始浓度。避免 RGB×alpha 二次压暗。
+      const ratio=total?food/total:0;
+      rgba[4*i]=79+(243-79)*ratio;rgba[4*i+1]=188+(184-188)*ratio;rgba[4*i+2]=208+(94-208)*ratio;
+      rgba[4*i+3]=Math.min(160,220*Math.pow(Math.max(home,food)/255,.55));
+    }
     this.fieldTexture.needsUpdate=true;
     const wk=JSON.stringify(frame.walls);
     if(wk!==this.wallKey){this.clear(this.wallGroup);this.wallKey=wk;

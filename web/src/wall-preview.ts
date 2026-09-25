@@ -62,6 +62,7 @@ export class WallPreview {
       if(revision!==this.revision)return;
       if(!response.ok){this.paint(0xff7676,'invalid','超出场地或尺寸范围');return;}
       const placement=await response.json() as Placement;
+      if(revision!==this.revision)return;
       this.paint(placement.valid?(placement.displaced?0xffcd77:0x66d9ef):0xff7676,placement.valid?'valid':'invalid',placement.message);
     } catch {
       if(revision===this.revision)this.paint(0xffcd77,'pending','等待本地校验；点击时再次检查');
