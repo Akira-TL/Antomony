@@ -2,7 +2,7 @@
 
 Math Hackathon 2026 的独立工程与研究工作区。项目名称和路径按用户指定为 `/home/Akira/Projects/MathHackson`。
 
-当前完成的是资料迁移、工程规范、项目级技能引用与科研基础；最终赛道和研究问题尚未确定，尚未开展模型开发、实验、训练或电磁仿真。
+当前进入 V2V 单一机制提取：已独立提取可逆参数更新模块并通过 20 项工程测试。候选作品围绕小型神经网络的在线更新与选择性回退；自主决策策略、学习收益和正式参赛范围尚未验证。详见 [提取范围](docs/competition/v2v-extraction-scope.md)。
 
 ## 阅读入口
 
@@ -12,6 +12,7 @@ Math Hackathon 2026 的独立工程与研究工作区。项目名称和路径按
 | [CONTEXT.md](CONTEXT.md) | 已明确的项目术语与赛道对应关系 |
 | [RESEARCH.md](RESEARCH.md) | 当前科研目标、问题与停止边界 |
 | [研究结构](research-tree/README.md) | 由数据库生成的研究关系视图 |
+| [单一机制提取](docs/competition/v2v-extraction-scope.md) | 提取内容、原实验边界、后续最小验证 |
 | [赛事资料](docs/competition/README.md) | 赛题、原始附件位置、历史说明与数据约束 |
 | [技能说明](docs/agents/skills.md) | Matt / Research 项目引用、来源版本与恢复 |
 | [工程任务约定](docs/agents/issue-tracker.md) | 本地任务、依赖与领取规则 |
@@ -46,7 +47,7 @@ codegraph sync .
 codegraph explore 'load_skills'
 ```
 
-当前开发环境没有第三方 Python 模型或应用依赖，只有实际使用的维护脚本与对应测试。正式选择研究对象后再添加必要依赖；不预装 PyTorch、前端框架或电磁软件。
+当前包位于 `src/mathhackson/`，运行依赖为 NumPy，开发测试使用 pytest；版本锁定在 `uv.lock`。不依赖原 V2V 路径、PyTorch、GPU、Unity、前端框架或仿真软件。参数执行 API 为 `FastResidualParameter` 与 `RollbackRequest`，尚未实现自主学习控制器。
 
 ## CodeGraph
 
@@ -67,7 +68,7 @@ docs/agents/                工程与科研入口约定
 docs/competition/           赛事资料索引与迁移清单
 scripts/                    维护及后续运行入口
 tests/                      工程测试
-src/                        选题后按需要建立真实模型或应用模块
+src/mathhackson/            独立提取的可逆参数更新实现
 .scratch/                   正式本地工程任务
 logs/                       运行日志，不进入 Git
 ```
@@ -80,6 +81,6 @@ logs/                       运行日志，不进入 Git
 
 Windows 下载目录中的原始下载副本保持原样，不在本次迁移范围。本仓库不自动公开或提交教学数据。
 
-V2V 仍位于 `/home/Akira/Projects/v2v`，保持独立；本仓库没有复制其代码、模型、研究数据库或实验结果，也不修改它的科研状态。
+V2V 仍位于 `/home/Akira/Projects/v2v`，保持只读。本仓库仅从明确提交提取一个参数模块及其测试，来源见 `docs/competition/v2v-source-manifest.csv`。提取后的边界修复只发生在本仓库；没有复制完整模型、研究数据库、检查点或实验结果，也不改变原项目的科研状态。
 
 当前 Git 分支为 `main`，未配置远端。正式提交使用 Akira Guard；远程仓库创建、推送与发布须另有用户授权。
