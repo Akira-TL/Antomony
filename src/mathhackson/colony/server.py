@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ValidationError
 from .world import World
 from .control.session import ComparisonSession, ComparisonFrame
+from .display.telemetry import NetworkView, network_view
 from .protocol import Command, Frame, apply_command, snapshot
 
 class Engine:
@@ -82,6 +83,12 @@ async def food_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,l
         if not valid: return WallPreview(valid=False,message='普通侧：'+message)
     valid,message=engine.world.plan_food(x,y)
     return WallPreview(valid=valid,message=message)
+
+@app.get('/api/network')
+async def network(ant: int = Query(default=0,ge=0,le=63)) -> NetworkView | None:
+    world=engine.world
+    if world is None or ant>=len(world.ants): return None
+    return network_view(world,ant)
 
 @app.get('/api/export')
 async def export() -> Response:

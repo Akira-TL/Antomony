@@ -25,6 +25,9 @@ class Brain:
         self.warm_loss=float(np.mean((self.predict(hold_x)-hold_y)**2))
         self.head=FastResidualParameter(self.head.effective,recent_capacity=8)
         self.birth_head=self.head.effective.copy(); self.rng=np.random.default_rng(seed+700001)
+        self.first_hidden=np.zeros(24,np.float32)
+        self.inference_head=self.head.effective.copy()
+        self.last_head_delta=np.zeros((17,3),np.float32)
 
     def practice(self,n: int) -> tuple[Array,Array]:
         angle=self.rng.uniform(-np.pi,np.pi,n); clear=self.rng.uniform(0,1,n)
@@ -45,8 +48,10 @@ class Brain:
         _,_,phi=self.features(np.atleast_2d(x)); return phi@self.head.effective
 
     def inspect(self,x: Array) -> Array:
-        _,b,phi=self.features(np.atleast_2d(x)); self.hidden=b[0].copy()
-        self.output=(phi@self.head.effective)[0].copy(); return self.output.copy()
+        a,b,phi=self.features(np.atleast_2d(x))
+        self.first_hidden=a[0].copy(); self.hidden=b[0].copy()
+        self.inference_head=self.head.effective.copy()
+        self.output=(phi@self.inference_head)[0].copy(); return self.output.copy()
 
     def train(self,x: Array,y: Array,*,rate: float=.045,all_layers: bool=False,record: bool=True) -> float:
         x=np.atleast_2d(x); y=np.atleast_2d(y)
@@ -63,6 +68,7 @@ class Brain:
         self.head.add_delta(delta)
         if record:
             self.updates+=1; self.last_loss=loss; self.last_delta=float(np.linalg.norm(delta))
+            self.last_head_delta=delta.copy()
         return loss
 
     def fingerprint(self) -> str:
