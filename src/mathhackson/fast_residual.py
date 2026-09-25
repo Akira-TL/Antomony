@@ -45,7 +45,8 @@ class FastResidualParameter:
             raise ValueError(f"expected delta shape {self.stable.shape}, got {array.shape}")
         if not np.all(np.isfinite(array)):
             raise ValueError("delta must contain only finite values")
-        return array
+        # Capture the caller's delta before any in-place update can change an alias.
+        return array.copy()
 
     def add_delta(self, delta: npt.ArrayLike) -> None:
         """Add a new fast modification and retain its identity if capacity allows."""
