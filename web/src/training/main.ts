@@ -111,7 +111,11 @@ async function send(command:TrainingCommand):Promise<void> {
   busy=true;revision++;commandError='';setControlsEnabled(false);
   try {
     const response=await fetch('/api/training/command',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(command),signal:AbortSignal.timeout(10000)});
-    if(!response.ok)throw new Error(`操作失败（${response.status}）`);
+    if(!response.ok){
+      const payload:unknown=await response.json().catch(()=>null);
+      const detail=typeof payload==='object'&&payload!==null&&'detail' in payload&&typeof payload.detail==='string'?payload.detail:'';
+      throw new Error(detail||`操作失败（${response.status}）`);
+    }
     render(await response.json() as TrainingState);
   }catch(error){commandError=error instanceof Error?error.message:'操作失败';showError(commandError);}
   finally{busy=false;setControlsEnabled(connected);}

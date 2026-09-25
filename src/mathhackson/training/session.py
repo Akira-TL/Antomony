@@ -2,10 +2,14 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+import math
 from pathlib import Path
 from uuid import uuid4
 
 import numpy as np
+import torch
+
+from mathhackson.colony.geometry import unit
 
 from .environment import SingleAntEnvironment
 from .model import GROUPS, INPUTS, Decision, SelfModifyingPolicy
@@ -56,6 +60,24 @@ class TrainingSession:
                              changed=int(np.count_nonzero(sample.delta)),
                              total_change=float(np.abs(sample.delta).sum())) for sample in self.trace]
         return WeightTrace(session=self.id, row=row, column=column, points=points)
+
+    def motor_alignment(self) -> tuple[int, int]:
+        probe = SelfModifyingPolicy(0)
+        with torch.no_grad():
+            probe.base.copy_(self.model.weights.detach())
+        probe.phase = "autonomous"
+        probe.manual_frozen = {group for group, _, _, _ in GROUPS}
+        reached = [0, 0]
+        for index in range(12):
+            env = SingleAntEnvironment(index)
+            env.max_turn = self.env.max_turn
+            env.target = unit(-math.pi + (index + .5) * math.pi / 6.) * 4.
+            env.distance = 4.
+            while not env.done:
+                decision = probe.decide(env.observation())
+                env.step(decision.move, decision.turn)
+            reached[index // 6] += int(env.reached)
+        return reached[0], reached[1]
 
     def _begin(self) -> None:
         self.decisions: list[Decision] = []
@@ -113,6 +135,10 @@ class TrainingSession:
 
     def command(self, command: Command) -> None:
         action = command.action
+        if action == "phase" and command.phase == "meta" and self.model.phase != "meta":
+            left, right = self.motor_alignment()
+            if left < 5 or right < 5:
+                raise ValueError(f"基础动作尚未通过定向检查：两侧分别触达 {left}/6、{right}/6；各需至少 5/6。请先继续基础动作训练。")
         if action == "pause":
             self.paused = True
         elif action == "play":

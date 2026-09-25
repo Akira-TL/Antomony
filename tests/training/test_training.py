@@ -64,7 +64,10 @@ def test_basic_training_learns_both_turn_signs_without_runtime_direction_rule():
 @pytest.mark.parametrize("phase", ["motor", "meta", "autonomous"])
 def test_all_frozen_stays_bitwise_identical_across_episodes(tmp_path: Path, phase):
     session = TrainingSession(tmp_path)
-    session.command(Command(action="phase", phase=phase))
+    if phase == "meta":
+        session.model.phase = "meta"
+    else:
+        session.command(Command(action="phase", phase=phase))
     session.command(Command(action="freeze_all", frozen=True))
     before = session.model.weights.detach().clone()
     for _ in range(110):
@@ -76,7 +79,7 @@ def test_all_frozen_stays_bitwise_identical_across_episodes(tmp_path: Path, phas
 
 def test_partial_freeze_masks_both_update_paths(tmp_path: Path):
     session = TrainingSession(tmp_path)
-    session.command(Command(action="phase", phase="meta"))
+    session.model.phase = "meta"
     session.command(Command(action="freeze", group="gate", frozen=True))
     before = session.model.weights.detach().clone()
     for _ in range(100):
@@ -198,7 +201,7 @@ def test_weight_trace_records_actual_steps_and_outer_update(tmp_path: Path):
 
 def test_weight_trace_captures_self_writes_and_freeze_as_flatline(tmp_path: Path):
     session = TrainingSession(tmp_path)
-    session.command(Command(action="phase", phase="meta"))
+    session.model.phase = "meta"
     for _ in range(32):
         session.step()
     trace = session.weight_trace(2, 0)
@@ -213,3 +216,28 @@ def test_weight_trace_captures_self_writes_and_freeze_as_flatline(tmp_path: Path
     assert all(point.value == frozen and point.delta == 0 for point in session.weight_trace(2, 0).points[-110:])
     with pytest.raises(ValueError):
         session.weight_trace(39, 0)
+
+
+def test_meta_requires_aligned_motor_policy_before_switch(tmp_path: Path):
+    session = TrainingSession(tmp_path)
+    before = session.state()
+    with pytest.raises(ValueError, match="基础动作尚未通过定向检查"):
+        session.command(Command(action="phase", phase="meta"))
+    assert session.state().phase == "motor"
+    assert session.tick == before.tick and not session.history
+    assert session.motor_alignment() == (0, 0)
+    session.command(Command(action="phase", phase="autonomous"))
+    with pytest.raises(ValueError, match="基础动作尚未通过定向检查"):
+        session.command(Command(action="phase", phase="meta"))
+    assert session.state().phase == "autonomous"
+    session.command(Command(action="phase", phase="motor"))
+    for _ in range(60):
+        current_episode = session.episode
+        while session.episode == current_episode:
+            session.step()
+        left, right = session.motor_alignment()
+        if left >= 5 and right >= 5:
+            break
+    assert left >= 5 and right >= 5
+    session.command(Command(action="phase", phase="meta"))
+    assert session.state().phase == "meta"
