@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import type {Frame,Tool} from './types';
 import {WallPreview} from './wall-preview';
+import {FoodPreview} from './editor/food-preview';
 
 export class ColonyScene {
   readonly renderer:THREE.WebGLRenderer;
@@ -9,6 +10,7 @@ export class ColonyScene {
   readonly camera=new THREE.PerspectiveCamera(43,1,.1,180);
   readonly controls:OrbitControls;
   readonly wallPreview:WallPreview;
+  readonly foodPreview:FoodPreview;
   tool:Tool='inspect'; selected=0; showField=true; fps=0;
   onPoint:(x:number,y:number,id:number|null)=>void=()=>{};
   private frame:Frame|null=null;
@@ -66,15 +68,16 @@ export class ColonyScene {
     this.fieldMesh=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshBasicMaterial({map:this.fieldTexture,transparent:true,depthWrite:false,opacity:.8,blending:THREE.AdditiveBlending}));this.fieldMesh.rotation.x=-Math.PI/2;this.fieldMesh.position.y=.022;this.scene.add(this.fieldMesh);
     this.ring=new THREE.Mesh(new THREE.RingGeometry(.32,.36,48),new THREE.MeshBasicMaterial({color:0xd3ffb1,side:THREE.DoubleSide,transparent:true,opacity:.9}));this.ring.rotation.x=-Math.PI/2;this.scene.add(this.ring,this.rays,this.wallGroup,this.foodGroup);
     this.wallPreview=new WallPreview(this.scene,host);
+    this.foodPreview=new FoodPreview(this.scene,host);
     const resize=()=>{const w=host.clientWidth,h=host.clientHeight;this.renderer.setSize(w,h);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();};new ResizeObserver(resize).observe(host);resize();
     let down=new THREE.Vector2();
-    this.renderer.domElement.addEventListener('pointermove',e=>{if(this.tool==='wall'){const p=this.groundPoint(e);if(p)this.wallPreview.move(p.x,p.z);else this.wallPreview.hide();}});
+    this.renderer.domElement.addEventListener('pointermove',e=>{const p=this.groundPoint(e);if(this.tool==='wall'){if(p)this.wallPreview.move(p.x,p.z);else this.wallPreview.hide();}else if(this.tool==='food'){if(p)this.foodPreview.move(p.x,p.z);else this.foodPreview.hide();}});
     this.renderer.domElement.addEventListener('wheel',e=>{
       if(this.tool!=='wall')return;
       e.preventDefault();e.stopImmediatePropagation();
       this.wallPreview.rotate(Math.sign(e.deltaY)*Math.PI/36);
     },{capture:true,passive:false});
-    this.renderer.domElement.addEventListener('pointerleave',()=>this.wallPreview.hide());
+    this.renderer.domElement.addEventListener('pointerleave',()=>{this.wallPreview.hide();this.foodPreview.hide();});
     this.renderer.domElement.addEventListener('pointerdown',e=>{down.set(e.clientX,e.clientY);});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(e.button!==0||Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;this.click(e);});
     this.animate();
@@ -100,7 +103,7 @@ export class ColonyScene {
     }
     const fk=JSON.stringify(frame.foods.map(f=>[f.id,f.x,f.y,Math.ceil(f.amount/8)]));
     if(fk!==this.foodKey){this.clear(this.foodGroup);this.foodKey=fk;
-      for(const f of frame.foods){const base=new THREE.Mesh(new THREE.CylinderGeometry(.8,.86,.08,32),new THREE.MeshStandardMaterial({color:0x665038,roughness:.8}));base.position.set(f.x,.05,f.y);this.foodGroup.add(base);
+      for(const f of frame.foods.filter(food=>food.amount>0)){const base=new THREE.Mesh(new THREE.CylinderGeometry(.8,.86,.08,32),new THREE.MeshStandardMaterial({color:0x665038,roughness:.8}));base.position.set(f.x,.05,f.y);this.foodGroup.add(base);
         for(let i=0;i<Math.min(27,Math.ceil(f.amount/8));i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.23,.23,.23),new THREE.MeshStandardMaterial({color:0xf8b95f,emissive:0x8d4e15,emissiveIntensity:.35,roughness:.38}));m.position.set(f.x+((i%3)-1)*.26,.2+Math.floor(i/9)*.25,f.y+(Math.floor(i/3)%3-1)*.26);m.castShadow=true;this.foodGroup.add(m);}this.foodGroup.add(this.label('资源 '+f.id,f.x,1.5,f.y,0xffce88));}
     }
   }

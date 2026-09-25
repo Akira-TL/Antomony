@@ -18,11 +18,12 @@ app.innerHTML=`
 
 const el=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const scene=new ColonyScene(el('viewport'));
+scene.foodPreview.onStatus=message=>{if(scene.tool==='food')el('hint').textContent=message||'移动鼠标预览 · 点击放资源';};
 let current:Frame|null=null;let ws:WebSocket;let lastToast='';let generation=0;
 const send=(command:Command)=>{if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(command));else toast('本地模型尚未连接');};
 function toast(message:string){el('toast').textContent=message;el('toast').classList.add('visible');window.setTimeout(()=>el('toast').classList.remove('visible'),3500);}
 const hints:Record<Tool,string>={inspect:'拖动旋转 · 滚轮缩放 · 点击蚂蚁查看独立模型',wall:'移动鼠标预览 · 滚轮转角 / R 转90° · 点击放墙；蚂蚁会就近让位',erase:'点击一道墙将其拆除 · 不改变已有模型参数',food:'点击空地增加资源点 · 蚂蚁必须靠局部感知发现',scent:'点击地面喷洒食物信号 · 模型不知道这里是否有食物'};
-document.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach(button=>button.addEventListener('click',()=>{scene.tool=button.dataset.tool as Tool;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b===button));el('hint').textContent=hints[scene.tool];el('wall-settings').hidden=scene.tool!=='wall';scene.wallPreview.hide();}));
+document.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach(button=>button.addEventListener('click',()=>{scene.tool=button.dataset.tool as Tool;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b===button));el('hint').textContent=hints[scene.tool];el('wall-settings').hidden=scene.tool!=='wall';scene.wallPreview.hide();scene.foodPreview.hide();}));
 scene.onPoint=(x,y,id)=>{if(scene.tool==='inspect'){if(id!==null){scene.selected=id;el<HTMLSelectElement>('ant-select').value=String(id);if(current)inspect(current.ants[id]);}}else send({kind:scene.tool,x,y,...(scene.tool==='wall'?{hx:scene.wallPreview.hx,hy:scene.wallPreview.hy,angle:scene.wallPreview.angle}:{})});};
 scene.wallPreview.onStatus=message=>{if(scene.tool==='wall')el('hint').textContent=message?message+' · 滚轮调角 · 点击放置':hints.wall;};
 function updateWallSize():void {const length=Number(el<HTMLInputElement>('wall-length').value);el('wall-length-value').textContent=length.toFixed(1);scene.wallPreview.setSize(.4,length/2);}

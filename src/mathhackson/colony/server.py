@@ -65,6 +65,13 @@ async def wall_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,l
     count=sum(float(np.linalg.norm(p-a.position))>1e-6 for p,a in zip(positions,world.ants,strict=True))
     return WallPreview(valid=True,message='可放置' if not count else f'可放置；将就近移开 {count} 只个体',displaced=count)
 
+@app.get('/api/food-preview')
+async def food_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,le=10)) -> WallPreview:
+    if engine.world is None:
+        return WallPreview(valid=False,message='模型尚未就绪')
+    valid,message=engine.world.plan_food(x,y)
+    return WallPreview(valid=valid,message=message)
+
 @app.get('/api/export')
 async def export() -> Response:
     if engine.world is None: return Response('{}',status_code=503,media_type='application/json')

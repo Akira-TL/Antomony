@@ -169,7 +169,7 @@ class World:
         wall=Wall(max((w.id for w in self.walls),default=0)+1,x,y,hx,hy,angle)
         if np.any(np.abs([x,y])+wall.extent>=self.half): return None,None,'墙超出场地边界'
         if wall.overlaps(self.nest,1.8): return None,None,'与巢穴重叠，不能覆盖'
-        if any(wall.overlaps(np.asarray([f.x,f.y],np.float32),1.) for f in self.foods): return None,None,'与资源点重叠，不能覆盖'
+        if any(wall.overlaps(np.asarray([f.x,f.y],np.float32),1.) for f in self.foods if f.amount>0): return None,None,'与资源点重叠，不能覆盖'
         if any(wall.intersects(v) for v in self.walls): return None,None,'与已有墙体重叠'
         positions=relocate_for_wall(np.stack([a.position for a in self.ants]),wall,self.walls,self.half,self.radius)
         if positions is None: return None,None,'墙边没有足够空间安置个体'
@@ -195,9 +195,24 @@ class World:
                 self.walls.remove(w); self.field.set_walls(self.walls); self.event('wall','已移除墙体'); return '墙已移除'
         return '这里没有墙'
 
-    def add_food(self,x: float,y: float) -> str:
-        if abs(x)>12.5 or abs(y)>8.5: return '资源超出场地'
-        if len(self.foods)>=12: return '最多12个资源点'
-        if any(w.overlaps(np.asarray([x,y],np.float32),.9) for w in self.walls): return '资源与墙重叠'
-        if np.linalg.norm(np.asarray([x,y])-self.nest)<2.5: return '资源不能放在巢穴内'
-        self.foods.append(Food(max(f.id for f in self.foods)+1,x,y)); self.event('food','已放置新资源点'); return '资源已放置'
+    def plan_food(self, x: float, y: float) -> tuple[bool, str]:
+        if not all(math.isfinite(v) for v in (x,y)) or abs(x)>12.5 or abs(y)>8.5:
+            return False, '资源超出场地'
+        if sum(f.amount>0 for f in self.foods)>=12:
+            return False, '最多12个有效资源点'
+        if any(w.overlaps(np.asarray([x,y],np.float32),.9) for w in self.walls):
+            return False, '资源与墙重叠'
+        if np.linalg.norm(np.asarray([x,y])-self.nest)<2.5:
+            return False, '资源不能放在巢穴内'
+        if any(f.amount>0 and math.hypot(f.x-x,f.y-y)<1.8 for f in self.foods):
+            return False, '与现有资源点重叠'
+        return True, '可放置资源'
+
+    def add_food(self, x: float, y: float) -> str:
+        valid, message = self.plan_food(x,y)
+        if not valid:
+            return message
+        identity=max((f.id for f in self.foods), default=0)+1
+        self.foods.append(Food(identity,x,y))
+        self.event('food','已放置新资源点')
+        return '资源已放置'
