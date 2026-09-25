@@ -10,7 +10,7 @@ class Command(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
     action: Literal["play", "pause", "step", "phase", "lesson", "freeze", "freeze_all", "speed", "turn", "reset"]
     phase: Phase = "motor"
-    lesson: Lesson = "straight"
+    lesson: Lesson = "random"
     group: Group = "action"
     frozen: bool = True
     speed: Literal[1, 4, 16] = 1

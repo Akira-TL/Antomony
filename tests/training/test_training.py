@@ -1,4 +1,5 @@
 from pathlib import Path
+import math
 
 import numpy as np
 import pytest
@@ -119,6 +120,32 @@ def test_environment_follows_boolean_move_and_bounded_turn():
     assert env.heading == pytest.approx(np.pi / 18)
     env.step(True, 0.)
     assert np.linalg.norm(env.position) == pytest.approx(.18)
+
+
+def test_random_food_is_default_and_covers_all_directions():
+    env = SingleAntEnvironment(4)
+    assert env.lesson == "random"
+    locations = []
+    for _ in range(80):
+        locations.append(env.target.copy())
+        env.reset()
+    assert len({tuple(point) for point in locations}) == len(locations)
+    assert all(2.5 <= np.linalg.norm(point) <= 6.5 for point in locations)
+    assert {tuple(np.sign(point).astype(int)) for point in locations} == {
+        (-1, -1), (-1, 1), (1, -1), (1, 1)
+    }
+    assert any(point[0] < -2.5 for point in locations)
+
+
+def test_turning_toward_random_food_has_better_feedback_than_away():
+    toward, away = SingleAntEnvironment(1), SingleAntEnvironment(1)
+    for env in (toward, away):
+        env.target = np.asarray([0., 3.], np.float32)
+        env.distance = 3.
+    assert toward.step(False, 1.) > away.step(False, -1.)
+    assert np.array_equal(toward.position, away.position)
+    assert toward.reward > -.01 > away.reward
+    assert toward.heading == pytest.approx(math.radians(10))
 
 
 def test_reject_nonfinite_observations_and_invalid_commands():

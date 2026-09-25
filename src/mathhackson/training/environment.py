@@ -1,4 +1,4 @@
-"""只含一只蚂蚁的可见目标课程，行动完全来自模型。"""
+"""只含一只蚂蚁的可见食物课程，行动完全来自模型。"""
 from __future__ import annotations
 
 import math
@@ -16,7 +16,7 @@ class SingleAntEnvironment:
 
     def __init__(self, seed: int) -> None:
         self.rng = np.random.default_rng(seed)
-        self.lesson: Lesson = "straight"
+        self.lesson: Lesson = "random"
         self.max_turn = 10.
         self.reset()
 
@@ -26,20 +26,26 @@ class SingleAntEnvironment:
         angle = 0. if self.lesson == "straight" else float(self.rng.uniform(-math.pi, math.pi))
         if self.lesson == "turn":
             angle = float(self.rng.choice([-1, 1])) * math.pi / 3
-        self.target = unit(angle) * float(self.rng.uniform(2.5, 4.))
+        radius = self.rng.uniform(2.5, 6.5) if self.lesson == "random" else self.rng.uniform(2.5, 4.)
+        self.target = unit(angle) * float(radius)
         self.steps = 0
         self.reward = self.progress = self.turn = 0.
         self.move = self.contact = self.reached = False
         self.distance = float(np.linalg.norm(self.target))
 
     def observation(self) -> np.ndarray:
-        relative = math.atan2(float(self.target[1] - self.position[1]), float(self.target[0] - self.position[0])) - self.heading
+        relative = self.relative_food_angle()
         return np.asarray([math.cos(relative), math.sin(relative), self.distance / 8., float(self.move), self.turn,
                            np.clip(self.reward, -1., 1.), float(self.contact), self.progress / .18,
                            0., 0., 0., 0., 0., 0., self.steps / self.horizon, 1.], np.float32)
 
+    def relative_food_angle(self) -> float:
+        bearing = math.atan2(float(self.target[1] - self.position[1]), float(self.target[0] - self.position[0]))
+        return math.atan2(math.sin(bearing - self.heading), math.cos(bearing - self.heading))
+
     def step(self, move: bool, turn: float) -> float:
         self.move, self.turn = move, turn
+        before = abs(self.relative_food_angle())
         self.heading = math.atan2(math.sin(self.heading + math.radians(self.max_turn) * turn),
                                   math.cos(self.heading + math.radians(self.max_turn) * turn))
         displacement = unit(self.heading) * (.18 if move else 0.)
@@ -52,7 +58,8 @@ class SingleAntEnvironment:
         self.contact = bool(contacts[0])
         self.reached = distance < .4
         self.steps += 1
-        self.reward = 2. * self.progress - .01 - .1 * self.contact + 2. * self.reached
+        after = abs(self.relative_food_angle())
+        self.reward = 2. * self.progress + .5 * (before - after) / math.pi - .01 - .1 * self.contact + 2. * self.reached
         return self.reward
 
     @property
