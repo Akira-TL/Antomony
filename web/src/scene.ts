@@ -140,7 +140,7 @@ export class ColonyScene {
     const fk=JSON.stringify(frame.foods.map(f=>[f.id,f.x,f.y,Math.ceil(f.amount/8)]));
     if(fk!==this.foodKey){this.clear(this.foodGroup);this.foodKey=fk;
       for(const f of frame.foods.filter(food=>food.amount>0)){const base=new THREE.Mesh(new THREE.CylinderGeometry(.8,.86,.08,32),new THREE.MeshStandardMaterial({color:0x665038,roughness:.8}));base.position.set(f.x,.05,f.y);this.foodGroup.add(base);
-        for(let i=0;i<Math.min(27,Math.ceil(f.amount/8));i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.23,.23,.23),new THREE.MeshStandardMaterial({color:0xf8b95f,emissive:0x8d4e15,emissiveIntensity:.35,roughness:.38}));m.position.set(f.x+((i%3)-1)*.26,.2+Math.floor(i/9)*.25,f.y+(Math.floor(i/3)%3-1)*.26);m.castShadow=true;this.foodGroup.add(m);}this.foodGroup.add(this.label(this.training?'目标':'资源 '+f.id,f.x,1.5,f.y,0xffce88));}
+        for(let i=0;i<Math.min(27,Math.ceil(f.amount/8));i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.23,.23,.23),new THREE.MeshStandardMaterial({color:0xf8b95f,emissive:0x8d4e15,emissiveIntensity:.35,roughness:.38}));m.position.set(f.x+((i%3)-1)*.26,.2+Math.floor(i/9)*.25,f.y+(Math.floor(i/3)%3-1)*.26);m.castShadow=true;this.foodGroup.add(m);}this.foodGroup.add(this.label(this.training?'食物':'资源 '+f.id,f.x,1.5,f.y,0xffce88));}
     }
   }
 

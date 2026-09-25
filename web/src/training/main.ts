@@ -10,7 +10,7 @@ const $=<T extends HTMLElement=HTMLElement>(selector:string):T=>document.querySe
 const icon=(node:IconNode)=>createElement(node,{width:18,height:18,'stroke-width':1.7}).outerHTML;
 const button=(id:string,title:string,node:IconNode)=>`<button type="button" class="icon-button" id="${id}" title="${title}" aria-label="${title}">${icon(node)}</button>`;
 const phases:Record<Phase,string>={motor:'基础动作',meta:'自修改预训练',autonomous:'自主运行'};
-const lessons:Record<Lesson,string>={straight:'直行目标',turn:'左右转向',random:'随机方向'};
+const lessons:Record<Lesson,string>={straight:'前方食物',turn:'左右转向',random:'随机食物'};
 
 $('#app').innerHTML=`
   <header><div class="identity">${icon(Activity)}<div><span>MathHackson</span><h1>单蚁训练</h1></div></div>
@@ -30,12 +30,12 @@ $('#app').innerHTML=`
     <div class="workspace">
       <section class="experiment">
         <div class="section-heading"><h2>单蚁场景</h2><span id="running" class="state-tag">已暂停</span></div>
-        <div class="course-controls"><label>课程<select id="lesson"><option value="straight">直行目标</option><option value="turn">左右转向</option><option value="random">随机方向</option></select></label>
+        <div class="course-controls"><label>课程<select id="lesson"><option value="random" selected>随机食物</option><option value="straight">前方食物</option><option value="turn">左右转向</option></select></label>
           <label>每步转向上限<input id="max-turn" type="number" min="1" max="30" step="1" value="10" required aria-label="每步最大转向角度"><span>°</span></label>
         </div>
         <div class="scene-wrap"><div id="scene"></div><div class="scene-caption"><span>蚂蚁 01</span><span id="position">x 0.00 · y 0.00</span></div>
-          <div class="camera-tools">${button('focus','居中观察蚂蚁与目标',Focus)}<label title="镜头随蚂蚁与目标移动"><input id="follow" type="checkbox" checked>跟随</label></div>
-          <div class="scene-bottom"><span id="target-distance">目标距离</span><span>可见目标 · 信息素未启用</span></div>
+          <div class="camera-tools">${button('focus','居中观察蚂蚁与食物',Focus)}<label title="镜头随蚂蚁与食物移动"><input id="follow" type="checkbox" checked>跟随</label></div>
+          <div class="scene-bottom"><span id="target-distance">食物距离</span><span>可见食物 · 信息素未启用</span></div>
         </div>
         <div class="telemetry"><div><span>前进</span><strong id="move">—</strong><small id="move-probability">—</small></div><div><span>本步转向</span><strong id="turn">0.00°</strong><small id="turn-value">0.0000</small></div>
           <div><span>自写入判断</span><strong id="write">尚未推理</strong><small id="write-probability">—</small></div><div><span>回合累计奖励</span><strong id="reward">0.000</strong><small id="step-reward">本步 0.000</small></div></div>
@@ -110,7 +110,7 @@ function render(next:TrainingState):void {
   $<HTMLSelectElement>('#speed').value=String(next.speed);
   if(document.activeElement!==$('#max-turn'))$<HTMLInputElement>('#max-turn').value=String(next.max_turn);
   $('#position').textContent=`x ${next.x.toFixed(2)} · y ${next.y.toFixed(2)}`;
-  $('#target-distance').textContent=`目标距离 ${next.distance.toFixed(2)}`;
+  $('#target-distance').textContent=`食物距离 ${next.distance.toFixed(2)}`;
   const inferred=next.steps>0;
   $('#move').textContent=inferred?(next.move?'前进':'停止'):'—';$('#move-probability').textContent=inferred?`概率 ${(next.move_probability*100).toFixed(1)}%`:'等待推理';
   $('#turn').textContent=inferred?`${(next.turn*next.max_turn).toFixed(2)}°`:'—';$('#turn-value').textContent=inferred?`输出 ${next.turn.toFixed(4)}`:'等待推理';
@@ -129,7 +129,7 @@ function render(next:TrainingState):void {
   const newHistory=JSON.stringify(next.history);
   if(newHistory!==historySignature){
     $('#history-count').textContent=next.history.length?`保留最近 ${next.history.length} 段`:'尚无完整回合';
-    $('#history').innerHTML=next.history.slice(-8).reverse().map(record=>`<tr><td>${record.episode}</td><td>${phases[record.phase]}<small>${record.reason} · ${lessons[record.lesson]}</small></td><td class="${record.reward<0?'negative':'positive'}">${record.reward.toFixed(3)}</td><td>${record.self_updates} / ${record.outer_updates}</td><td><a class="icon-button" title="下载第 ${record.episode} 回合的逐步权重" aria-label="下载第 ${record.episode} 回合参数" href="/api/training/checkpoints/${record.episode}" download>${icon(Download)}</a></td></tr>`).join('');
+    $('#history').innerHTML=next.history.slice(-8).reverse().map(record=>`<tr><td>${record.episode}</td><td>${phases[record.phase]}<small>${record.reason==='到达目标'?'触达食物':record.reason} · ${lessons[record.lesson]}</small></td><td class="${record.reward<0?'negative':'positive'}">${record.reward.toFixed(3)}</td><td>${record.self_updates} / ${record.outer_updates}</td><td><a class="icon-button" title="下载第 ${record.episode} 回合的逐步权重" aria-label="下载第 ${record.episode} 回合参数" href="/api/training/checkpoints/${record.episode}" download>${icon(Download)}</a></td></tr>`).join('');
     drawRewards(next);historySignature=newHistory;
   }
   if(next.tick!==lastTick||next.episode!==lastEpisode||next.session!==lastSession){
