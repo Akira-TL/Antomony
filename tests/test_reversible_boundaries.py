@@ -16,3 +16,19 @@ def test_aliased_delta_keeps_its_original_rollback_amount() -> None:
 
     np.testing.assert_array_equal(parameter.effective, [1.5])
     np.testing.assert_array_equal(parameter.recent[0], [0.5])
+
+
+def test_invalid_commit_is_rejected_before_any_rollback() -> None:
+    parameter = FastResidualParameter([1.0], recent_capacity=3)
+    parameter.add_delta([0.5])
+
+    with np.testing.assert_raises(ValueError):
+        parameter.commit(
+            [0.25],
+            rollback=RollbackRequest(index_from_oldest=0, fraction=1.0),
+            consolidation_fraction=1.1,
+        )
+
+    np.testing.assert_array_equal(parameter.stable, [1.0])
+    np.testing.assert_array_equal(parameter.fast, [0.5])
+    np.testing.assert_array_equal(parameter.recent[0], [0.5])

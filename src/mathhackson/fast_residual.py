@@ -139,6 +139,9 @@ class FastResidualParameter:
         """
 
         delta = self._validated_delta(new_delta)
+        # Validate the later operation before rollback can mutate retained history.
+        if not 0.0 <= consolidation_fraction <= 1.0:
+            raise ValueError("consolidation fraction must be in [0, 1]")
         if rollback is not None:
             self.rollback(rollback)
         self.consolidate(consolidation_fraction)
