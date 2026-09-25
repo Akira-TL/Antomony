@@ -45,3 +45,7 @@ analysis/**/figures/*.tiff
 analysis/**/figures/*.pdf
 analysis/**/figures/*.svg
 # END akira-research managed ignores
+
+# 本地前端依赖与可重建资源
+/web/node_modules/
+/web/dist/
