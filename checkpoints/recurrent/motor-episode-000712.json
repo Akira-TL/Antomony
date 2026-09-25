@@ -1,0 +1,11 @@
+{
+  "format": "motor-v1",
+  "model_version": "sparse-memory-v2",
+  "source_session": "81aad73901b0",
+  "source_episode": 712,
+  "source_sha256": "0b1de21ea1d148664b94714e69bfec262e2aad69feba7573a378ce3d6d44162d",
+  "move_alignment": 2.0,
+  "move_distance": -0.7711558938026428,
+  "move_bias": 0.9894070029258728,
+  "turn_direction": 1.6653088331222534
+}
