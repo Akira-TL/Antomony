@@ -103,15 +103,23 @@ def move_discs(positions: Array, displacements: Array, radius: float, walls: lis
     for _ in range(steps):
         result += displacements/steps
         for _iteration in range(6):
+            changed=False
             for i in range(len(result)):
                 old=result[i].copy(); result[i]=project_static(result[i],walls,half,radius)
-                contacts[i] |= bool(np.linalg.norm(result[i]-old)>1e-6)
+                touched=bool(np.linalg.norm(result[i]-old)>1e-6)
+                contacts[i] |= touched; changed |= touched
             for i in range(len(result)):
                 for j in range(i):
-                    delta=result[i]-result[j]; dist=float(np.linalg.norm(delta))
+                    delta=result[i]-result[j]
+                    if abs(float(delta[0]))>=2*radius or abs(float(delta[1]))>=2*radius:
+                        continue
+                    dist=float(np.linalg.norm(delta))
                     if dist < radius*2-1e-6:
                         normal=delta/dist if dist>1e-7 else unit((i+j)*2.399)
                         push=normal*((2*radius-dist)*.5+1e-5)
                         result[i]+=push; result[j]-=push; contacts[i]=contacts[j]=True
+                        changed=True
+            if not changed:
+                break
         for i in range(len(result)): result[i]=project_static(result[i],walls,half,radius)
     return result,contacts
