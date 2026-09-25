@@ -11,7 +11,8 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .schemas import Command, RecurrentCommand, RecurrentState, State, WeightTrace
+from .schemas import (Command, RecurrentCommand, RecurrentParameterHistory,
+                      RecurrentState, State, WeightTrace)
 from .session import TrainingSession
 from .recurrent_session import RecurrentSession
 
@@ -87,6 +88,11 @@ async def state() -> State:
 @app.get("/api/recurrent/state")
 async def recurrent_state() -> RecurrentState:
     return current_recurrent().state()
+
+
+@app.get("/api/recurrent/parameter-history")
+async def recurrent_parameter_history() -> RecurrentParameterHistory:
+    return current_recurrent().parameter_history()
 
 
 @app.post("/api/recurrent/command")

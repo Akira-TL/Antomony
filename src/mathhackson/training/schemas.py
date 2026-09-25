@@ -132,6 +132,17 @@ class RecurrentEpisode(BaseModel):
     checkpoint: str
 
 
+class RecurrentParameterSample(BaseModel):
+    episode: int
+    phase: RecurrentPhase
+    values: list[list[list[float]]]
+
+
+class RecurrentParameterHistory(BaseModel):
+    session: str
+    samples: list[RecurrentParameterSample]
+
+
 class RecurrentState(BaseModel):
     session: str
     paused: bool
@@ -165,7 +176,12 @@ class RecurrentState(BaseModel):
     write_probability: float
     write_status: str
     hidden: list[float]
+    hidden_trace: list[list[float]]
+    memory_lags: list[int]
+    memory_taps: list[list[float]]
+    memory_ready: list[bool]
     fast: list[float]
     fast_delta: list[float]
+    fast_trace: list[list[float]]
     groups: list[RecurrentParameterGroup]
     history: list[RecurrentEpisode]

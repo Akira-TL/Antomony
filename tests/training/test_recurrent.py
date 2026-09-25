@@ -279,3 +279,23 @@ def test_pretrained_motor_cannot_be_reopened_after_phase_change(tmp_path: Path):
     with pytest.raises(ValueError, match="基础动作已锁定"):
         session.command(RecurrentCommand(action="phase", phase="motor"))
     assert session.model.phase == "autonomous"
+
+
+def test_parameter_history_and_sparse_taps_are_read_only_state(tmp_path: Path):
+    session = RecurrentSession(tmp_path)
+    assert len(session.parameter_history().samples) == 1
+    assert session.state().memory_lags == [1, 8, 12, 16]
+    assert session.state().memory_ready == [False] * 4
+    for _ in range(16):
+        session.step()
+    state = session.state()
+    assert len(state.hidden_trace) == len(state.fast_trace) == 16
+    assert state.memory_ready == [True] * 4
+    assert all(len(tap) == HIDDEN_WIDTH for tap in state.memory_taps)
+    episode = session.episode
+    while session.episode == episode:
+        session.step()
+    snapshots = session.parameter_history().samples
+    assert len(snapshots) == 2
+    assert snapshots[-1].episode == episode
+    assert snapshots[-1].values == session.model.values()

@@ -11,9 +11,10 @@ import torch
 from mathhackson.colony.geometry import unit
 
 from .environment import SingleAntEnvironment
-from .recurrent import Action, MODEL_VERSION, RecurrentPolicy, Write
+from .recurrent import Action, MEMORY_LAGS, MODEL_VERSION, RecurrentPolicy, Write
 from .schemas import (PerturbationKind, RecurrentCommand, RecurrentEpisode,
-                      RecurrentParameterGroup, RecurrentState, Task)
+                      RecurrentParameterGroup, RecurrentParameterHistory,
+                      RecurrentParameterSample, RecurrentState, Task)
 
 GROUP_LABELS = ("基础动作", "观察到隐藏状态", "隐藏状态到隐藏状态", "隐藏状态偏置",
                 "记忆行动修正", "写入判断", "写入方向与幅度")
@@ -37,6 +38,8 @@ class RecurrentSession:
         self.episode = 1
         self.baseline = 0.
         self.history: list[RecurrentEpisode] = []
+        self.parameter_samples = [RecurrentParameterSample(
+            episode=0, phase=self.model.phase, values=self.model.values())]
         self._begin()
 
     def _begin(self) -> None:
@@ -111,6 +114,9 @@ class RecurrentSession:
                 record.model_dump_json(indent=2), encoding="utf-8")
             self.history.append(record)
             self.history = self.history[-100:]
+            self.parameter_samples.append(RecurrentParameterSample(
+                episode=self.episode, phase=self.model.phase, values=self.model.values()))
+            self.parameter_samples = self.parameter_samples[-120:]
             self.episode += 1
             if optimize:
                 self.baseline = .9 * self.baseline + .1 * (sum(self.rewards) / len(self.rewards))
@@ -205,5 +211,16 @@ class RecurrentSession:
                      "选择跳过" if self.model.write_mode == "learned" else
                      "写入关闭" if self.model.write_mode == "off" else "幅度为零",
                      hidden=self.model.hidden.detach().tolist(),
+                     hidden_trace=[value.tolist() for value in self.hidden_states[-64:]],
+                     memory_lags=list(MEMORY_LAGS),
+                     memory_taps=[(self.model.hidden_history[-lag] if len(self.model.hidden_history) >= lag
+                                   else torch.zeros_like(self.model.hidden)).detach().tolist()
+                                  for lag in MEMORY_LAGS],
+                     memory_ready=[len(self.model.hidden_history) >= lag for lag in MEMORY_LAGS],
                      fast=self.model.fast.detach().tolist(),
-                     fast_delta=self.model.fast_delta.tolist(), groups=groups, history=self.history)
+                     fast_delta=self.model.fast_delta.tolist(),
+                     fast_trace=[value.tolist() for value in self.fast_states[-64:]],
+                     groups=groups, history=self.history)
+
+    def parameter_history(self) -> RecurrentParameterHistory:
+        return RecurrentParameterHistory(session=self.id, samples=self.parameter_samples)

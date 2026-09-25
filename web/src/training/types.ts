@@ -23,11 +23,14 @@ export type PerturbationKind='none'|'turn'|'sensor';
 export type WriteMode='off'|'learned'|'always';
 export interface RecurrentGroup {id:string;label:string;values:number[][];changes:number[][];trainable:boolean[][]}
 export interface RecurrentEpisode {episode:number;phase:RecurrentPhase;task:RecurrentTask;perturbation_kind:PerturbationKind;perturbation:number;reached:boolean;steps:number;reward:number;writes:number;checkpoint:string}
+export interface RecurrentParameterSample {episode:number;phase:RecurrentPhase;values:number[][][]}
+export interface RecurrentParameterHistory {session:string;samples:RecurrentParameterSample[]}
 export interface RecurrentState {
   session:string;paused:boolean;error:string;phase:RecurrentPhase;task:RecurrentTask;speed:number;tick:number;episode:number;steps:number;horizon:number;
   x:number;y:number;heading:number;target_x:number;target_y:number;distance:number;max_turn:number;
   move:boolean;turn:number;move_probability:number;reward:number;total_reward:number;reached:boolean;
   perturbation:number;perturbation_kind:PerturbationKind;active_perturbation:number;outer_updates:number;self_updates:number;write_mode:WriteMode;write_probability:number;write_status:string;
-  hidden:number[];fast:number[];fast_delta:number[];groups:RecurrentGroup[];history:RecurrentEpisode[];
+  hidden:number[];hidden_trace:number[][];memory_lags:number[];memory_taps:number[][];memory_ready:boolean[];
+  fast:number[];fast_delta:number[];fast_trace:number[][];groups:RecurrentGroup[];history:RecurrentEpisode[];
 }
 export interface RecurrentCommand {action:'play'|'pause'|'step'|'phase'|'task'|'speed'|'reset'|'write_mode';phase?:RecurrentPhase;task?:RecurrentTask;speed?:1|4|16;write_mode?:WriteMode}

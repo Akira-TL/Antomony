@@ -2,10 +2,9 @@ import {createElement,Activity,Play,Pause,StepForward,RotateCcw,Focus} from 'luc
 import type {IconNode} from 'lucide';
 import * as THREE from 'three';
 import {ColonyScene} from '../scene';
-import type {RecurrentState,RecurrentCommand,RecurrentPhase,RecurrentTask,WriteMode} from './types';
+import type {RecurrentState,RecurrentCommand,RecurrentParameterHistory,RecurrentPhase,RecurrentTask,WriteMode} from './types';
 import './style.css';
-import './recurrent-style.css';
-import './recurrent-write-style.css';
+import './recurrent-chart-style.css';
 
 const $=<T extends HTMLElement=HTMLElement>(selector:string):T=>document.querySelector<T>(selector)!;
 const icon=(node:IconNode)=>createElement(node,{width:18,height:18,'stroke-width':1.7}).outerHTML;
@@ -45,14 +44,16 @@ $('#app').innerHTML=`
         <div class="history-heading"><h2>回合记录</h2><span class="muted" id="history-count">尚无完整回合</span></div>
         <div class="history-scroll"><table><thead><tr><th>回合</th><th>任务</th><th>结果</th><th>步数</th><th>写入</th><th>奖励</th></tr></thead><tbody id="history"></tbody></table></div>
       </section>
-      <section class="network" aria-label="真实循环状态与参数"><div class="section-heading"><h2>隐藏状态</h2><span class="muted">4 维</span></div>
+      <section class="network" aria-label="真实循环状态与参数"><div class="section-heading"><h2>隐藏状态</h2><span class="muted" id="hidden-width">8 维</span></div>
         <div id="hidden" class="hidden-values"></div>
+        <div class="section-heading"><h2>稀疏记忆</h2><span class="muted">此前 1 / 8 / 12 / 16 步</span></div>
+        <div id="memory-taps" class="memory-taps"></div>
         <div class="section-heading"><h2>回合内动作修正</h2><span class="muted">3 个受限参数</span></div>
         <div id="fast-values" class="fast-values"></div>
         <div class="section-heading"><h2>参数与冻结</h2><span class="muted" id="parameter-count">—</span></div>
         <div id="parameters" class="recurrent-parameters"></div>
       </section>
-    </div><footer><span>独立训练会话 · 工程试验</span><span>隐藏状态与运行时写入分别记录；效果尚未验证</span></footer>
+    </div><div id="chart-tooltip" class="chart-tooltip" role="status" hidden></div><footer><span>独立训练会话 · 工程试验</span><span>隐藏状态与运行时写入分别记录；效果尚未验证</span></footer>
   </main>`;
 
 const scene=new ColonyScene($('#scene'),true);
@@ -64,6 +65,104 @@ let state:RecurrentState|null=null;
 let busy=false,connected=false,revision=0,lastTick=-1,lastEpisode=-1,lastSession='';
 let trailPoints:THREE.Vector3[]=[];
 let historySignature='';
+let parameterHistory:RecurrentParameterHistory|null=null;
+let parameterMarkupKey='',requestedHistoryKey='',lastStepChartKey='';
+const fastLabels=['前进偏置','转向增益','转向偏置'];
+
+function sparkline(values:number[],frozen=false):string {
+  const samples=values.length?values:[0];
+  const minimum=Math.min(0,...samples),maximum=Math.max(0,...samples);
+  const span=Math.max(maximum-minimum,.02),floor=(minimum+maximum-span)/2;
+  const points=samples.map((value,index)=>`${samples.length===1?50:2+96*index/(samples.length-1)},${34-32*(value-floor)/span}`).join(' ');
+  const zero=34-32*(0-floor)/span;
+  return `<svg class="sparkline${frozen?' is-frozen':''}" viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true"><line class="zero-line" x1="0" y1="${zero}" x2="100" y2="${zero}"/><polyline points="${points}"/><line class="hover-guide" x1="-1" y1="0" x2="-1" y2="36"/></svg>`;
+}
+
+function drawParameterCharts():void {
+  if(!state)return;
+  document.querySelectorAll<HTMLElement>('.parameter-cell').forEach(cell=>{
+    const group=Number(cell.dataset.group),row=Number(cell.dataset.row),column=Number(cell.dataset.column);
+    const values=parameterHistory?.session===state!.session
+      ?parameterHistory.samples.map(sample=>sample.values[group][row][column])
+      :[state!.groups[group].values[row][column]];
+    cell.querySelector('.sparkline')?.remove();
+    cell.insertAdjacentHTML('beforeend',sparkline(values,cell.classList.contains('frozen')));
+  });
+}
+
+function renderParameterMarkup(next:RecurrentState):void {
+  const key=`${next.session}:${next.phase}`;
+  if(key===parameterMarkupKey)return;
+  $('#parameters').innerHTML=next.groups.map((group,groupIndex)=>{
+    const total=group.values.flat().length,trainable=group.trainable.flat().filter(Boolean).length;
+    const cells=group.values.flatMap((row,rowIndex)=>row.map((_,columnIndex)=>
+      `<div class="parameter-cell ${group.trainable[rowIndex][columnIndex]?'':'frozen'}" tabindex="0" data-kind="parameter" data-group="${groupIndex}" data-row="${rowIndex}" data-column="${columnIndex}" aria-label="${group.label} ${rowIndex},${columnIndex}"><span>${rowIndex}:${columnIndex}</span></div>`)).join('');
+    return `<details class="parameter-group" ${groupIndex===2||groupIndex===1?'':'open'}><summary class="parameter-group-heading"><strong>${group.label}</strong><span>${trainable}/${total} 可训练</span></summary><div class="parameter-grid">${cells}</div></details>`;
+  }).join('');
+  parameterMarkupKey=key;
+  drawParameterCharts();
+}
+
+async function loadParameterHistory(key:string):Promise<void> {
+  try{
+    const response=await fetch('/api/recurrent/parameter-history',{cache:'no-store',signal:AbortSignal.timeout(5000)});
+    if(!response.ok)throw new Error(`趋势记录返回 ${response.status}`);
+    const result=await response.json() as RecurrentParameterHistory;
+    if(key!==requestedHistoryKey||result.session!==state?.session)return;
+    parameterHistory=result;
+    drawParameterCharts();
+  }catch{
+    if(key===requestedHistoryKey)setTimeout(()=>{requestedHistoryKey='';},2000);
+  }
+}
+
+function renderStepCharts(next:RecurrentState):void {
+  $('#hidden').innerHTML=next.hidden.map((_,index)=>`<div class="trace-cell" tabindex="0" data-kind="hidden" data-index="${index}" aria-label="隐藏状态 h${index} 的趋势"><span>h${index}</span>${sparkline(next.hidden_trace.map(frame=>frame[index]))}</div>`).join('');
+  $('#fast-values').innerHTML=next.fast.map((_,index)=>`<div class="trace-cell" tabindex="0" data-kind="fast" data-index="${index}" aria-label="${fastLabels[index]}的趋势"><span>${fastLabels[index]}</span>${sparkline(next.fast_trace.map(frame=>frame[index]))}</div>`).join('');
+  $('#memory-taps').innerHTML=next.memory_lags.map((lag,index)=>`<div class="memory-tap" tabindex="0" data-kind="tap" data-index="${index}" aria-label="此前 ${lag} 步的隐藏状态"><span>t-${lag}</span><small>${next.memory_ready[index]?'已接入':'待积累'}</small></div>`).join('');
+}
+
+function showTooltip(target:HTMLElement,clientX:number,clientY:number):void {
+  if(!state)return;
+  const kind=target.dataset.kind,index=Number(target.dataset.index);
+  const tooltip=$('#chart-tooltip');
+  if(kind==='tap'){
+    tooltip.textContent=`t-${state.memory_lags[index]} · ${state.memory_ready[index]?'有效':'填零'} · [${state.memory_taps[index].map(value=>value.toFixed(4)).join(', ')}]`;
+  }else{
+    const group=Number(target.dataset.group),row=Number(target.dataset.row),column=Number(target.dataset.column);
+    const samples=kind==='parameter'
+      ?(parameterHistory?.session===state.session?parameterHistory.samples.map(sample=>sample.values[group][row][column]):[state.groups[group].values[row][column]])
+      :kind==='hidden'?state.hidden_trace.map(frame=>frame[index]):state.fast_trace.map(frame=>frame[index]);
+    const values=samples.length?samples:[kind==='hidden'?state.hidden[index]:state.fast[index]];
+    const rect=target.querySelector('svg')?.getBoundingClientRect()??target.getBoundingClientRect();
+    const sample=Math.max(0,Math.min(values.length-1,Math.round((clientX-rect.left)/rect.width*(values.length-1))));
+    const label=kind==='parameter'?`${state.groups[group].label} [${row},${column}]`:
+      kind==='hidden'?`h${index}`:fastLabels[index];
+    const time=kind==='parameter'?`第 ${parameterHistory?.samples[sample]?.episode??state.episode} 回合`:
+      `第 ${Math.max(1,state.steps-values.length+sample+1)} 步`;
+    const delta=kind==='parameter'?` · 末次变化 ${state.groups[group].changes[row][column].toFixed(6)}`:'';
+    tooltip.textContent=`${label} · ${time} · ${values[sample].toFixed(6)}${delta}`;
+    const guide=target.querySelector<SVGLineElement>('.hover-guide');
+    if(guide){const x=values.length===1?50:2+96*sample/(values.length-1);guide.setAttribute('x1',String(x));guide.setAttribute('x2',String(x));}
+  }
+  tooltip.hidden=false;
+  tooltip.style.left=`${Math.max(8,Math.min(clientX+12,innerWidth-tooltip.offsetWidth-8))}px`;
+  tooltip.style.top=`${Math.max(8,Math.min(clientY+12,innerHeight-tooltip.offsetHeight-8))}px`;
+}
+
+for(const selector of ['#parameters','#hidden','#fast-values','#memory-taps']){
+  const container=$(selector);
+  container.addEventListener('pointermove',event=>{
+    const target=(event.target as Element).closest<HTMLElement>('[data-kind]');
+    if(target)showTooltip(target,event.clientX,event.clientY);
+  });
+  container.addEventListener('pointerleave',()=>{$('#chart-tooltip').hidden=true;});
+  container.addEventListener('focusin',event=>{
+    const target=(event.target as Element).closest<HTMLElement>('[data-kind]');
+    if(target)showTooltip(target,target.getBoundingClientRect().left,target.getBoundingClientRect().bottom);
+  });
+  container.addEventListener('focusout',()=>{$('#chart-tooltip').hidden=true;});
+}
 
 function focus():void {
   if(!state)return;
@@ -73,6 +172,13 @@ function focus():void {
 }
 
 function render(next:RecurrentState):void {
+  const legacyService=!Array.isArray(next.hidden_trace);
+  if(legacyService){
+    next.hidden_trace=[next.hidden];next.fast_trace=[next.fast];
+    next.memory_lags=[1,8,12,16];
+    next.memory_taps=next.memory_lags.map(()=>Array(next.hidden.length).fill(0) as number[]);
+    next.memory_ready=next.memory_lags.map(()=>false);
+  }
   state=next;connected=true;
   $('#connection').textContent='已连接';$('#connection').className='connected';
   $('#session-id').textContent=next.session;
@@ -95,23 +201,21 @@ function render(next:RecurrentState):void {
   $('#write').textContent=next.write_status;
   $('#write-count').textContent=`累计 ${next.self_updates} · 判断概率 ${(next.write_probability*100).toFixed(1)}%`;
   $('#outer-count').textContent=String(next.outer_updates);
+  $('#hidden-width').textContent=`${next.hidden.length} 维`;
   $('#phase-note').textContent=next.phase==='motor'?'仅训练四个动作连接':next.phase==='memory'?'动作锁定 · 训练循环记忆':next.phase==='adaptive'?'动作锁定 · 训练写入判断':'外部训练停止';
   $('#episode').textContent=`第 ${next.episode} 回合`;
   $('#progress-text').textContent=`${next.steps} / ${next.horizon} 步`;
   $<HTMLProgressElement>('#progress').value=next.steps;
-  $('#hidden').innerHTML=next.hidden.map((value,index)=>`<div><span>h${index}</span><strong>${value.toFixed(5)}</strong></div>`).join('');
-  const fastLabels=['前进偏置','转向增益','转向偏置'];
-  $('#fast-values').innerHTML=next.fast.map((value,index)=>`<div><span>${fastLabels[index]}</span><strong>${value.toFixed(5)}</strong><small>本步 Δ ${next.fast_delta[index].toFixed(5)}</small></div>`).join('');
+  const stepChartKey=`${next.session}:${next.tick}:${next.episode}:${next.phase}:${next.task}:${next.write_mode}`;
+  if(stepChartKey!==lastStepChartKey){renderStepCharts(next);lastStepChartKey=stepChartKey;}
   const count=next.groups.reduce((sum,group)=>sum+group.trainable.flat().filter(Boolean).length,0);
-  $('#parameter-count').textContent=`当前可训练 ${count}`;
-  $('#parameters').innerHTML=next.groups.map(group=>{
-    const total=group.values.flat().length,trainable=group.trainable.flat().filter(Boolean).length;
-    const cells=group.values.map((row,rowIndex)=>`<div class="parameter-row" style="grid-template-columns:repeat(${row.length},minmax(48px,1fr))">${row.map((value,columnIndex)=>{
-      const delta=group.changes[rowIndex][columnIndex];
-      return `<div class="parameter-cell ${group.trainable[rowIndex][columnIndex]?'':'frozen'}" title="${group.id}[${rowIndex},${columnIndex}] = ${value.toPrecision(9)} · Δ ${delta.toPrecision(5)}"><b>${value.toFixed(3)}</b><small>${delta===0?'—':`${delta>0?'+':''}${delta.toFixed(4)}`}</small></div>`;
-    }).join('')}</div>`).join('');
-    return `<div class="parameter-group"><div class="parameter-group-heading"><strong>${group.label}</strong><span>${trainable}/${total} 可训练</span></div><div class="parameter-scroll">${cells}</div></div>`;
-  }).join('');
+  $('#parameter-count').textContent=`当前可训练 ${count}${legacyService?' · 旧服务':''}`;
+  renderParameterMarkup(next);
+  const traceKey=`${next.session}:${next.episode}`;
+  if(!legacyService&&traceKey!==requestedHistoryKey){
+    requestedHistoryKey=traceKey;
+    void loadParameterHistory(traceKey);
+  }
   const history=JSON.stringify(next.history);
   if(history!==historySignature){
     $('#history-count').textContent=next.history.length?`最近 ${next.history.length} 回合`:'尚无完整回合';
@@ -134,7 +238,8 @@ function render(next:RecurrentState):void {
     }
     lastTick=next.tick;lastEpisode=next.episode;lastSession=next.session;
   }
-  $('#error').textContent=next.error;$('#error').hidden=!next.error;
+  const statusError=next.error||(legacyService?'当前训练服务仍在使用旧版模型；保留训练现场，趋势记录须在新版服务查看。':'');
+  $('#error').textContent=statusError;$('#error').hidden=!statusError;
   document.querySelectorAll<HTMLButtonElement|HTMLSelectElement>('.toolbar button,.toolbar select,.course-controls select').forEach(control=>control.disabled=busy||!connected);
   $<HTMLSelectElement>('#write-mode').disabled=busy||!connected||next.phase!=='autonomous';
   document.querySelector<HTMLButtonElement>('[data-phase="motor"]')!.disabled=busy||!connected||next.phase!=='motor';
