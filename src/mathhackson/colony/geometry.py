@@ -68,6 +68,35 @@ def project_static(p: Array, walls: list[Wall], half: Array, radius: float) -> A
     return np.clip(p,-half+radius,half-radius).astype(np.float32)
 
 
+def relocate_for_wall(positions: Array, wall: Wall, walls: list[Wall], half: Array, radius: float) -> Array | None:
+    """编辑器事务：就近安置被新墙覆盖的圆，不改变模型或执行寻路。"""
+    result = positions.copy()
+    affected = [i for i, p in enumerate(positions) if wall.overlaps(p, radius+.02)]
+    settled = [i for i in range(len(positions)) if i not in affected]
+    margin = radius+.015
+    for i in affected:
+        p = positions[i]
+        candidates = [wall.project(p, margin)]
+        for step in range(17):
+            for offset in ({0.} if step == 0 else {-step*(2*radius+.04), step*(2*radius+.04)}):
+                along_y = float(np.clip(p[1], wall.y-wall.hy, wall.y+wall.hy))+offset
+                along_x = float(np.clip(p[0], wall.x-wall.hx, wall.x+wall.hx))+offset
+                candidates.extend(np.asarray(q, np.float32) for q in (
+                    (wall.x-wall.hx-margin, along_y), (wall.x+wall.hx+margin, along_y),
+                    (along_x, wall.y-wall.hy-margin), (along_x, wall.y+wall.hy+margin)))
+        candidates.sort(key=lambda q: float(np.sum((q-p)**2)))
+        for q in candidates:
+            if np.any(np.abs(q) > half-margin): continue
+            if any(w.overlaps(q, radius+.008) for w in [*walls, wall]): continue
+            if any(float(np.linalg.norm(q-result[j])) < 2*radius+.008 for j in settled): continue
+            result[i] = q
+            settled.append(i)
+            break
+        else:
+            return None
+    return result
+
+
 def move_discs(positions: Array, displacements: Array, radius: float, walls: list[Wall], half: Array) -> tuple[Array,NDArray[np.bool_]]:
     result=positions.copy(); contacts=np.zeros(len(result),dtype=np.bool_)
     steps=max(1,int(math.ceil(float(np.linalg.norm(displacements,axis=1).max(initial=0))/(radius*.45))))

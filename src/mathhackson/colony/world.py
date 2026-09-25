@@ -5,7 +5,7 @@ from collections import deque
 import math
 import time
 import numpy as np
-from .geometry import Array, Wall, move_discs, ray_distance, unit
+from .geometry import Array, Wall, move_discs, ray_distance, unit, relocate_for_wall
 from .pheromone import Pheromones
 from .brain import Brain
 from .navigation import choose_motion, deposit_trail, direction
@@ -152,17 +152,31 @@ class World:
                     ant.trail_distance=0.; ant.recent_positions.clear()
                     self.event('pickup',f'个体 {ant.id:02d} 发现资源',ant.id); break
 
-    def add_wall(self,x: float,y: float,hx: float=.4,hy: float=2.) -> str:
-        if not all(math.isfinite(v) for v in (x,y,hx,hy)): raise ValueError('坐标必须有限')
-        if len(self.walls)>=24: return '最多24道墙'
+    def plan_wall(self,x: float,y: float,hx: float=.4,hy: float=2.) -> tuple[Wall|None,Array|None,str]:
+        if not all(math.isfinite(v) for v in (x,y,hx,hy)): return None,None,'坐标必须有限'
+        if len(self.walls)>=24: return None,None,'最多24道墙'
         hx=max(.25,min(4.,hx)); hy=max(.25,min(4.,hy))
-        if abs(x)+hx>=14 or abs(y)+hy>=10: return '墙超出场地边界'
-        w=Wall(max((w.id for w in self.walls),default=0)+1,x,y,hx,hy)
-        if w.overlaps(self.nest,1.8) or any(w.overlaps(np.asarray([f.x,f.y],np.float32),1.) for f in self.foods): return '墙与资源或巢穴重叠，已拒绝'
-        if any(w.overlaps(a.position,self.radius+.02) for a in self.ants): return '墙与当前个体重叠，已拒绝；请换一处'
-        if any(abs(w.x-v.x)<w.hx+v.hx and abs(w.y-v.y)<w.hy+v.hy for v in self.walls): return '墙体重叠，已拒绝'
-        self.walls.append(w); self.field.set_walls(self.walls); self.event('wall','已加入真实碰撞墙')
-        return '墙已放置'
+        if abs(x)+hx>=14 or abs(y)+hy>=10: return None,None,'墙超出场地边界'
+        wall=Wall(max((w.id for w in self.walls),default=0)+1,x,y,hx,hy)
+        if wall.overlaps(self.nest,1.8): return None,None,'与巢穴重叠，不能覆盖'
+        if any(wall.overlaps(np.asarray([f.x,f.y],np.float32),1.) for f in self.foods): return None,None,'与资源点重叠，不能覆盖'
+        if any(abs(wall.x-v.x)<wall.hx+v.hx and abs(wall.y-v.y)<wall.hy+v.hy for v in self.walls): return None,None,'与已有墙体重叠'
+        positions=relocate_for_wall(np.stack([a.position for a in self.ants]),wall,self.walls,self.half,self.radius)
+        if positions is None: return None,None,'墙边没有足够空间安置个体'
+        return wall,positions,'可放置'
+
+    def add_wall(self,x: float,y: float,hx: float=.4,hy: float=2.) -> str:
+        wall,positions,message=self.plan_wall(x,y,hx,hy)
+        if wall is None or positions is None: return message+'，已拒绝'
+        displaced=0
+        for ant,position in zip(self.ants,positions,strict=True):
+            delta=position-ant.position
+            if float(np.linalg.norm(delta))>1e-6:
+                ant.home-=delta; ant.position=position.copy(); ant.motion.fill(0)
+                ant.next_decision=0; ant.recent_positions.clear(); displaced+=1
+        self.walls.append(wall); self.field.set_walls(self.walls)
+        self.event('wall',f'已加入真实碰撞墙；就近移开 {displaced} 只个体（编辑，不训练）')
+        return '墙已放置' if not displaced else f'墙已放置；已就近移开 {displaced} 只个体'
 
     def remove_wall(self,x: float,y: float) -> str:
         for w in self.walls:
