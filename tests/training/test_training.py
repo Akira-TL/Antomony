@@ -105,6 +105,28 @@ def test_basic_stage_only_trains_action_rows_and_records_true_values(tmp_path: P
     assert session.model.self_updates == 0
 
 
+def test_motor_stage_has_four_active_action_connections(tmp_path: Path):
+    session = TrainingSession(tmp_path)
+    mask = session.model.mask().numpy()
+    expected = np.zeros((2, 16), np.float32)
+    expected[0, [0, 2, 15]] = 1.
+    expected[1, 1] = 1.
+    assert np.array_equal(mask[:2], expected)
+    assert np.array_equal(session.model.initial[:2].numpy() * (1 - expected), np.zeros((2, 16)))
+    while session.episode <= 30:
+        session.step()
+    weights = session.model.weights.detach().numpy()
+    assert np.array_equal(weights[:2] * (1 - expected), np.zeros((2, 16)))
+    assert weights[1, 1] != session.model.initial[1, 1]
+    assert min(session.motor_alignment()) >= 5
+    session.command(Command(action="phase", phase="meta"))
+    for _ in range(10):
+        current_episode = session.episode
+        while session.episode == current_episode:
+            session.step()
+    assert min(session.motor_alignment()) >= 5
+
+
 def test_configuration_discards_external_update_not_history(tmp_path: Path):
     session = TrainingSession(tmp_path)
     for _ in range(5):
@@ -182,6 +204,14 @@ def test_state_exposes_every_weight_and_effective_freeze(tmp_path: Path):
     assert len(state.inputs) == 16
     assert [group.frozen for group in state.groups] == [False, True, True, True, True]
     assert sum(end - start for _, _, start, end in GROUPS) == len(state.weights)
+    assert sum(sum(row) for row in state.trainable) == 4
+    assert state.trainable[0][0] and not state.trainable[0][1]
+    assert state.trainable[1][1] and not state.trainable[1][15]
+    session.command(Command(action="freeze", group="action", frozen=True))
+    assert not any(any(row) for row in session.state().trainable)
+    session.command(Command(action="freeze", group="action", frozen=False))
+    session.model.phase = "meta"
+    assert sum(sum(row) for row in session.state().trainable) == 624
 
 
 def test_weight_trace_records_actual_steps_and_outer_update(tmp_path: Path):

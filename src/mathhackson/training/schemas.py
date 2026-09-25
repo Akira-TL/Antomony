@@ -90,6 +90,7 @@ class State(BaseModel):
     inputs: list[str]
     observation: list[float]
     groups: list[GroupState]
+    trainable: list[list[bool]]
     weights: list[list[float]]
     initial: list[list[float]]
     self_delta: list[list[float]]

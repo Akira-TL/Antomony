@@ -173,9 +173,12 @@ class TrainingSession:
 
     def state(self) -> State:
         decision = self.decisions[-1] if self.decisions else None
+        mask = self.model.mask()
         groups = [GroupState(id=group, label=label, start=start, end=end,
-                             frozen=not bool(self.model.mask()[start].any()), manual=group in self.model.manual_frozen,
+                             frozen=not bool(mask[start:end].any()), manual=group in self.model.manual_frozen,
                              reason="手动冻结" if group in self.model.manual_frozen else
+                             f"基础阶段仅 {int(torch.count_nonzero(mask[start:end]))} 个连接可更新"
+                             if self.model.phase == "motor" and group == "action" else
                              "基础阶段冻结" if self.model.phase == "motor" and group != "action" else "可更新")
                   for group, label, start, end in GROUPS]
         status = "尚未推理" if decision is None else "已写入" if decision.wrote else (
@@ -190,5 +193,5 @@ class TrainingSession:
                      reward=self.env.reward, total_reward=sum(self.rewards), self_updates=self.model.self_updates,
                      outer_updates=self.model.outer_updates, inputs=list(INPUTS),
                      observation=(self.observations[-1] if self.observations else self.env.observation()).tolist(),
-                     groups=groups, weights=self.model.values(), initial=self.model.initial.tolist(),
+                     groups=groups, trainable=mask.bool().tolist(), weights=self.model.values(), initial=self.model.initial.tolist(),
                      self_delta=self.model.self_delta.tolist(), outer_delta=self.model.outer_delta.tolist(), history=self.history)

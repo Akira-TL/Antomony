@@ -18,6 +18,7 @@ GROUPS: tuple[tuple[Group, str, int, int], ...] = (
 INPUTS = ("食物方向余弦", "食物方向正弦", "食物距离", "上次前进", "上次转向",
           "上次奖励", "上次碰撞", "上次进展", "离巢标记左", "离巢标记中",
           "离巢标记右", "食物标记左", "食物标记中", "食物标记右", "回合进度", "常数")
+MOTOR_ACTION_INPUTS: tuple[tuple[int, ...], tuple[int, ...]] = ((0, 2, 15), (1,))
 
 
 @dataclass
@@ -38,6 +39,9 @@ class SelfModifyingPolicy:
     def __init__(self, seed: int) -> None:
         self.rng = np.random.default_rng(seed)
         self.initial = torch.from_numpy(self.rng.normal(0, .12, (39, 16)).astype(np.float32))
+        for row, columns in enumerate(MOTOR_ACTION_INPUTS):
+            inactive = [column for column in range(16) if column not in columns]
+            self.initial[row, inactive] = 0.
         self.base = torch.nn.Parameter(self.initial.clone())
         self.weights: Tensor = self.base
         self.manual_frozen: set[Group] = set()
@@ -49,6 +53,10 @@ class SelfModifyingPolicy:
 
     def mask(self) -> Tensor:
         mask = torch.ones_like(self.base)
+        if self.phase == "motor":
+            mask[:2] = 0
+            for row, columns in enumerate(MOTOR_ACTION_INPUTS):
+                mask[row, list(columns)] = 1
         for group, _, start, end in GROUPS:
             if group in self.manual_frozen or (self.phase == "motor" and group != "action"):
                 mask[start:end] = 0

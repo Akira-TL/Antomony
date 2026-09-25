@@ -97,8 +97,9 @@ export class NetworkView {
       if(group.end-group.start>3){ctx.font='10px system-ui';ctx.fillText(group.frozen?'冻结':'可更新',4,this.top+group.start*this.cellH+24);ctx.font='12px system-ui';}
     }
     for(let row=0;row<39;row++){
-      const frozen=state.groups.find(group=>row>=group.start&&row<group.end)!.frozen;
+      const group=state.groups.find(item=>row>=item.start&&row<item.end)!;
       for(let col=0;col<16;col++){
+        const frozen=!(state.trainable?.[row]?.[col]??!group.frozen);
         const value=values[row][col],strength=Math.min(1,Math.abs(value)/maximum);
         const rgb=value>=0?[230,160,86]:[63,184,211];
         const alpha=.13+.87*Math.sqrt(strength);
@@ -111,13 +112,17 @@ export class NetworkView {
     ctx.strokeStyle='#f5f7fa';ctx.lineWidth=2;
     ctx.strokeRect(this.left+this.column*this.cellW,this.top+this.row*this.cellH,this.cellW,this.cellH);
     ctx.fillStyle='#a5abb1';ctx.textAlign='left';ctx.font='11px system-ui';
-    ctx.fillText(`色阶 ±${maximum.toExponential(2)}  ·  624 / 624`,this.left,624);
+    const active=state.trainable?state.trainable.flat().filter(Boolean).length:
+      state.groups.reduce((count,group)=>count+(group.frozen?0:(group.end-group.start)*16),0);
+    ctx.fillText(`色阶 ±${maximum.toExponential(2)}  ·  可更新 ${active} / 624`,this.left,624);
     const row=this.row,col=this.column,group=state.groups.find(g=>row>=g.start&&row<g.end)!;
+    const trainable=state.trainable?.[row]?.[col]??!group.frozen;
+    const reason=!trainable&&state.phase==='motor'&&group.id==='action'&&!group.manual?'基础阶段未启用':group.reason;
     this.onSelect(row,col);
-    this.detail.innerHTML=`<div class="parameter-title"><strong>W[${row}, ${col}]</strong><span>${group.label} · ${group.reason}</span></div>
+    this.detail.innerHTML=`<div class="parameter-title"><strong>W[${row}, ${col}]</strong><span>${group.label} · ${reason}</span></div>
       <dl><div><dt>当前值</dt><dd>${number(state.weights[row][col])}</dd></div><div><dt>初始化</dt><dd>${number(state.initial[row][col])}</dd></div>
       <div><dt>最近自写入 Δ</dt><dd>${number(state.self_delta[row][col])}</dd></div><div><dt>最近外部更新 Δ</dt><dd>${number(state.outer_delta[row][col])}</dd></div></dl>
       <div class="input-detail">输入 ${col+1} · ${state.inputs[col]} <b>${number(state.observation[col])}</b></div>`;
-    this.canvas.setAttribute('aria-label',`参数矩阵，${group.label}，第 ${row+1} 行，第 ${col+1} 列，当前值 ${state.weights[row][col]}，${group.reason}`);
+    this.canvas.setAttribute('aria-label',`参数矩阵，${group.label}，第 ${row+1} 行，第 ${col+1} 列，当前值 ${state.weights[row][col]}，${reason}`);
   }
 }
