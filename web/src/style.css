@@ -69,3 +69,5 @@ dialog::backdrop {background:#020908b5;backdrop-filter:blur(7px)} dialog h2 {fon
   .metrics {margin-top:12px;padding:12px 0}
   .metrics strong {font-size:24px;margin:5px 0 4px}
 }
+
+.wall-settings:not([hidden]){display:grid;gap:10px;padding:12px;margin-bottom:12px;background:rgba(140,190,160,.07);border:1px solid rgba(150,200,170,.18);border-radius:8px}.wall-settings label{display:flex;align-items:center;gap:8px}.wall-settings input{min-width:0;flex:1}.wall-settings small{font-size:11px;color:#a7bbaa}#viewport[data-wall-preview]{cursor:crosshair}#viewport[data-wall-preview="invalid"]{cursor:not-allowed}

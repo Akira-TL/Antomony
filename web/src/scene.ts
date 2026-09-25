@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import type {Frame,Tool} from './types';
+import {WallPreview} from './wall-preview';
 
 export class ColonyScene {
   readonly renderer:THREE.WebGLRenderer;
   readonly scene=new THREE.Scene();
   readonly camera=new THREE.PerspectiveCamera(43,1,.1,180);
   readonly controls:OrbitControls;
+  readonly wallPreview:WallPreview;
   tool:Tool='inspect'; selected=0; showField=true; fps=0;
   onPoint:(x:number,y:number,id:number|null)=>void=()=>{};
   private frame:Frame|null=null;
@@ -44,7 +46,7 @@ export class ColonyScene {
     const ambient=new THREE.HemisphereLight(0xc4efd5,0x172932,2.1);this.scene.add(ambient);
     const sun=new THREE.DirectionalLight(0xfaf4dc,3);sun.position.set(-9,24,12);sun.castShadow=true;
     sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:16,bottom:-16,near:1,far:65});sun.shadow.bias=-.0004;
-    this.scene.add(sun,new THREE.PointLight(0x85e8b1,35,45));
+    this.scene.add(sun);
     const base=new THREE.Mesh(new THREE.BoxGeometry(28.8,.65,20.8),new THREE.MeshStandardMaterial({color:0x142c2b,roughness:.8,metalness:.1}));base.position.y=-.38;base.receiveShadow=true;this.scene.add(base);
     const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshStandardMaterial({color:0x17342e,roughness:.92}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;this.scene.add(floor);
     const grid=new THREE.GridHelper(28,56,0x416454,0x28483e);grid.scale.z=20/28;grid.position.y=.009;(grid.material as THREE.Material).transparent=true;(grid.material as THREE.Material).opacity=.28;this.scene.add(grid);
@@ -63,8 +65,11 @@ export class ColonyScene {
     this.fieldTexture=new THREE.DataTexture(new Uint8Array(96*64*4),96,64,THREE.RGBAFormat);this.fieldTexture.flipY=true;this.fieldTexture.magFilter=THREE.LinearFilter;this.fieldTexture.minFilter=THREE.LinearFilter;
     this.fieldMesh=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshBasicMaterial({map:this.fieldTexture,transparent:true,depthWrite:false,opacity:.8,blending:THREE.AdditiveBlending}));this.fieldMesh.rotation.x=-Math.PI/2;this.fieldMesh.position.y=.022;this.scene.add(this.fieldMesh);
     this.ring=new THREE.Mesh(new THREE.RingGeometry(.32,.36,48),new THREE.MeshBasicMaterial({color:0xd3ffb1,side:THREE.DoubleSide,transparent:true,opacity:.9}));this.ring.rotation.x=-Math.PI/2;this.scene.add(this.ring,this.rays,this.wallGroup,this.foodGroup);
+    this.wallPreview=new WallPreview(this.scene,host);
     const resize=()=>{const w=host.clientWidth,h=host.clientHeight;this.renderer.setSize(w,h);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();};new ResizeObserver(resize).observe(host);resize();
     let down=new THREE.Vector2();
+    this.renderer.domElement.addEventListener('pointermove',e=>{if(this.tool==='wall'){const p=this.groundPoint(e);if(p)this.wallPreview.move(p.x,p.z);else this.wallPreview.hide();}});
+    this.renderer.domElement.addEventListener('pointerleave',()=>this.wallPreview.hide());
     this.renderer.domElement.addEventListener('pointerdown',e=>{down.set(e.clientX,e.clientY);});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(e.button!==0||Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;this.click(e);});
     this.animate();
@@ -79,9 +84,10 @@ export class ColonyScene {
   update(frame:Frame):void {
     this.previous=this.frame?.seed===frame.seed && this.frame.ants.length===frame.ants.length?this.frame:null;
     this.frame=frame;this.received=performance.now();
+    if(this.tool==='wall')this.wallPreview.refresh();
     const raw=atob(frame.pheromones),n=frame.field_width*frame.field_height;
     const rgba=this.fieldTexture.image.data as Uint8Array;
-    for(let i=0;i<n;i++){const home=raw.charCodeAt(i),food=raw.charCodeAt(i+n);rgba[4*i]=food;rgba[4*i+1]=Math.min(255,home*.75+food*.68);rgba[4*i+2]=home*.9;rgba[4*i+3]=Math.min(200,Math.max(home,food)*1.5);}
+    for(let i=0;i<n;i++){const home=raw.charCodeAt(i),food=raw.charCodeAt(i+n);rgba[4*i]=food;rgba[4*i+1]=Math.min(255,home*.75+food*.68);rgba[4*i+2]=home*.9;rgba[4*i+3]=Math.min(100,Math.max(home*.65,food));}
     this.fieldTexture.needsUpdate=true;
     const wk=JSON.stringify(frame.walls);
     if(wk!==this.wallKey){this.clear(this.wallGroup);this.wallKey=wk;
@@ -99,11 +105,16 @@ export class ColonyScene {
     group.clear();
   }
 
-  private click(event:PointerEvent):void {
+  private groundPoint(event:PointerEvent):THREE.Vector3|null {
     const rect=this.renderer.domElement.getBoundingClientRect();this.pointer.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);
     this.raycaster.setFromCamera(this.pointer,this.camera);
-    const p=new THREE.Vector3();this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),p);
-    if(Math.abs(p.x)>14||Math.abs(p.z)>10)return;
+    const p=this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),new THREE.Vector3());
+    if(!p||Math.abs(p.x)>14||Math.abs(p.z)>10)return null;
+    return p;
+  }
+
+  private click(event:PointerEvent):void {
+    const p=this.groundPoint(event);if(!p)return;
     let id:number|null=null;
     if(this.frame){const close=this.frame.ants.map(a=>({id:a.id,d:Math.hypot(a.x-p.x,a.y-p.z)})).sort((a,b)=>a.d-b.d)[0];if(close&&close.d<.85)id=close.id;}
     this.onPoint(p.x,p.z,id);
@@ -117,7 +128,7 @@ export class ColonyScene {
     if(f){const alpha=Math.min(1,(now-this.received)/110);let carrying=0;
       this.antMeshes.forEach(m=>m.count=f.ants.length);this.legs.count=f.ants.length*6;
       for(const ant of f.ants){const prev=this.previous?.ants[ant.id];const x=prev?THREE.MathUtils.lerp(prev.x,ant.x,alpha):ant.x;const z=prev?THREE.MathUtils.lerp(prev.y,ant.y,alpha):ant.y;
-        const heading=ant.heading;const c=Math.cos(heading),s=Math.sin(heading);
+        const heading=prev?prev.heading+Math.atan2(Math.sin(ant.heading-prev.heading),Math.cos(ant.heading-prev.heading))*alpha:ant.heading;const c=Math.cos(heading),s=Math.sin(heading);
         const sizes:[[number,number,number,number],[number,number,number,number],[number,number,number,number]]=[[-.075,.125,.075,.1],[.06,.08,.07,.075],[.15,.05,.055,.055]];
         sizes.forEach(([offset,sx,sy,sz],index)=>{this.dummy.position.set(x+c*offset,.13,z+s*offset);this.dummy.rotation.set(0,-heading,0);this.dummy.scale.set(sx,sy,sz);this.dummy.updateMatrix();this.antMeshes[index].setMatrixAt(ant.id,this.dummy.matrix);this.antMeshes[index].setColorAt(ant.id,new THREE.Color(ant.id===this.selected?0xdfffaf:ant.frozen?0x91a5b4:ant.carrying?0xffc579:0xb6d9c3));});
         for(let leg=0;leg<6;leg++){const side=leg<3?-1:1;const along=(leg%3-1)*.11;const gait=f.paused?0:Math.sin(f.seconds*17+leg*2+ant.id)*.025;const start=new THREE.Vector3(x+c*along,.14,z+s*along),end=new THREE.Vector3(x+c*(along+gait)-s*.24*side,.032,z+s*(along+gait)+c*.24*side);this.dummy.position.copy(start).add(end).multiplyScalar(.5);this.dummy.scale.set(1,start.distanceTo(end),1);this.dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),end.clone().sub(start).normalize());this.dummy.updateMatrix();this.legs.setMatrixAt(ant.id*6+leg,this.dummy.matrix);}
