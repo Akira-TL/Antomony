@@ -39,12 +39,16 @@ def exploration(world: World, ant: Ant, reverse: bool = False) -> Array:
 
 
 def direction(world: World, ant: Ant) -> Array:
+    ant.following_trail = False
     # 距上次实际留下空间标记太久，才重新找有效目标；不是每次碰撞都反转。
-    timed_out = world.tick_count-ant.last_mark_tick >= 30 and world.tick_count >= ant.ignore_scent_until
+    looping = len(ant.recent_positions) >= 35 and float(np.linalg.norm(
+        ant.position - ant.recent_positions[0])) < 1.2
+    timed_out = (world.tick_count-ant.last_mark_tick >= 30 or looping) and world.tick_count >= ant.ignore_scent_until
     if timed_out:
         ant.ignore_scent_until = world.tick_count+80
         ant.escape_until = world.tick_count+20
         ant.waypoint = None
+        ant.recent_positions.clear()
     escaping = world.tick_count < ant.escape_until
     if ant.carrying and not escaping:
         norm = float(np.linalg.norm(ant.home))
@@ -63,19 +67,34 @@ def direction(world: World, ant: Ant) -> Array:
                 visible.append((distance, aim))
     if visible and not escaping and not ant.carrying:
         return min(visible, key=lambda pair: pair[0])[1]
-    wanted = exploration(world, ant, timed_out).copy()
+    ant.following_trail = False
     if world.tick_count >= ant.ignore_scent_until:
-        angles = ant.heading + np.asarray([-.9, -.45, 0., .45, .9], np.float32)
-        probes = np.stack([unit(float(angle)) for angle in angles])
-        channel = 0 if ant.carrying else 1
-        scent = np.asarray([world.field.sample(ant.position+1.1*d, channel)
-                            if ray_distance(ant.position, d, world.walls, world.half, world.radius) >= 1.1 else 0.
-                            for d in probes])
-        # 嗅探前方，而不是每步追逐任意方向的浓度梯度峰。
-        weights = scent / (1. + scent)
-        if float(weights.sum()) > .01:
-            wanted += .65 * (weights @ probes) / float(weights.sum())
-    return wanted.astype(np.float32)
+        trail = follow_trail(world, ant)
+        if trail is not None:
+            ant.following_trail = True
+            # 找到有效标记时循迹；探索只作无标记时的备用，不再压过气味。
+            return trail
+    return exploration(world, ant, timed_out).astype(np.float32)
+
+
+def follow_trail(world: World, ant: Ant) -> Array | None:
+    """在前方扇区的多个距离采样，优先可达强标记，不追逐身后的浓度峰。"""
+    offsets = np.linspace(-1.4, 1.4, 15, dtype=np.float32)
+    probes = np.stack([unit(ant.heading + float(angle)) for angle in offsets])
+    distances = np.asarray([.45, .85, 1.25, 1.7], np.float32)
+    points = ant.position + probes[:, None, :] * distances[None, :, None]
+    signal = world.field.sample_many(points, 0 if ant.carrying else 1)
+    # 极弱扩散尾部不当成可靠轨迹；前进偏好只用于相近标记的比较。
+    scores = signal * (.85 + .15 * np.cos(offsets))[:, None]
+    for flat in np.argsort(scores, axis=None)[::-1]:
+        i, j = np.unravel_index(flat, scores.shape)
+        if signal[i, j] < .002:
+            continue
+        reach = float(distances[j])
+        if ray_distance(ant.position, probes[i], world.walls, world.half,
+                        world.radius, reach=reach) >= reach - .02:
+            return probes[i]
+    return None
 
 
 def choose_motion(world: World, ant: Ant, x: Array, positions: Array) -> tuple[float, Array]:

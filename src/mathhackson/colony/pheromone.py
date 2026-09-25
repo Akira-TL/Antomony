@@ -51,6 +51,13 @@ class Pheromones:
         if not self.enabled: return 0.
         y,x=self.cell(p); return float(self.values[channel,y,x])
 
+    def sample_many(self, points: Array, channel: int) -> Array:
+        if not self.enabled:
+            return np.zeros(points.shape[:-1], np.float32)
+        x = np.clip(((points[..., 0]+14)/28*self.width).astype(int), 0, self.width-1)
+        y = np.clip(((points[..., 1]+10)/20*self.height).astype(int), 0, self.height-1)
+        return self.values[channel, y, x]
+
     def gradient(self,p: Array,channel: int) -> Array:
         dx=np.asarray([.42,0],dtype=np.float32); dy=dx[::-1].copy()
         return np.asarray([self.sample(p+dx,channel)-self.sample(p-dx,channel),self.sample(p+dy,channel)-self.sample(p-dy,channel)],dtype=np.float32)

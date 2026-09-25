@@ -25,6 +25,7 @@ class Ant:
     brain: Brain
     home: Array
     carrying: bool=False
+    following_trail: bool=False
     delivered: int=0
     contacts: int=0
     age: float=0.
