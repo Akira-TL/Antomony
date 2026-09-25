@@ -156,7 +156,7 @@ function update(frame:ComparisonFrame):void {
   el('compare').textContent=compared?'返回单场景':'开启同条件对比';
   el('population').textContent=`${frame.ants.length} 只${compared?' / 组':''}`;
   const learning=frame.ants.filter(a=>!a.frozen).length;
-  el('neural-state').textContent=`${frame.ants.length} 只 · ${learning?`${learning} 只学习中`:'学习已暂停'}`;
+  el('neural-state').textContent=`${frame.ants.length} 只 · ${frame.paused?'仿真已暂停':learning?`${learning} 只学习中`:'学习已暂停'}`;
   el('delivered').textContent=String(frame.delivered);el('contact-rate').textContent=contactRate(frame).toFixed(1);el('stalled').textContent=String(frame.stalled);
   el('trail-count').textContent=`循迹 ${frame.ants.filter(a=>a.following_trail).length} 只`;
   el('edit-scope').textContent=compared?'左侧编辑，同时改变两组环境':'每个体独立学习；信息素连接群体';
@@ -174,7 +174,7 @@ function update(frame:ComparisonFrame):void {
     }
   }
   el('runtime').textContent=`本地运行 · 渲染 ${scene.fps.toFixed(0)} FPS · 仿真步 ${frame.tick_ms.toFixed(1)} ms${frame.reference?` + ${frame.reference.tick_ms.toFixed(1)} ms`:''}`;
-  el('events').replaceChildren(...frame.events.filter(e=>e.kind!=='learn').slice(0,3).map(e=>{
+  el('events').replaceChildren(...frame.events.filter(e=>e.kind!=='learn'&&e.kind!=='notice').slice(0,3).map(e=>{
     const row=document.createElement('div');row.className='event';const time=document.createElement('time');time.textContent=(e.tick/10).toFixed(1)+'s';
     const text=document.createElement('span');text.textContent=e.message;row.append(time,text);return row;
   }));
