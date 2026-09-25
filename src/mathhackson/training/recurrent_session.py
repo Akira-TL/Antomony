@@ -12,7 +12,8 @@ from mathhackson.colony.geometry import unit
 
 from .environment import SingleAntEnvironment
 from .recurrent import Action, RecurrentPolicy, Write
-from .schemas import RecurrentCommand, RecurrentEpisode, RecurrentParameterGroup, RecurrentState, Task
+from .schemas import (PerturbationKind, RecurrentCommand, RecurrentEpisode,
+                      RecurrentParameterGroup, RecurrentState, Task)
 
 GROUP_LABELS = ("基础动作", "观察到隐藏状态", "隐藏状态到隐藏状态", "隐藏状态偏置",
                 "记忆行动修正", "写入判断", "写入方向与幅度")
@@ -49,10 +50,14 @@ class RecurrentSession:
         self.fast_states: list[np.ndarray] = []
         self.fast_deltas: list[np.ndarray] = []
         self.start_self = self.model.self_updates
-        if self.task == "normal" or (self.task == "mixed" and self.rng.random() < .5):
-            self.perturbation = 0.
-        else:
-            self.perturbation = float(self.rng.choice([-1., 1.]) * .25)
+        self.perturbation_kind: PerturbationKind = (
+            "none" if self.task == "normal" else
+            "turn" if self.task == "shift" else
+            "sensor" if self.task == "sensor" else
+            self.rng.choice(["none", "turn", "sensor"]).item())
+        scale = float(self.rng.uniform(.55, .75)) if self.perturbation_kind == "sensor" else .25
+        self.perturbation = (0. if self.perturbation_kind == "none" else
+                             float(self.rng.choice([-1., 1.]) * scale))
 
     def motor_alignment(self) -> tuple[int, int]:
         probe = RecurrentPolicy(0)
@@ -93,8 +98,10 @@ class RecurrentSession:
                 actions=np.asarray([(action.move, action.turn) for action in self.actions]),
                 gates=np.asarray([(write.requested, write.wrote, write.probability) for write in self.writes]),
                 perturbation=self.perturbation,
+                perturbation_kind=self.perturbation_kind,
             )
             record = RecurrentEpisode(episode=self.episode, phase=self.model.phase, task=self.task,
+                                      perturbation_kind=self.perturbation_kind,
                                       perturbation=self.perturbation, reached=self.env.reached,
                                       steps=len(self.actions), reward=sum(self.rewards),
                                       writes=self.model.self_updates - self.start_self,
@@ -110,7 +117,10 @@ class RecurrentSession:
 
     def step(self) -> None:
         if self.env.steps == 8:
-            self.env.turn_bias = self.perturbation
+            if self.perturbation_kind == "turn":
+                self.env.turn_bias = self.perturbation
+            elif self.perturbation_kind == "sensor":
+                self.env.sensor_bias = self.perturbation
         observation = self.env.observation()
         decision = self.model.decide(observation)
         reward = self.env.step(decision.move, decision.turn)
@@ -127,6 +137,8 @@ class RecurrentSession:
             self.finish("到达目标" if self.env.reached else "回合结束", True)
 
     def command(self, command: RecurrentCommand) -> None:
+        if command.action == "phase" and command.phase == "motor" and self.model.phase != "motor":
+            raise ValueError("基础动作已锁定；重新训练请创建新会话")
         if command.action == "phase" and command.phase in {"memory", "adaptive"} and command.phase != self.model.phase:
             left, right = self.motor_alignment()
             if left < 5 or right < 5:
@@ -182,7 +194,9 @@ class RecurrentSession:
                      move_probability=action.move_probability if action else 0.,
                      reward=self.env.reward, total_reward=sum(self.rewards),
                      reached=self.env.reached, perturbation=self.perturbation,
-                     active_perturbation=self.env.turn_bias,
+                     perturbation_kind=self.perturbation_kind,
+                     active_perturbation=self.env.sensor_bias if self.perturbation_kind == "sensor"
+                     else self.env.turn_bias,
                      outer_updates=self.model.outer_updates,
                      self_updates=self.model.self_updates, write_mode=self.model.write_mode,
                      write_probability=write.probability if write else 0.,

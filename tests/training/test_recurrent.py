@@ -118,6 +118,25 @@ def test_turn_bias_keeps_physical_turn_within_maximum():
     assert environment.heading == pytest.approx(np.pi / 18)
 
 
+def test_sensor_bias_changes_observation_but_not_true_goal_or_reward():
+    normal, shifted = SingleAntEnvironment(8), SingleAntEnvironment(8)
+    shifted.sensor_bias = .35
+    assert shifted.relative_food_angle() == normal.relative_food_angle()
+    assert not np.array_equal(shifted.observation()[:2], normal.observation()[:2])
+    assert shifted.step(False, 0.) == pytest.approx(normal.step(False, 0.))
+
+
+def test_sensor_task_applies_only_after_eight_steps(tmp_path: Path):
+    session = RecurrentSession(tmp_path)
+    session.command(RecurrentCommand(action="task", task="sensor"))
+    assert session.state().perturbation_kind == "sensor"
+    for _ in range(8):
+        session.step()
+    assert session.env.sensor_bias == 0.
+    session.step()
+    assert session.env.sensor_bias == session.perturbation
+
+
 def test_feedback_gate_writes_only_for_next_inference_and_reset_clears_fast_state():
     model = RecurrentPolicy(3)
     model.phase = "autonomous"
@@ -198,3 +217,11 @@ def test_write_comparison_is_only_available_without_external_training(tmp_path: 
     session.command(RecurrentCommand(action="phase", phase="autonomous"))
     session.command(RecurrentCommand(action="write_mode", write_mode="always"))
     assert session.state().write_mode == "always"
+
+
+def test_pretrained_motor_cannot_be_reopened_after_phase_change(tmp_path: Path):
+    session = RecurrentSession(tmp_path)
+    session.command(RecurrentCommand(action="phase", phase="autonomous"))
+    with pytest.raises(ValueError, match="基础动作已锁定"):
+        session.command(RecurrentCommand(action="phase", phase="motor"))
+    assert session.model.phase == "autonomous"

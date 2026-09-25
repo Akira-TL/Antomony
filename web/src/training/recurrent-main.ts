@@ -11,7 +11,7 @@ const $=<T extends HTMLElement=HTMLElement>(selector:string):T=>document.querySe
 const icon=(node:IconNode)=>createElement(node,{width:18,height:18,'stroke-width':1.7}).outerHTML;
 const button=(id:string,title:string,node:IconNode)=>`<button type="button" class="icon-button" id="${id}" title="${title}" aria-label="${title}">${icon(node)}</button>`;
 const phases:Record<RecurrentPhase,string>={motor:'基础动作',memory:'循环记忆',adaptive:'条件写入',autonomous:'停止外部训练'};
-const tasks:Record<RecurrentTask,string>={normal:'正常',shift:'转向扰动',mixed:'正常与扰动混合'};
+const tasks:Record<RecurrentTask,string>={normal:'正常',shift:'转向扰动',sensor:'感知偏差',mixed:'混合任务'};
 
 $('#app').innerHTML=`
   <header><div class="identity">${icon(Activity)}<div><span>MathHackson</span><h1>循环记忆试验</h1></div></div>
@@ -29,7 +29,7 @@ $('#app').innerHTML=`
     <div id="error" role="alert" hidden></div>
     <div class="workspace">
       <section class="experiment"><div class="section-heading"><h2>单蚁场景</h2><span id="running" class="state-tag">已暂停</span></div>
-        <div class="course-controls"><label>任务<select id="task"><option value="normal">正常</option><option value="shift">转向扰动</option><option value="mixed">正常与扰动混合</option></select></label>
+        <div class="course-controls"><label>任务<select id="task"><option value="normal">正常</option><option value="shift">转向扰动</option><option value="sensor">感知偏差</option><option value="mixed">混合任务</option></select></label>
           <label>写入对照<select id="write-mode" aria-label="运行时写入方式"><option value="off">关闭</option><option value="learned">模型判断</option><option value="always">始终写入</option></select></label>
           <span class="muted" id="perturbation">本回合无扰动</span></div>
         <div class="scene-wrap"><div id="scene"></div><div class="scene-caption"><span>蚂蚁 01</span><span id="position">x 0.00 · y 0.00</span></div>
@@ -81,7 +81,9 @@ function render(next:RecurrentState):void {
   document.querySelectorAll<HTMLButtonElement>('[data-phase]').forEach(control=>control.setAttribute('aria-pressed',String(control.dataset.phase===next.phase)));
   $<HTMLSelectElement>('#task').value=next.task;$<HTMLSelectElement>('#speed').value=String(next.speed);
   $<HTMLSelectElement>('#write-mode').value=next.write_mode;
-  $('#perturbation').textContent=next.perturbation===0?'本回合无扰动':next.active_perturbation===0?'转向扰动尚未生效':`转向扰动 ${next.active_perturbation>0?'+':''}${next.active_perturbation.toFixed(2)}`;
+  const kind=next.perturbation_kind==='sensor'?'感知偏差':'转向扰动';
+  const unit=next.perturbation_kind==='sensor'?' 弧度':'';
+  $('#perturbation').textContent=next.perturbation===0?'本回合无扰动':next.active_perturbation===0?`${kind}尚未生效`:`${kind} ${next.active_perturbation>0?'+':''}${next.active_perturbation.toFixed(2)}${unit}`;
   $('#position').textContent=`x ${next.x.toFixed(2)} · y ${next.y.toFixed(2)}`;
   $('#distance').textContent=`食物距离 ${next.distance.toFixed(2)}`;
   const inferred=next.steps>0;
@@ -113,7 +115,7 @@ function render(next:RecurrentState):void {
   const history=JSON.stringify(next.history);
   if(history!==historySignature){
     $('#history-count').textContent=next.history.length?`最近 ${next.history.length} 回合`:'尚无完整回合';
-    $('#history').innerHTML=next.history.slice(-12).reverse().map(record=>`<tr><td>${record.episode}</td><td>${tasks[record.task]}<small>${phases[record.phase]} · 扰动 ${record.perturbation.toFixed(2)}</small></td><td>${record.reached?'到达':'未到达'}</td><td>${record.steps}</td><td>${record.writes}</td><td class="${record.reward<0?'negative':'positive'}">${record.reward.toFixed(3)}</td></tr>`).join('');
+    $('#history').innerHTML=next.history.slice(-12).reverse().map(record=>`<tr><td>${record.episode}</td><td>${tasks[record.task]}<small>${phases[record.phase]} · ${record.perturbation_kind==='sensor'?'感知':record.perturbation_kind==='turn'?'转向':'无'} ${record.perturbation.toFixed(2)}</small></td><td>${record.reached?'到达':'未到达'}</td><td>${record.steps}</td><td>${record.writes}</td><td class="${record.reward<0?'negative':'positive'}">${record.reward.toFixed(3)}</td></tr>`).join('');
     historySignature=history;
   }
   if(next.tick!==lastTick||next.episode!==lastEpisode||next.session!==lastSession){
@@ -135,6 +137,7 @@ function render(next:RecurrentState):void {
   $('#error').textContent=next.error;$('#error').hidden=!next.error;
   document.querySelectorAll<HTMLButtonElement|HTMLSelectElement>('.toolbar button,.toolbar select,.course-controls select').forEach(control=>control.disabled=busy||!connected);
   $<HTMLSelectElement>('#write-mode').disabled=busy||!connected||next.phase!=='autonomous';
+  document.querySelector<HTMLButtonElement>('[data-phase="motor"]')!.disabled=busy||!connected||next.phase!=='motor';
   $('#app').dataset.tick=String(next.tick);$('#app').dataset.episode=String(next.episode);
 }
 

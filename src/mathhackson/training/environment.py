@@ -31,11 +31,12 @@ class SingleAntEnvironment:
         self.steps = 0
         self.reward = self.progress = self.turn = 0.
         self.turn_bias = 0.
+        self.sensor_bias = 0.
         self.move = self.contact = self.reached = False
         self.distance = float(np.linalg.norm(self.target))
 
     def observation(self) -> np.ndarray:
-        relative = self.relative_food_angle()
+        relative = self.relative_food_angle() + self.sensor_bias
         return np.asarray([math.cos(relative), math.sin(relative), self.distance / 8., float(self.move), self.turn,
                            np.clip(self.reward, -1., 1.), float(self.contact), self.progress / .18,
                            0., 0., 0., 0., 0., 0., self.steps / self.horizon, 1.], np.float32)

@@ -6,7 +6,8 @@ from .environment import Lesson
 from .model import Group, Phase
 from .recurrent import Phase as RecurrentPhase, WriteMode
 
-Task = Literal["normal", "shift", "mixed"]
+Task = Literal["normal", "shift", "sensor", "mixed"]
+PerturbationKind = Literal["none", "turn", "sensor"]
 
 
 class Command(BaseModel):
@@ -122,6 +123,7 @@ class RecurrentEpisode(BaseModel):
     episode: int
     phase: RecurrentPhase
     task: Task
+    perturbation_kind: PerturbationKind
     perturbation: float
     reached: bool
     steps: int
@@ -155,6 +157,7 @@ class RecurrentState(BaseModel):
     total_reward: float
     reached: bool
     perturbation: float
+    perturbation_kind: PerturbationKind
     active_perturbation: float
     outer_updates: int
     self_updates: int
