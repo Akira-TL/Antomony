@@ -29,6 +29,10 @@ class Action:
     entropy: Tensor
     move_loss: Tensor
     turn_loss: Tensor
+    release_home: bool = False
+    release_food: bool = False
+    release_home_probability: float = 0.
+    release_food_probability: float = 0.
 
 
 @dataclass
@@ -40,14 +44,15 @@ class Write:
 
 
 class RecurrentPolicy:
-    def __init__(self, seed: int) -> None:
+    def __init__(self, seed: int, input_width: int = INPUT_WIDTH) -> None:
         self.rng = np.random.default_rng(seed)
-        motor = np.zeros((2, INPUT_WIDTH), np.float32)
+        self.input_width = input_width
+        motor = np.zeros((2, input_width), np.float32)
         for row, columns in enumerate(MOTOR_CONNECTIONS):
             motor[row, list(columns)] = self.rng.normal(0, .12, len(columns))
         self.motor = torch.nn.Parameter(torch.from_numpy(motor))
         self.input_weights = torch.nn.Parameter(torch.from_numpy(
-            self.rng.normal(0, .08, (HIDDEN_WIDTH, INPUT_WIDTH)).astype(np.float32)))
+            self.rng.normal(0, .08, (HIDDEN_WIDTH, input_width)).astype(np.float32)))
         self.hidden_weights = torch.nn.Parameter(torch.from_numpy(
             self.rng.normal(0, .08, (HIDDEN_WIDTH, HIDDEN_WIDTH * len(MEMORY_LAGS))).astype(np.float32)))
         self.hidden_bias = torch.nn.Parameter(torch.zeros(HIDDEN_WIDTH))
@@ -87,8 +92,8 @@ class RecurrentPolicy:
             torch.full_like(value, int(writing)) for value in self.parameters[5:]]
 
     def decide(self, observation: np.ndarray) -> Action:
-        if observation.shape != (INPUT_WIDTH,) or not np.isfinite(observation).all():
-            raise ValueError("观察必须是 16 个有限值")
+        if observation.shape != (self.input_width,) or not np.isfinite(observation).all():
+            raise ValueError(f"观察必须是 {self.input_width} 个有限值")
         training = self.phase != "autonomous"
         with torch.set_grad_enabled(training):
             output = self.motor @ torch.from_numpy(observation.astype(np.float32))
@@ -118,8 +123,8 @@ class RecurrentPolicy:
                           (output[1] - target).square())
 
     def observe_result(self, observation: np.ndarray, *, terminal: bool = False) -> Write:
-        if observation.shape != (INPUT_WIDTH,) or not np.isfinite(observation).all():
-            raise ValueError("反馈必须是 16 个有限值")
+        if observation.shape != (self.input_width,) or not np.isfinite(observation).all():
+            raise ValueError(f"反馈必须是 {self.input_width} 个有限值")
         with torch.set_grad_enabled(self.phase != "autonomous"):
             values = torch.from_numpy(observation.astype(np.float32))
             taps = torch.cat(tuple(self.hidden_history[-lag] if len(self.hidden_history) >= lag
