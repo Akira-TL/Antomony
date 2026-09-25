@@ -69,6 +69,11 @@ export class ColonyScene {
     const resize=()=>{const w=host.clientWidth,h=host.clientHeight;this.renderer.setSize(w,h);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();};new ResizeObserver(resize).observe(host);resize();
     let down=new THREE.Vector2();
     this.renderer.domElement.addEventListener('pointermove',e=>{if(this.tool==='wall'){const p=this.groundPoint(e);if(p)this.wallPreview.move(p.x,p.z);else this.wallPreview.hide();}});
+    this.renderer.domElement.addEventListener('wheel',e=>{
+      if(this.tool!=='wall')return;
+      e.preventDefault();e.stopImmediatePropagation();
+      this.wallPreview.rotate(Math.sign(e.deltaY)*Math.PI/36);
+    },{capture:true,passive:false});
     this.renderer.domElement.addEventListener('pointerleave',()=>this.wallPreview.hide());
     this.renderer.domElement.addEventListener('pointerdown',e=>{down.set(e.clientX,e.clientY);});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(e.button!==0||Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;this.click(e);});
@@ -91,7 +96,7 @@ export class ColonyScene {
     this.fieldTexture.needsUpdate=true;
     const wk=JSON.stringify(frame.walls);
     if(wk!==this.wallKey){this.clear(this.wallGroup);this.wallKey=wk;
-      for(const w of frame.walls){const g=new THREE.BoxGeometry(w.hx*2,1.15,w.hy*2);const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x304950,roughness:.5,metalness:.28}));m.position.set(w.x,.58,w.y);m.castShadow=true;m.receiveShadow=true;this.wallGroup.add(m);const edge=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x97b9ae,transparent:true,opacity:.62}));edge.position.copy(m.position);this.wallGroup.add(edge);}
+      for(const w of frame.walls){const g=new THREE.BoxGeometry(w.hx*2,1.15,w.hy*2);const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x304950,roughness:.5,metalness:.28}));m.position.set(w.x,.58,w.y);m.rotation.y=-w.angle;m.castShadow=true;m.receiveShadow=true;this.wallGroup.add(m);const edge=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x97b9ae,transparent:true,opacity:.62}));edge.position.copy(m.position);edge.rotation.y=-w.angle;this.wallGroup.add(edge);}
     }
     const fk=JSON.stringify(frame.foods.map(f=>[f.id,f.x,f.y,Math.ceil(f.amount/8)]));
     if(fk!==this.foodKey){this.clear(this.foodGroup);this.foodKey=fk;

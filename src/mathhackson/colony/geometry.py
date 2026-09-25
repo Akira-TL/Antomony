@@ -14,27 +14,54 @@ class Wall:
     y: float
     hx: float
     hy: float
+    angle: float = 0.
+
+    def local_vector(self, v: Array) -> Array:
+        c, s = math.cos(self.angle), math.sin(self.angle)
+        return np.asarray([c*v[0]+s*v[1], -s*v[0]+c*v[1]], np.float32)
+
+    def local(self, p: Array) -> Array:
+        return self.local_vector(p-np.asarray([self.x, self.y], np.float32))
+
+    def global_point(self, p: Array) -> Array:
+        c, s = math.cos(self.angle), math.sin(self.angle)
+        return np.asarray([self.x+c*p[0]-s*p[1], self.y+s*p[0]+c*p[1]], np.float32)
+
+    @property
+    def extent(self) -> Array:
+        c, s = abs(math.cos(self.angle)), abs(math.sin(self.angle))
+        return np.asarray([c*self.hx+s*self.hy, s*self.hx+c*self.hy], np.float32)
 
     def overlaps(self, p: Array, radius: float) -> bool:
-        qx = max(abs(float(p[0])-self.x)-self.hx, 0.0)
-        qy = max(abs(float(p[1])-self.y)-self.hy, 0.0)
-        return qx*qx+qy*qy < radius*radius-1e-8
+        q = self.local(p)
+        dx, dy = max(abs(float(q[0]))-self.hx, 0.), max(abs(float(q[1]))-self.hy, 0.)
+        return dx*dx+dy*dy < radius*radius-1e-8
+
+    def intersects(self, other: Wall) -> bool:
+        # 四个局部主轴上的分离轴检验，不用外接矩形误拒绝斜墙。
+        axes = [unit(self.angle), unit(self.angle+math.pi/2),
+                unit(other.angle), unit(other.angle+math.pi/2)]
+        delta = np.asarray([other.x-self.x, other.y-self.y], np.float32)
+        for axis in axes:
+            ra = self.hx*abs(float(axis@axes[0]))+self.hy*abs(float(axis@axes[1]))
+            rb = other.hx*abs(float(axis@axes[2]))+other.hy*abs(float(axis@axes[3]))
+            if abs(float(delta@axis)) >= ra+rb-1e-6:
+                return False
+        return True
 
     def project(self, p: Array, radius: float) -> Array:
-        q = np.clip(p, [self.x-self.hx,self.y-self.hy], [self.x+self.hx,self.y+self.hy])
-        delta = p-q
-        d = float(np.linalg.norm(delta))
-        if d >= radius:
+        if not self.overlaps(p, radius):
             return p
-        if d > 1e-8:
-            return np.asarray(q+delta*(radius+1e-5)/d, dtype=np.float32)
-        gaps = [p[0]-(self.x-self.hx), self.x+self.hx-p[0], p[1]-(self.y-self.hy), self.y+self.hy-p[1]]
-        k = int(np.argmin(gaps)); result = p.copy()
-        if k == 0: result[0] = self.x-self.hx-radius-1e-5
-        elif k == 1: result[0] = self.x+self.hx+radius+1e-5
-        elif k == 2: result[1] = self.y-self.hy-radius-1e-5
-        else: result[1] = self.y+self.hy+radius+1e-5
-        return result
+        local = self.local(p)
+        half = np.asarray([self.hx, self.hy], np.float32)
+        closest = np.clip(local, -half, half)
+        delta = local-closest
+        distance = float(np.linalg.norm(delta))
+        if distance > 1e-8:
+            return self.global_point(closest+delta*(radius+1e-5)/distance)
+        axis = int(np.argmin(half-np.abs(local)))
+        closest[axis] = math.copysign(float(half[axis]+radius+1e-5), float(local[axis]))
+        return self.global_point(closest)
 
 
 def unit(angle: float) -> Array:
@@ -50,13 +77,14 @@ def ray_distance(p: Array, direction: Array, walls: list[Wall], half: Array, rad
             t = float((edge-p[axis])/direction[axis])
             if t >= 0: result = min(result,t)
     for w in walls:
-        lo=np.asarray([w.x-w.hx-radius,w.y-w.hy-radius]); hi=np.asarray([w.x+w.hx+radius,w.y+w.hy+radius])
+        local_p=w.local(p); local_d=w.local_vector(direction)
+        hi=np.asarray([w.hx+radius,w.hy+radius]); lo=-hi
         near,far = 0.0,reach
         for axis in range(2):
-            if abs(float(direction[axis])) < 1e-8:
-                if p[axis] < lo[axis] or p[axis] > hi[axis]: far=-1; break
+            if abs(float(local_d[axis])) < 1e-8:
+                if local_p[axis] < lo[axis] or local_p[axis] > hi[axis]: far=-1; break
             else:
-                a=float((lo[axis]-p[axis])/direction[axis]); b=float((hi[axis]-p[axis])/direction[axis])
+                a=float((lo[axis]-local_p[axis])/local_d[axis]); b=float((hi[axis]-local_p[axis])/local_d[axis])
                 near=max(near,min(a,b)); far=min(far,max(a,b))
         if far >= near and far >= 0: result=min(result,near)
     return max(0.0,result)
@@ -76,14 +104,15 @@ def relocate_for_wall(positions: Array, wall: Wall, walls: list[Wall], half: Arr
     margin = radius+.015
     for i in affected:
         p = positions[i]
+        local = wall.local(p)
         candidates = [wall.project(p, margin)]
         for step in range(17):
             for offset in ({0.} if step == 0 else {-step*(2*radius+.04), step*(2*radius+.04)}):
-                along_y = float(np.clip(p[1], wall.y-wall.hy, wall.y+wall.hy))+offset
-                along_x = float(np.clip(p[0], wall.x-wall.hx, wall.x+wall.hx))+offset
-                candidates.extend(np.asarray(q, np.float32) for q in (
-                    (wall.x-wall.hx-margin, along_y), (wall.x+wall.hx+margin, along_y),
-                    (along_x, wall.y-wall.hy-margin), (along_x, wall.y+wall.hy+margin)))
+                along_y = float(np.clip(local[1], -wall.hy, wall.hy))+offset
+                along_x = float(np.clip(local[0], -wall.hx, wall.hx))+offset
+                candidates.extend(wall.global_point(np.asarray(q, np.float32)) for q in (
+                    (-wall.hx-margin, along_y), (wall.hx+margin, along_y),
+                    (along_x, -wall.hy-margin), (along_x, wall.hy+margin)))
         candidates.sort(key=lambda q: float(np.sum((q-p)**2)))
         for q in candidates:
             if np.any(np.abs(q) > half-margin): continue

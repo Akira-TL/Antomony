@@ -18,6 +18,7 @@ class Command(BaseModel):
     count: int=Field(default=32,ge=4,le=64)
     hx: float=Field(default=.4,ge=.25,le=4)
     hy: float=Field(default=2,ge=.25,le=4)
+    angle: float=Field(default=0,ge=-1000,le=1000)
 
 class AntView(BaseModel):
     id: int
@@ -50,6 +51,7 @@ class WallView(BaseModel):
     y: float
     hx: float
     hy: float
+    angle: float = 0.
 
 class FoodView(BaseModel):
     id: int
@@ -98,7 +100,7 @@ def apply_command(w: World,c: Command) -> World:
     elif c.kind=='step':
         if w.paused: w.tick()
     elif c.kind=='speed': w.rate=max(1,min(4,int(c.value)))
-    elif c.kind=='wall': w.event('notice',w.add_wall(c.x,c.y,c.hx,c.hy))
+    elif c.kind=='wall': w.event('notice',w.add_wall(c.x,c.y,c.hx,c.hy,c.angle))
     elif c.kind=='erase': w.event('notice',w.remove_wall(c.x,c.y))
     elif c.kind=='food': w.event('notice',w.add_food(c.x,c.y))
     elif c.kind=='scent':

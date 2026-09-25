@@ -162,21 +162,21 @@ class World:
                     ant.last_mark_position=ant.position.copy(); ant.last_mark_tick=self.tick_count
                     self.event('pickup',f'个体 {ant.id:02d} 发现资源',ant.id); break
 
-    def plan_wall(self,x: float,y: float,hx: float=.4,hy: float=2.) -> tuple[Wall|None,Array|None,str]:
-        if not all(math.isfinite(v) for v in (x,y,hx,hy)): return None,None,'坐标必须有限'
+    def plan_wall(self,x: float,y: float,hx: float=.4,hy: float=2.,angle: float=0.) -> tuple[Wall|None,Array|None,str]:
+        if not all(math.isfinite(v) for v in (x,y,hx,hy,angle)): return None,None,'坐标必须有限'
         if len(self.walls)>=24: return None,None,'最多24道墙'
         hx=max(.25,min(4.,hx)); hy=max(.25,min(4.,hy))
-        if abs(x)+hx>=14 or abs(y)+hy>=10: return None,None,'墙超出场地边界'
-        wall=Wall(max((w.id for w in self.walls),default=0)+1,x,y,hx,hy)
+        wall=Wall(max((w.id for w in self.walls),default=0)+1,x,y,hx,hy,angle)
+        if np.any(np.abs([x,y])+wall.extent>=self.half): return None,None,'墙超出场地边界'
         if wall.overlaps(self.nest,1.8): return None,None,'与巢穴重叠，不能覆盖'
         if any(wall.overlaps(np.asarray([f.x,f.y],np.float32),1.) for f in self.foods): return None,None,'与资源点重叠，不能覆盖'
-        if any(abs(wall.x-v.x)<wall.hx+v.hx and abs(wall.y-v.y)<wall.hy+v.hy for v in self.walls): return None,None,'与已有墙体重叠'
+        if any(wall.intersects(v) for v in self.walls): return None,None,'与已有墙体重叠'
         positions=relocate_for_wall(np.stack([a.position for a in self.ants]),wall,self.walls,self.half,self.radius)
         if positions is None: return None,None,'墙边没有足够空间安置个体'
         return wall,positions,'可放置'
 
-    def add_wall(self,x: float,y: float,hx: float=.4,hy: float=2.) -> str:
-        wall,positions,message=self.plan_wall(x,y,hx,hy)
+    def add_wall(self,x: float,y: float,hx: float=.4,hy: float=2.,angle: float=0.) -> str:
+        wall,positions,message=self.plan_wall(x,y,hx,hy,angle)
         if wall is None or positions is None: return message+'，已拒绝'
         displaced=0
         for ant,position in zip(self.ants,positions,strict=True):
@@ -191,7 +191,7 @@ class World:
 
     def remove_wall(self,x: float,y: float) -> str:
         for w in self.walls:
-            if abs(x-w.x)<=w.hx+.5 and abs(y-w.y)<=w.hy+.5:
+            if w.overlaps(np.asarray([x,y],np.float32), .5):
                 self.walls.remove(w); self.field.set_walls(self.walls); self.event('wall','已移除墙体'); return '墙已移除'
         return '这里没有墙'
 

@@ -57,10 +57,10 @@ class WallPreview(BaseModel):
     displaced: int = 0
 
 @app.get('/api/wall-preview')
-async def wall_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,le=10), hx: float = Query(default=.4,ge=.25,le=4), hy: float = Query(default=2.,ge=.25,le=4)) -> WallPreview:
+async def wall_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,le=10), hx: float = Query(default=.4,ge=.25,le=4), hy: float = Query(default=2.,ge=.25,le=4), angle: float = Query(default=0.,ge=-1000,le=1000)) -> WallPreview:
     world=engine.world
     if world is None: return WallPreview(valid=False,message='模型尚未就绪')
-    wall,positions,message=world.plan_wall(x,y,hx,hy)
+    wall,positions,message=world.plan_wall(x,y,hx,hy,angle)
     if wall is None or positions is None: return WallPreview(valid=False,message=message)
     count=sum(float(np.linalg.norm(p-a.position))>1e-6 for p,a in zip(positions,world.ants,strict=True))
     return WallPreview(valid=True,message='可放置' if not count else f'可放置；将就近移开 {count} 只个体',displaced=count)

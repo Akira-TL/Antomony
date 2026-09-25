@@ -21,15 +21,14 @@ const scene=new ColonyScene(el('viewport'));
 let current:Frame|null=null;let ws:WebSocket;let lastToast='';let generation=0;
 const send=(command:Command)=>{if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(command));else toast('本地模型尚未连接');};
 function toast(message:string){el('toast').textContent=message;el('toast').classList.add('visible');window.setTimeout(()=>el('toast').classList.remove('visible'),3500);}
-const hints:Record<Tool,string>={inspect:'拖动旋转 · 滚轮缩放 · 点击蚂蚁查看独立模型',wall:'移动鼠标预览 · R 旋转 · 点击放墙；蚂蚁会就近让位',erase:'点击一道墙将其拆除 · 不改变已有模型参数',food:'点击空地增加资源点 · 蚂蚁必须靠局部感知发现',scent:'点击地面喷洒食物信号 · 模型不知道这里是否有食物'};
+const hints:Record<Tool,string>={inspect:'拖动旋转 · 滚轮缩放 · 点击蚂蚁查看独立模型',wall:'移动鼠标预览 · 滚轮转角 / R 转90° · 点击放墙；蚂蚁会就近让位',erase:'点击一道墙将其拆除 · 不改变已有模型参数',food:'点击空地增加资源点 · 蚂蚁必须靠局部感知发现',scent:'点击地面喷洒食物信号 · 模型不知道这里是否有食物'};
 document.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach(button=>button.addEventListener('click',()=>{scene.tool=button.dataset.tool as Tool;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b===button));el('hint').textContent=hints[scene.tool];el('wall-settings').hidden=scene.tool!=='wall';scene.wallPreview.hide();}));
-scene.onPoint=(x,y,id)=>{if(scene.tool==='inspect'){if(id!==null){scene.selected=id;el<HTMLSelectElement>('ant-select').value=String(id);if(current)inspect(current.ants[id]);}}else send({kind:scene.tool,x,y,...(scene.tool==='wall'?{hx:scene.wallPreview.hx,hy:scene.wallPreview.hy}:{})});};
-scene.wallPreview.onStatus=message=>{if(scene.tool==='wall')el('hint').textContent=message?message+' · 点击放置 / R 旋转':hints.wall;};
-let wallHorizontal=false;
-function updateWallSize():void {const length=Number(el<HTMLInputElement>('wall-length').value);el('wall-length-value').textContent=length.toFixed(1);scene.wallPreview.setSize(wallHorizontal?length/2:.4,wallHorizontal?.4:length/2);}
+scene.onPoint=(x,y,id)=>{if(scene.tool==='inspect'){if(id!==null){scene.selected=id;el<HTMLSelectElement>('ant-select').value=String(id);if(current)inspect(current.ants[id]);}}else send({kind:scene.tool,x,y,...(scene.tool==='wall'?{hx:scene.wallPreview.hx,hy:scene.wallPreview.hy,angle:scene.wallPreview.angle}:{})});};
+scene.wallPreview.onStatus=message=>{if(scene.tool==='wall')el('hint').textContent=message?message+' · 滚轮调角 · 点击放置':hints.wall;};
+function updateWallSize():void {const length=Number(el<HTMLInputElement>('wall-length').value);el('wall-length-value').textContent=length.toFixed(1);scene.wallPreview.setSize(.4,length/2);}
 el<HTMLInputElement>('wall-length').oninput=updateWallSize;
-el('wall-rotate').onclick=()=>{wallHorizontal=!wallHorizontal;updateWallSize();};
-window.addEventListener('keydown',event=>{if(scene.tool==='wall'&&event.key.toLowerCase()==='r'&&!(event.target instanceof HTMLInputElement)){wallHorizontal=!wallHorizontal;updateWallSize();}});
+el('wall-rotate').onclick=()=>{scene.wallPreview.rotate(Math.PI/2);};
+window.addEventListener('keydown',event=>{if(scene.tool==='wall'&&event.key.toLowerCase()==='r'&&!(event.target instanceof HTMLInputElement)){scene.wallPreview.rotate(Math.PI/2);}});
 el('pause').onclick=()=>send({kind:'pause'});el('step').onclick=()=>send({kind:'step'});
 el('speed').onclick=()=>send({kind:'speed',value:current?.rate===1?2:current?.rate===2?4:1});
 el('reset').onclick=()=>{const seed=crypto.getRandomValues(new Uint32Array(1))[0]%2147483647;send({kind:'reset',seed,count:current?.ants.length??32});toast('正在为每只蚂蚁重新独立预热…');};

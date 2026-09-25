@@ -21,7 +21,12 @@ class Pheromones:
         y=np.linspace(-10+10/self.height,10-10/self.height,self.height)
         self.blocked.fill(False)
         for w in walls:
-            self.blocked |= (np.abs(x[None,:]-w.x)<=w.hx+14/self.width)&(np.abs(y[:,None]-w.y)<=w.hy+10/self.height)
+            c, sn = np.cos(w.angle), np.sin(w.angle)
+            dx, dy = x[None,:]-w.x, y[:,None]-w.y
+            # 单元在墙局部轴上的投影半径：斜边不泄漏，也不以大外接框遮掉通路。
+            ex = abs(c)*14/self.width+abs(sn)*10/self.height
+            ey = abs(sn)*14/self.width+abs(c)*10/self.height
+            self.blocked |= (np.abs(c*dx+sn*dy)<=w.hx+ex)&(np.abs(-sn*dx+c*dy)<=w.hy+ey)
         self.values[:,self.blocked]=0
 
     def deposit(self,p: Array,channel: int,amount: float) -> None:

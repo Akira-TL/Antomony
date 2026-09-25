@@ -4,7 +4,7 @@ interface Placement {valid:boolean; message:string; displaced:number}
 
 /** 预览与落墙均使用服务端同一套空间校验；预览不改变世界。 */
 export class WallPreview {
-  hx=.4; hy=2;
+  hx=.4; hy=2; angle=0;
   onStatus:(message:string)=>void=()=>{};
   private point:THREE.Vector2|null=null;
   private timer=0;
@@ -22,11 +22,16 @@ export class WallPreview {
 
   setSize(hx:number,hy:number):void {this.hx=hx;this.hy=hy;if(this.point)this.move(this.point.x,this.point.y);}
 
+  rotate(delta:number):void {
+    this.angle=Math.atan2(Math.sin(this.angle+delta),Math.cos(this.angle+delta));
+    if(this.point)this.move(this.point.x,this.point.y);
+  }
+
   move(x:number,y:number):void {
     this.point=new THREE.Vector2(x,y);this.revision++;
-    for(const object of [this.mesh,this.edges]){object.visible=true;object.position.set(x,.6,y);object.scale.set(2*this.hx,1.2,2*this.hy);}
+    for(const object of [this.mesh,this.edges]){object.visible=true;object.position.set(x,.6,y);object.scale.set(2*this.hx,1.2,2*this.hy);object.rotation.y=-this.angle;}
     this.paint(0xffcd77,'pending','正在核验位置…');
-    this.host.dataset.wallX=x.toFixed(3);this.host.dataset.wallY=y.toFixed(3);
+    this.host.dataset.wallAngle=String(this.angle);this.host.dataset.wallX=x.toFixed(3);this.host.dataset.wallY=y.toFixed(3);
     this.schedule();
   }
 
@@ -51,7 +56,7 @@ export class WallPreview {
   private async check():Promise<void> {
     const point=this.point;if(!point)return;
     const revision=this.revision;this.checkedAt=performance.now();
-    const query=new URLSearchParams({x:String(point.x),y:String(point.y),hx:String(this.hx),hy:String(this.hy)});
+    const query=new URLSearchParams({x:String(point.x),y:String(point.y),hx:String(this.hx),hy:String(this.hy),angle:String(this.angle)});
     try {
       const response=await fetch(`/api/wall-preview?${query}`,{signal:AbortSignal.timeout(2000)});
       if(revision!==this.revision)return;
