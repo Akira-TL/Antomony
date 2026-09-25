@@ -1,0 +1,91 @@
+"""单蚁训练服务；默认暂停，与原演示服务隔离。"""
+from __future__ import annotations
+
+import asyncio
+import logging
+from contextlib import asynccontextmanager, suppress
+from pathlib import Path
+from urllib.parse import urlsplit
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+
+from .schemas import Command, State
+from .session import TrainingSession
+
+ROOT = Path(__file__).resolve().parents[3]
+session: TrainingSession | None = None
+
+
+def current() -> TrainingSession:
+    if session is None:
+        raise HTTPException(503, "训练服务尚未启动")
+    return session
+
+
+async def run() -> None:
+    while True:
+        active = current()
+        if not active.paused:
+            try:
+                active.step()
+            except Exception:
+                logging.exception("单蚁训练已暂停")
+                active.error = "训练异常，已暂停；请检查 logs/training-server-*.log"
+                active.paused = True
+        await asyncio.sleep(.1 / active.speed)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    global session
+    session = TrainingSession(ROOT / "logs" / "training")
+    task = asyncio.create_task(run())
+    yield
+    task.cancel()
+    with suppress(asyncio.CancelledError):
+        await task
+    session.finish("服务停止，未执行外部更新", False)
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.get("/api/training/state")
+async def state() -> State:
+    return current().state()
+
+
+@app.get("/api/health")
+async def health() -> bool:
+    return session is not None
+
+
+@app.post("/api/training/command")
+async def command(body: Command, request: Request) -> State:
+    origin = request.headers.get("origin")
+    if origin and urlsplit(origin).netloc != request.headers.get("host"):
+        raise HTTPException(403, "仅允许同源操作")
+    try:
+        current().command(body)
+    except ValueError as error:
+        raise HTTPException(409, str(error)) from error
+    return current().state()
+
+
+@app.get("/api/training/checkpoints/{episode}")
+async def checkpoint(episode: int) -> FileResponse:
+    path = current().directory / f"episode-{episode:06d}.npz"
+    if episode < 1 or not path.is_file():
+        raise HTTPException(404, "记录不存在")
+    return FileResponse(path, filename=path.name)
+
+
+@app.get("/")
+async def index() -> RedirectResponse:
+    return RedirectResponse("/training.html")
+
+
+if (ROOT / "web" / "dist").exists():
+    app.mount("/", StaticFiles(directory=ROOT / "web" / "dist"), name="training-ui")
