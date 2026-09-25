@@ -3,6 +3,7 @@ import math
 import numpy as np
 from mathhackson.colony.world import World
 from mathhackson.colony.geometry import unit
+from mathhackson.colony.navigation import follow_trail
 
 
 def setup_trail_world():
@@ -34,3 +35,20 @@ def test_food_trail_survives_an_eighteen_second_return_trip():
         world.field.tick(.1)
     remaining = float(world.field.values[1].sum())
     assert .5 < remaining < 1., f'一次往返期间轨迹已经过度消失: {remaining}'
+
+
+def test_uniform_food_signal_has_no_direction_to_follow():
+    world, ant = setup_trail_world()
+    world.field.values[1].fill(.15)
+    assert follow_trail(world, ant) is None
+    world.sense(ant, np.stack([ant.position]))
+    world.direction(ant)
+    assert not ant.following_trail
+
+
+def test_local_food_signal_peak_does_not_pull_an_ant_into_a_loop():
+    world, ant = setup_trail_world()
+    x = np.linspace(-14, 14, world.field.width, dtype=np.float32)
+    y = np.linspace(-10, 10, world.field.height, dtype=np.float32)
+    world.field.values[1] = np.exp(-(x[None, :]**2 + y[:, None]**2) / 2)
+    assert follow_trail(world, ant) is None

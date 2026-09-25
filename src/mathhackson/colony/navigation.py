@@ -84,6 +84,12 @@ def follow_trail(world: World, ant: Ant) -> Array | None:
     distances = np.asarray([.45, .85, 1.25, 1.7], np.float32)
     points = ant.position + probes[:, None, :] * distances[None, :, None]
     signal = world.field.sample_many(points, 0 if ant.carrying else 1)
+    peak = float(np.max(signal))
+    # 均匀残留没有方向信息，不能因为非零就让个体不断追逐任意采样点。
+    if peak - float(np.median(signal)) < max(.003, .08 * peak):
+        return None
+    if peak - world.field.sample(ant.position, 0 if ant.carrying else 1) < max(.003, .05 * peak):
+        return None
     # 极弱扩散尾部不当成可靠轨迹；前进偏好只用于相近标记的比较。
     scores = signal * (.85 + .15 * np.cos(offsets))[:, None]
     for flat in np.argsort(scores, axis=None)[::-1]:
