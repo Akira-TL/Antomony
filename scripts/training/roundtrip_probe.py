@@ -33,7 +33,8 @@ class ProbeReport(BaseModel):
     evaluations: list[Evaluation]
 
 
-def evaluate(model: RoundTripPolicy, name: str, seeds: int, write_mode: WriteMode) -> Evaluation:
+def evaluate(model: RoundTripPolicy, name: str, seeds: int, write_mode: WriteMode,
+             scent_enabled: bool = True) -> Evaluation:
     previous_phase, previous_mode = model.phase, model.write_mode
     model.phase = "autonomous"
     model.write_mode = write_mode
@@ -48,7 +49,8 @@ def evaluate(model: RoundTripPolicy, name: str, seeds: int, write_mode: WriteMod
             while not environment.done:
                 action = model.decide(environment.observation())
                 environment.step(action.move, action.turn,
-                                 action.release_home, action.release_food)
+                                 action.release_home if scent_enabled else False,
+                                 action.release_food if scent_enabled else False)
                 write = model.observe_result(environment.observation(), terminal=environment.done)
                 writes += int(write.wrote)
                 probabilities += write.probability
@@ -79,6 +81,7 @@ def main() -> None:
         parser.error("回合数不能为负，验收场景数至少为 1")
     session = RoundTripSession(ROOT / "logs" / "roundtrip-probe", FOUNDATION, seed=91)
     evaluations = [evaluate(session.model, "初始，无写入", arguments.seeds, "off")]
+    evaluations.append(evaluate(session.model, "初始，禁用释放", arguments.seeds, "off", False))
     train(session, arguments.memory)
     evaluations.append(evaluate(session.model, "基础循迹，无写入", arguments.seeds, "off"))
     if arguments.adaptive:

@@ -46,6 +46,28 @@ def test_homing_observation_never_contains_nest_direction():
     assert before[2] == 0.
 
 
+def test_private_goal_progress_and_reward_never_enter_observation():
+    world = RoundTripEnvironment(4)
+    world.carrying = True
+    world.progress = .18
+    world.reward = 8.
+    observation = world.observation()
+    assert observation[5] == 0.
+    assert observation[7] == 0.
+
+
+def test_inactive_pheromone_channel_is_hidden_from_each_return_leg():
+    world = RoundTripEnvironment(4)
+    world.position = np.asarray([1., 0.], np.float32)
+    world.field.deposit(world.position, 0, 2.)
+    world.field.deposit(world.position, 1, 2.)
+    world.carrying = True
+    assert np.array_equal(world.observation()[11:14], np.zeros(3))
+    world.carrying = False
+    world.delivered = 1
+    assert np.array_equal(world.observation()[8:11], np.zeros(3))
+
+
 def test_delivery_uses_nest_area_not_an_exact_point():
     world = RoundTripEnvironment(4)
     world.carrying = True

@@ -43,6 +43,10 @@ class RoundTripEnvironment:
     def observation(self) -> np.ndarray:
         home_strength, home_forward, home_left, home_direction = self._local_scent(0)
         food_strength, food_forward, food_left, food_direction = self._local_scent(1)
+        if self.carrying:
+            food_strength = food_forward = food_left = 0.
+        elif self.delivered:
+            home_strength = home_forward = home_left = 0.
         facing = unit(self.heading)
         left = np.asarray([-facing[1], facing[0]], np.float32)
         visible_food = not self.carrying and (
@@ -56,8 +60,8 @@ class RoundTripEnvironment:
             direction = home_direction if self.carrying else food_direction
             target = (float(direction @ facing), float(direction @ left), 0.)
         return np.asarray([
-            *target, float(self.move), self.turn, np.clip(self.reward, -1., 1.),
-            float(self.contact), self.progress / .18,
+            *target, float(self.move), self.turn, 0.,
+            float(self.contact), 0.,
             home_strength, home_forward, home_left,
             food_strength, food_forward, food_left,
             self.steps / self.horizon, 1., float(self.carrying),
