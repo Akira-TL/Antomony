@@ -25,8 +25,8 @@ export class ColonyScene {
   private wallGroup=new THREE.Group();
   private foodGroup=new THREE.Group();
   private wallKey=''; private foodKey='';
-  private fieldTexture:THREE.DataTexture;
-  private fieldMesh:THREE.Mesh;
+  private fieldTextures:THREE.DataTexture[]=[];
+  private fieldMeshes:THREE.Mesh[]=[];
   private ring:THREE.Mesh;
   private rays=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xb3f6cd,transparent:true,opacity:.35}));
   private pointer=new THREE.Vector2(); private raycaster=new THREE.Raycaster();
@@ -68,8 +68,13 @@ export class ColonyScene {
     this.cargo=new THREE.InstancedMesh(new THREE.BoxGeometry(.18,.18,.18),new THREE.MeshStandardMaterial({color:0xf8b85b,emissive:0xb46616,emissiveIntensity:.6,metalness:.3,roughness:.35}),64);this.scene.add(this.cargo);
     this.delivered=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,.12,.12),this.cargo.material,384);this.scene.add(this.delivered);
     [...this.antMeshes,this.legs,this.cargo,this.delivered].forEach(mesh=>mesh.count=0);
-    this.fieldTexture=new THREE.DataTexture(new Uint8Array(96*64*4),96,64,THREE.RGBAFormat);this.fieldTexture.flipY=true;this.fieldTexture.magFilter=THREE.LinearFilter;this.fieldTexture.minFilter=THREE.LinearFilter;
-    this.fieldMesh=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshBasicMaterial({map:this.fieldTexture,transparent:true,depthWrite:false,opacity:.8,blending:THREE.AdditiveBlending}));this.fieldMesh.rotation.x=-Math.PI/2;this.fieldMesh.position.y=.022;this.scene.add(this.fieldMesh);
+    for(let channel=0;channel<2;channel++){
+      const texture=new THREE.DataTexture(new Uint8Array(96*64*4),96,64,THREE.RGBAFormat);
+      texture.flipY=true;texture.magFilter=THREE.LinearFilter;texture.minFilter=THREE.LinearFilter;
+      const mesh=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,toneMapped:false}));
+      mesh.rotation.x=-Math.PI/2;mesh.position.y=.022+channel*.002;this.scene.add(mesh);
+      this.fieldTextures.push(texture);this.fieldMeshes.push(mesh);
+    }
     this.ring=new THREE.Mesh(new THREE.RingGeometry(.32,.36,48),new THREE.MeshBasicMaterial({color:0xd3ffb1,side:THREE.DoubleSide,transparent:true,opacity:.9}));this.ring.rotation.x=-Math.PI/2;this.scene.add(this.ring,this.rays,this.wallGroup,this.foodGroup);
     this.wallPreview=new WallPreview(this.scene,host);
     this.foodPreview=new FoodPreview(this.scene,host);
@@ -116,15 +121,16 @@ export class ColonyScene {
     if(this.tool==='wall')this.wallPreview.refresh();
     if(this.tool==='food')this.foodPreview.refresh();
     const raw=atob(frame.pheromones),n=frame.field_width*frame.field_height;
-    const rgba=this.fieldTexture.image.data as Uint8Array;
-    for(let i=0;i<n;i++){
-      const home=raw.charCodeAt(i),food=raw.charCodeAt(i+n),total=home+food;
-      // 仅改变显示曲线；决策仍读取模拟器的原始浓度。避免 RGB×alpha 二次压暗。
-      const ratio=total?food/total:0;
-      rgba[4*i]=79+(243-79)*ratio;rgba[4*i+1]=188+(184-188)*ratio;rgba[4*i+2]=208+(94-208)*ratio;
-      rgba[4*i+3]=Math.min(160,220*Math.pow(Math.max(home,food)/255,.55));
-    }
-    this.fieldTexture.needsUpdate=true;
+    const colors=[[57,203,231],[255,157,55]];
+    this.fieldTextures.forEach((texture,channel)=>{
+      const rgba=texture.image.data as Uint8Array,[red,green,blue]=colors[channel];
+      for(let i=0;i<n;i++){
+        const value=raw.charCodeAt(i+channel*n),index=i*4;
+        rgba[index]=red;rgba[index+1]=green;rgba[index+2]=blue;
+        rgba[index+3]=Math.min(245,255*Math.pow(Math.max(0,value-3)/24,.8));
+      }
+      texture.needsUpdate=true;
+    });
     const wk=JSON.stringify(frame.walls);
     if(wk!==this.wallKey){this.clear(this.wallGroup);this.wallKey=wk;
       for(const w of frame.walls){const g=new THREE.BoxGeometry(w.hx*2,1.15,w.hy*2);const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x304950,roughness:.5,metalness:.28}));m.position.set(w.x,.58,w.y);m.rotation.y=-w.angle;m.castShadow=true;m.receiveShadow=true;this.wallGroup.add(m);const edge=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x97b9ae,transparent:true,opacity:.62}));edge.position.copy(m.position);edge.rotation.y=-w.angle;this.wallGroup.add(edge);}
@@ -162,7 +168,7 @@ export class ColonyScene {
     if(!this.active)return;
     const now=performance.now();this.last=now;this.frameCounter++;
     if(now-this.fpsStart>1000){this.fps=this.frameCounter*1000/(now-this.fpsStart);this.frameCounter=0;this.fpsStart=now;}
-    this.controls.enabled=this.interactive&&this.tool==='inspect';this.controls.update();this.fieldMesh.visible=this.showField;
+    this.controls.enabled=this.interactive&&this.tool==='inspect';this.controls.update();this.fieldMeshes.forEach(mesh=>mesh.visible=this.showField);
     this.ring.visible=this.rays.visible=this.selected>=0;
     const f=this.frame;
     if(f){const alpha=Math.min(1,(now-this.received)/110);let carrying=0;
