@@ -1,0 +1,83 @@
+{
+  "configuration": {
+    "purpose": "工程可行性试跑；不是确认性效果研究",
+    "seeds": [
+      101,
+      102,
+      103
+    ],
+    "ants": 12,
+    "ticks": 400,
+    "warmup": 220,
+    "force_start": 100,
+    "force": 0.8
+  },
+  "runs": [
+    {
+      "seed": 101,
+      "online": false,
+      "delivered": 7,
+      "contacts_per_100_actions": 15.9375,
+      "prediction_mse": 0.13990905508680954,
+      "changed_region_mse": 0.149219305329906,
+      "neural_updates": 0,
+      "tick_ms_median": 9.074394998606294,
+      "elapsed_seconds": 3.813239574985346
+    },
+    {
+      "seed": 101,
+      "online": true,
+      "delivered": 8,
+      "contacts_per_100_actions": 8.583333333333334,
+      "prediction_mse": 0.037490761986120585,
+      "changed_region_mse": 0.03633797004820079,
+      "neural_updates": 4800,
+      "tick_ms_median": 9.31550700624939,
+      "elapsed_seconds": 3.907640524004819
+    },
+    {
+      "seed": 102,
+      "online": false,
+      "delivered": 6,
+      "contacts_per_100_actions": 15.770833333333334,
+      "prediction_mse": 0.13323409990181972,
+      "changed_region_mse": 0.13630958108383412,
+      "neural_updates": 0,
+      "tick_ms_median": 9.265660002711229,
+      "elapsed_seconds": 3.954824930988252
+    },
+    {
+      "seed": 102,
+      "online": true,
+      "delivered": 7,
+      "contacts_per_100_actions": 7.458333333333333,
+      "prediction_mse": 0.03675251470605662,
+      "changed_region_mse": 0.036994786791670606,
+      "neural_updates": 4800,
+      "tick_ms_median": 9.485213508014567,
+      "elapsed_seconds": 4.049164033000125
+    },
+    {
+      "seed": 103,
+      "online": false,
+      "delivered": 10,
+      "contacts_per_100_actions": 9.145833333333334,
+      "prediction_mse": 0.10539674087933994,
+      "changed_region_mse": 0.10395071687402176,
+      "neural_updates": 0,
+      "tick_ms_median": 9.359621501062065,
+      "elapsed_seconds": 3.944675220991485
+    },
+    {
+      "seed": 103,
+      "online": true,
+      "delivered": 8,
+      "contacts_per_100_actions": 5.729166666666667,
+      "prediction_mse": 0.02938439116563179,
+      "changed_region_mse": 0.03114756604701774,
+      "neural_updates": 4800,
+      "tick_ms_median": 9.728085511596873,
+      "elapsed_seconds": 4.088609697995707
+    }
+  ]
+}

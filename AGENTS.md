@@ -2,7 +2,7 @@
 
 ## 工作边界
 
-本仓库是数学建模黑客松的独立工程与研究工作区。先读 `README.md` 与 `CONTEXT.md`；核验赛事资料时读 `docs/competition/README.md`。当前用户已要求进入独立神经蚁群演示的 `wayfinder`：涉及本次演示范围、决策或实现前，必须读取 `.scratch/ant-colony-wayfinder/map.md`，不要沿用早期轨迹预测草案直接开工。
+本仓库是数学建模黑客松的独立工程与研究工作区。先读 `README.md` 与 `CONTEXT.md`；核验赛事资料时读 `docs/competition/README.md`。当前已进入独立神经蚁群可交互首版。运行、修改或验收前读 `docs/engineering/ant-colony-run.md` 与 `.scratch/ant-colony-wayfinder/map.md`；旧轨迹预测草案不是蚁群实现规格。
 
 `/home/Akira/Projects/v2v` 是独立参考项目，只读；未经用户新授权，不移动其代码、数据库或模型，不启动其训练，不修改已冻结的设计和判据。
 
@@ -22,7 +22,7 @@
 
 ### Engineering
 
-软件工程入口为 `ask-akira`；模式由当前任务决定，普通任务进入标准 Matt 流程。用户已显式调用 `wayfinder`，本地图先解决决策，不把建图等同于授权完整产品实现。领取条目、加载依赖、用户参与和停止边界服从该 Skill。项目级技能引用及恢复方式见 `docs/agents/skills.md`。
+软件工程入口为 `ask-akira`；模式由当前任务决定，普通任务进入标准 Matt 流程。用户已显式调用 `wayfinder`、接受第一轮选择并授权快速完成首版；明确的技术决策可进入实现，用户视觉反馈仍须真实取得。领取条目、加载依赖、用户参与和停止边界服从该 Skill。项目级技能引用及恢复方式见 `docs/agents/skills.md`。
 
 ### Research
 
