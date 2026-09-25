@@ -17,6 +17,7 @@ INPUT_WIDTH = 16
 MOTOR_CONNECTIONS = ((0, 2, 15), (1,))
 FAST_LIMITS = torch.tensor([.3, .15, .12])
 FAST_STEPS = torch.tensor([.025, .012, .012])
+PARAMETER_LIMITS = (2., 1., 1., 1., 1., 2., 1.)
 
 
 @dataclass
@@ -97,6 +98,8 @@ class RecurrentPolicy:
                 if self.write_mode != "off":
                     output = output + torch.stack((self.fast[0],
                                                    self.fast[1] * float(observation[1]) + self.fast[2]))
+            output = torch.stack((3. * torch.tanh(output[0] / 3.),
+                                  1.5 * torch.tanh(output[1] / 1.5)))
             move_dist = torch.distributions.Bernoulli(logits=output[0])
             turn_dist = torch.distributions.Normal(output[1], .35)
             if training:
@@ -121,8 +124,8 @@ class RecurrentPolicy:
             values = torch.from_numpy(observation.astype(np.float32))
             taps = torch.cat(tuple(self.hidden_history[-lag] if len(self.hidden_history) >= lag
                                    else torch.zeros_like(self.hidden) for lag in MEMORY_LAGS))
-            self.hidden = torch.tanh(self.input_weights @ values +
-                                     self.hidden_weights @ taps + self.hidden_bias)
+            preactivation = self.input_weights @ values + self.hidden_weights @ taps + self.hidden_bias
+            self.hidden = torch.tanh(.5 * torch.nn.functional.layer_norm(preactivation, (HIDDEN_WIDTH,)))
             self.hidden_history.append(self.hidden)
             self.hidden_history = self.hidden_history[-max(MEMORY_LAGS):]
             self.fast_delta = torch.zeros_like(self.fast)
@@ -163,18 +166,21 @@ class RecurrentPolicy:
                 if self.phase == "adaptive" and self.write_mode == "learned" and index + 1 < len(returns):
                     future = returns[index + 1] - .02 * int(write.requested)
                     loss = loss - write.logp * (future - baseline)
-            (loss / len(actions)).backward()
             masks = self.trainable_masks()
+            loss = loss / len(actions) + .001 * sum(
+                (parameter * mask).square().sum() / mask.sum().clamp(min=1.)
+                for parameter, mask in zip(self.parameters, masks, strict=True))
+            loss.backward()
             gradients = [torch.zeros_like(value) if value.grad is None else value.grad * mask
                          for value, mask in zip(self.parameters, masks, strict=True)]
             norm = torch.sqrt(sum(torch.sum(gradient.square()) for gradient in gradients))
             scale = torch.clamp(norm, min=1.)
             rate = .05 if self.phase == "motor" else .015
             with torch.no_grad():
-                for parameter, gradient, mask, delta in zip(self.parameters, gradients, masks,
-                                                             self.outer_delta, strict=True):
+                for parameter, gradient, mask, delta, limit in zip(
+                        self.parameters, gradients, masks, self.outer_delta, PARAMETER_LIMITS, strict=True):
                     change = -rate * gradient / scale
-                    proposal = torch.clamp(parameter + change, -6., 6.)
+                    proposal = torch.clamp(parameter + change, -limit, limit)
                     updated = torch.where(mask.bool(), proposal, parameter)
                     if not torch.isfinite(updated).all():
                         raise ValueError("非有限外部更新已拒绝")

@@ -5,7 +5,8 @@ import pytest
 import torch
 
 from mathhackson.training.environment import SingleAntEnvironment
-from mathhackson.training.recurrent import HIDDEN_WIDTH, MEMORY_LAGS, RecurrentPolicy
+from mathhackson.training.recurrent import (HIDDEN_WIDTH, MEMORY_LAGS, PARAMETER_LIMITS,
+                                            RecurrentPolicy)
 from mathhackson.training.schemas import RecurrentCommand
 from mathhackson.training.recurrent_session import RecurrentSession
 
@@ -56,12 +57,42 @@ def test_sparse_hidden_taps_use_exact_requested_delays():
     model.hidden_history = [torch.zeros(HIDDEN_WIDTH) for _ in range(16)]
     for index, lag in enumerate(MEMORY_LAGS):
         model.hidden_history[-lag][index] = .5
-    model.hidden_history[-7][4] = 1.
+    model.hidden_history[-7][0] = 1.
     model.observe_result(observation())
     assert torch.all(model.hidden[:4] > 0)
-    assert torch.count_nonzero(model.hidden[4:]) == 0
+    result = model.hidden.clone()
     model.reset_state()
     assert model.hidden_history == []
+    model.hidden_history = [torch.zeros(HIDDEN_WIDTH) for _ in range(16)]
+    for index, lag in enumerate(MEMORY_LAGS):
+        model.hidden_history[-lag][index] = .5
+    model.hidden_history[-7][0] = -1.
+    model.observe_result(observation())
+    assert torch.equal(model.hidden, result)
+
+
+def test_action_outputs_remain_finite_with_extreme_parameters():
+    model = RecurrentPolicy(2)
+    model.phase = "autonomous"
+    with torch.no_grad():
+        model.motor[0, 15] = 1e6
+        model.motor[1, 1] = 1e6
+    values = observation()
+    values[1] = 1.
+    action = model.decide(values)
+    assert 0. < action.move_probability < 1.
+    assert -1. <= action.turn <= 1.
+    assert torch.isfinite(action.action_logp)
+
+
+def test_training_weights_stay_within_group_limits(tmp_path: Path):
+    session = RecurrentSession(tmp_path)
+    for _ in range(50):
+        episode = session.episode
+        while session.episode == episode:
+            session.step()
+    assert all(torch.all(parameter.abs() <= limit) for parameter, limit in
+               zip(session.model.parameters, PARAMETER_LIMITS, strict=True))
 
 
 def test_memory_phase_keeps_motor_immutable_and_resets_hidden_each_episode(tmp_path: Path):
@@ -221,6 +252,8 @@ def test_adaptive_training_writes_without_changing_pretrained_motor(tmp_path: Pa
         current = session.episode
         while session.episode == current:
             session.step()
+    assert all(torch.all(parameter.abs() <= limit) for parameter, limit in
+               zip(session.model.parameters, PARAMETER_LIMITS, strict=True))
     assert torch.equal(motor, session.model.motor)
     assert session.model.self_updates > 0
     assert all(value == 0. for value in session.state().fast)
