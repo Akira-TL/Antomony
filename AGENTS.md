@@ -26,7 +26,7 @@
 
 ### Research
 
-研究入口为 `akira-research`。先读取 `RESEARCH.md`，再使用 `bash scripts/research-db.sh status` 核对数据库；只读任务不得写入数据库。基础初始化完成后，本次任务即停止，不自动继续选题、采数据、训练或仿真。
+研究入口为 `akira-research`。先读取 `RESEARCH.md`，再使用 `bash scripts/research-db.sh status` 核对数据库；只读任务不得写入数据库。用户现已进入 V2V 单一机制提取阶段；当前范围见 `docs/competition/v2v-extraction-scope.md`。只在本仓库隔离和验证选定的小模块，原 V2V 仍只读；新的科研实验须先固定研究设计，不把工程测试等同于效果证据。
 
 ## 资料与网络
 
