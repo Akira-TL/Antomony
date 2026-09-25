@@ -20,8 +20,17 @@ if ss -ltnH "sport = :$PORT" | rg -q .; then
 fi
 [[ -f web/dist/training.html ]] || { echo '请先执行 npm --prefix web run build。' >&2; exit 1; }
 export PORT
-nohup bash scripts/training/serve.sh > "$LOGFILE" 2>&1 < /dev/null &
-pid=$!
+if [[ "${1:-}" == '--managed' ]]; then
+    systemd-run --user --collect --unit "mathhackson-training-$PORT" \
+        --working-directory "$ROOT" --setenv "PORT=$PORT" --setenv "PATH=$PATH" \
+        --property "StandardOutput=append:$ROOT/$LOGFILE" \
+        --property "StandardError=append:$ROOT/$LOGFILE" \
+        /bin/bash "$ROOT/scripts/training/serve.sh"
+    pid="$(systemctl --user show "mathhackson-training-$PORT" -p MainPID --value)"
+else
+    nohup bash scripts/training/serve.sh > "$LOGFILE" 2>&1 < /dev/null &
+    pid=$!
+fi
 printf '%s\n' "$pid" > "$PIDFILE"
 for _ in $(seq 1 40); do
     if curl -fsS "http://127.0.0.1:$PORT/api/health" 2>/dev/null | rg -q '^true$'; then

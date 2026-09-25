@@ -6,6 +6,8 @@
 
 安装依赖 `uv sync`，构建 `npm --prefix web run build`，通过 `bash scripts/training/start.sh` 启动。默认地址 `http://localhost:8766/training.html`；占用时使用 `PORT=8767 bash scripts/training/start.sh`，不停止其他端口服务。停止时向 `scripts/training/stop.sh` 传入相同端口。定向检查入口为 `bash scripts/training/check.sh`。服务启动后训练默认暂停。
 
+若 Agent 执行环境会回收后台子进程，用 `bash scripts/training/start.sh --managed` 交给用户级 systemd 临时托管。托管只启动本项目的 `serve.sh`，不安装永久服务，不调整网络配置；停止仍使用同一个 `stop.sh`。
+
 ## 任务与评价
 
 - 课程依次为直行目标、左右 60 度目标、随机方向目标；目标始终可见。
