@@ -17,7 +17,7 @@ INPUT_WIDTH = 16
 MOTOR_CONNECTIONS = ((0, 2, 15), (1,))
 FAST_LIMITS = torch.tensor([.3, .15, .12])
 FAST_STEPS = torch.tensor([.025, .012, .012])
-PARAMETER_LIMITS = (2., 1., 1., 1., 1., 2., 1.)
+SAFETY_PARAMETER_LIMIT = 10.
 
 
 @dataclass
@@ -177,10 +177,11 @@ class RecurrentPolicy:
             scale = torch.clamp(norm, min=1.)
             rate = .05 if self.phase == "motor" else .015
             with torch.no_grad():
-                for parameter, gradient, mask, delta, limit in zip(
-                        self.parameters, gradients, masks, self.outer_delta, PARAMETER_LIMITS, strict=True):
+                for parameter, gradient, mask, delta in zip(
+                        self.parameters, gradients, masks, self.outer_delta, strict=True):
                     change = -rate * gradient / scale
-                    proposal = torch.clamp(parameter + change, -limit, limit)
+                    proposal = torch.clamp(parameter + change,
+                                           -SAFETY_PARAMETER_LIMIT, SAFETY_PARAMETER_LIMIT)
                     updated = torch.where(mask.bool(), proposal, parameter)
                     if not torch.isfinite(updated).all():
                         raise ValueError("非有限外部更新已拒绝")

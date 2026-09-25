@@ -5,8 +5,8 @@ import pytest
 import torch
 
 from mathhackson.training.environment import SingleAntEnvironment
-from mathhackson.training.recurrent import (HIDDEN_WIDTH, MEMORY_LAGS, PARAMETER_LIMITS,
-                                            RecurrentPolicy)
+from mathhackson.training.recurrent import (Action, HIDDEN_WIDTH, MEMORY_LAGS,
+                                            SAFETY_PARAMETER_LIMIT, RecurrentPolicy, Write)
 from mathhackson.training.schemas import RecurrentCommand
 from mathhackson.training.recurrent_session import RecurrentSession
 
@@ -85,14 +85,26 @@ def test_action_outputs_remain_finite_with_extreme_parameters():
     assert torch.isfinite(action.action_logp)
 
 
-def test_training_weights_stay_within_group_limits(tmp_path: Path):
+def test_training_weights_stay_within_safety_limit(tmp_path: Path):
     session = RecurrentSession(tmp_path)
     for _ in range(50):
         episode = session.episode
         while session.episode == episode:
             session.step()
-    assert all(torch.all(parameter.abs() <= limit) for parameter, limit in
-               zip(session.model.parameters, PARAMETER_LIMITS, strict=True))
+    assert all(torch.all(parameter.abs() <= SAFETY_PARAMETER_LIMIT)
+               for parameter in session.model.parameters)
+
+
+def test_motor_weight_can_move_past_previous_two_unit_limit():
+    model = RecurrentPolicy(3)
+    with torch.no_grad():
+        model.motor[0, 0] = 2.
+    zero = torch.zeros(())
+    move_loss = (model.motor[0, 0] - 3.).square()
+    action = Action(True, 0., .5, zero, zero, move_loss, zero)
+    write = Write(False, False, 0., zero)
+    model.finish([action], [write], [0.], 0., True)
+    assert 2. < model.motor[0, 0] < SAFETY_PARAMETER_LIMIT
 
 
 def test_memory_phase_keeps_motor_immutable_and_resets_hidden_each_episode(tmp_path: Path):
@@ -252,8 +264,8 @@ def test_adaptive_training_writes_without_changing_pretrained_motor(tmp_path: Pa
         current = session.episode
         while session.episode == current:
             session.step()
-    assert all(torch.all(parameter.abs() <= limit) for parameter, limit in
-               zip(session.model.parameters, PARAMETER_LIMITS, strict=True))
+    assert all(torch.all(parameter.abs() <= SAFETY_PARAMETER_LIMIT)
+               for parameter in session.model.parameters)
     assert torch.equal(motor, session.model.motor)
     assert session.model.self_updates > 0
     assert all(value == 0. for value in session.state().fast)
