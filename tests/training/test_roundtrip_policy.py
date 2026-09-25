@@ -35,6 +35,20 @@ def test_release_actions_receive_full_episode_training_signal():
     assert model.release_fast.shape == (2,)
 
 
+def test_release_initialization_prefers_opposite_trail_on_each_leg():
+    model = RoundTripPolicy(8, FOUNDATION)
+    model.phase = "autonomous"
+    observation = np.zeros(17, np.float32)
+    observation[15] = 1.
+    outward = model.decide(observation)
+    observation[16] = 1.
+    returning = model.decide(observation)
+    assert outward.release_home and not outward.release_food
+    assert returning.release_food and not returning.release_home
+    assert outward.release_home_probability > outward.release_food_probability
+    assert returning.release_food_probability > returning.release_home_probability
+
+
 def test_feedback_write_can_adjust_release_without_changing_slow_motor():
     model = RoundTripPolicy(9, FOUNDATION)
     model.phase = "adaptive"

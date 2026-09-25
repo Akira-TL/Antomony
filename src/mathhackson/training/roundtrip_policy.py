@@ -18,6 +18,9 @@ class RoundTripPolicy(RecurrentPolicy):
     def __init__(self, seed: int, foundation: Path) -> None:
         super().__init__(seed, input_width=17)
         self.release_weights = torch.nn.Parameter(torch.zeros(2, 4))
+        with torch.no_grad():
+            self.release_weights[:, 0] = torch.tensor([-4., 4.])
+            self.release_weights[:, 3] = torch.tensor([2., -2.])
         self.release_write_weights = torch.nn.Parameter(torch.from_numpy(
             self.rng.normal(0, .04, (2, HIDDEN_WIDTH + 1)).astype(np.float32)))
         self.parameters += (self.release_weights, self.release_write_weights)
