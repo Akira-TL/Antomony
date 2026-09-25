@@ -52,7 +52,7 @@ def direction(world: World, ant: Ant) -> Array:
         reach = min(norm, 2.4)
         if ray_distance(ant.position, aim, world.walls, world.half, world.radius, reach=reach) >= reach-.02:
             return aim
-        return exploration(world, ant, timed_out)
+        # 直返被阻断时继续走下方局部标记采样，不能跳过回巢通道。
     visible: list[tuple[float, Array]] = []
     for food in world.foods:
         delta = np.asarray([food.x, food.y], np.float32) - ant.position
