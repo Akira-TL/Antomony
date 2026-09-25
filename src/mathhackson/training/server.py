@@ -11,17 +11,25 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .schemas import Command, State, WeightTrace
+from .schemas import Command, RecurrentCommand, RecurrentState, State, WeightTrace
 from .session import TrainingSession
+from .recurrent_session import RecurrentSession
 
 ROOT = Path(__file__).resolve().parents[3]
 session: TrainingSession | None = None
+recurrent_session: RecurrentSession | None = None
 
 
 def current() -> TrainingSession:
     if session is None:
         raise HTTPException(503, "训练服务尚未启动")
     return session
+
+
+def current_recurrent() -> RecurrentSession:
+    if recurrent_session is None:
+        raise HTTPException(503, "循环记忆试验尚未启动")
+    return recurrent_session
 
 
 async def run() -> None:
@@ -37,16 +45,35 @@ async def run() -> None:
         await asyncio.sleep(.1 / active.speed)
 
 
+async def run_recurrent() -> None:
+    while True:
+        active = current_recurrent()
+        if not active.paused:
+            try:
+                active.step()
+            except Exception:
+                logging.exception("循环记忆试验已暂停")
+                active.error = "训练异常，已暂停；请检查训练服务日志"
+                active.paused = True
+        await asyncio.sleep(.1 / active.speed)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    global session
+    global session, recurrent_session
     session = TrainingSession(ROOT / "logs" / "training")
+    recurrent_session = RecurrentSession(ROOT / "logs" / "recurrent-training")
     task = asyncio.create_task(run())
+    recurrent_task = asyncio.create_task(run_recurrent())
     yield
     task.cancel()
+    recurrent_task.cancel()
     with suppress(asyncio.CancelledError):
         await task
+    with suppress(asyncio.CancelledError):
+        await recurrent_task
     session.finish("服务停止，未执行外部更新", False)
+    recurrent_session.finish("服务停止，未执行外部更新", False)
 
 
 app = FastAPI(lifespan=lifespan)
@@ -55,6 +82,23 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/api/training/state")
 async def state() -> State:
     return current().state()
+
+
+@app.get("/api/recurrent/state")
+async def recurrent_state() -> RecurrentState:
+    return current_recurrent().state()
+
+
+@app.post("/api/recurrent/command")
+async def recurrent_command(body: RecurrentCommand, request: Request) -> RecurrentState:
+    origin = request.headers.get("origin")
+    if origin and urlsplit(origin).netloc != request.headers.get("host"):
+        raise HTTPException(403, "仅允许同源操作")
+    try:
+        current_recurrent().command(body)
+    except ValueError as error:
+        raise HTTPException(409, str(error)) from error
+    return current_recurrent().state()
 
 
 @app.get("/api/training/trace")

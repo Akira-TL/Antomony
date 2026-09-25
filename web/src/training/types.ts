@@ -16,3 +16,15 @@ export interface TrainingCommand {
   action:'play'|'pause'|'step'|'phase'|'lesson'|'freeze'|'freeze_all'|'speed'|'turn'|'reset';
   phase?:Phase;lesson?:Lesson;group?:GroupId;frozen?:boolean;speed?:1|4|16;max_turn?:number;
 }
+
+export type RecurrentPhase='motor'|'memory'|'autonomous';
+export type RecurrentTask='normal'|'shift'|'mixed';
+export interface RecurrentGroup {id:string;label:string;values:number[][];changes:number[][];trainable:boolean[][]}
+export interface RecurrentEpisode {episode:number;phase:RecurrentPhase;task:RecurrentTask;perturbation:number;reached:boolean;steps:number;reward:number;checkpoint:string}
+export interface RecurrentState {
+  session:string;paused:boolean;error:string;phase:RecurrentPhase;task:RecurrentTask;speed:number;tick:number;episode:number;steps:number;horizon:number;
+  x:number;y:number;heading:number;target_x:number;target_y:number;distance:number;max_turn:number;
+  move:boolean;turn:number;move_probability:number;reward:number;total_reward:number;reached:boolean;
+  perturbation:number;active_perturbation:number;outer_updates:number;hidden:number[];groups:RecurrentGroup[];history:RecurrentEpisode[];
+}
+export interface RecurrentCommand {action:'play'|'pause'|'step'|'phase'|'task'|'speed'|'reset';phase?:RecurrentPhase;task?:RecurrentTask;speed?:1|4|16}

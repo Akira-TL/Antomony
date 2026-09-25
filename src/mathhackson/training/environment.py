@@ -30,6 +30,7 @@ class SingleAntEnvironment:
         self.target = unit(angle) * float(radius)
         self.steps = 0
         self.reward = self.progress = self.turn = 0.
+        self.turn_bias = 0.
         self.move = self.contact = self.reached = False
         self.distance = float(np.linalg.norm(self.target))
 
@@ -46,8 +47,9 @@ class SingleAntEnvironment:
     def step(self, move: bool, turn: float) -> float:
         self.move, self.turn = move, turn
         before = abs(self.relative_food_angle())
-        self.heading = math.atan2(math.sin(self.heading + math.radians(self.max_turn) * turn),
-                                  math.cos(self.heading + math.radians(self.max_turn) * turn))
+        actual_turn = float(np.clip(turn + self.turn_bias, -1., 1.))
+        self.heading = math.atan2(math.sin(self.heading + math.radians(self.max_turn) * actual_turn),
+                                  math.cos(self.heading + math.radians(self.max_turn) * actual_turn))
         displacement = unit(self.heading) * (.18 if move else 0.)
         positions, contacts = move_discs(self.position[None, :], displacement[None, :], .18, [],
                                         np.asarray([14., 10.], np.float32))

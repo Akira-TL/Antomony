@@ -4,6 +4,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .environment import Lesson
 from .model import Group, Phase
+from .recurrent import Phase as RecurrentPhase
+
+Task = Literal["normal", "shift", "mixed"]
 
 
 class Command(BaseModel):
@@ -96,3 +99,62 @@ class State(BaseModel):
     self_delta: list[list[float]]
     outer_delta: list[list[float]]
     history: list[EpisodeRecord]
+
+
+class RecurrentCommand(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    action: Literal["play", "pause", "step", "phase", "task", "speed", "reset"]
+    phase: RecurrentPhase = "motor"
+    task: Task = "normal"
+    speed: Literal[1, 4, 16] = 1
+
+
+class RecurrentParameterGroup(BaseModel):
+    id: str
+    label: str
+    values: list[list[float]]
+    changes: list[list[float]]
+    trainable: list[list[bool]]
+
+
+class RecurrentEpisode(BaseModel):
+    episode: int
+    phase: RecurrentPhase
+    task: Task
+    perturbation: float
+    reached: bool
+    steps: int
+    reward: float
+    checkpoint: str
+
+
+class RecurrentState(BaseModel):
+    session: str
+    paused: bool
+    error: str
+    phase: RecurrentPhase
+    task: Task
+    speed: int
+    tick: int
+    episode: int
+    steps: int
+    horizon: int
+    x: float
+    y: float
+    heading: float
+    target_x: float
+    target_y: float
+    distance: float
+    max_turn: float
+    move: bool
+    turn: float
+    move_probability: float
+    reward: float
+    total_reward: float
+    reached: bool
+    perturbation: float
+    active_perturbation: float
+    outer_updates: int
+    hidden: list[float]
+    groups: list[RecurrentParameterGroup]
+    history: list[RecurrentEpisode]
