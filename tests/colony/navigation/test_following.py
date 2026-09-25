@@ -25,3 +25,12 @@ def test_food_trail_can_override_an_unrelated_exploration_heading():
     wanted = world.direction(ant)
     alignment = float(wanted @ aim / np.linalg.norm(wanted))
     assert alignment > .93, f'食物气味必须能改变探索朝向，实际对齐度 {alignment:.3f}'
+
+
+def test_food_trail_survives_an_eighteen_second_return_trip():
+    world, _ = setup_trail_world()
+    world.field.deposit(np.zeros(2, np.float32), 1, 1.)
+    for _ in range(180):
+        world.field.tick(.1)
+    remaining = float(world.field.values[1].sum())
+    assert .5 < remaining < 1., f'一次往返期间轨迹已经过度消失: {remaining}'

@@ -38,13 +38,13 @@ class Pheromones:
 
     def tick(self,dt: float) -> None:
         if not self.enabled: return
-        coefficient=min(.18,.7*dt)
+        coefficient=min(.18,.22*dt)
         free=~self.blocked; change=np.zeros_like(self.values)
         exchange=(self.values[:,:,1:]-self.values[:,:,:-1])*coefficient*(free[:,1:]&free[:,:-1])[None,:,:]
         change[:,:,:-1]+=exchange; change[:,:,1:]-=exchange
         exchange=(self.values[:,1:,:]-self.values[:,:-1,:])*coefficient*(free[1:,:]&free[:-1,:])[None,:,:]
         change[:,:-1,:]+=exchange; change[:,1:,:]-=exchange
-        self.values+=change; self.values*=np.exp(-np.log(2.)*dt/np.asarray([10.,6.],np.float32)[:,None,None])
+        self.values+=change; self.values*=np.exp(-np.log(2.)*dt/np.asarray([45.,35.],np.float32)[:,None,None])
         self.values[:,self.blocked]=0; np.clip(self.values,0,8,out=self.values)
 
     def sample(self,p: Array,channel: int) -> float:
