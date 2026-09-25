@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import type {Frame,Tool} from './types';
 import {WallPreview} from './wall-preview';
 import {FoodPreview} from './editor/food-preview';
+import {AntGait} from './render/gait';
 
 export class ColonyScene {
   readonly renderer:THREE.WebGLRenderer;
@@ -29,6 +30,8 @@ export class ColonyScene {
   private rays=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0xb3f6cd,transparent:true,opacity:.35}));
   private pointer=new THREE.Vector2(); private raycaster=new THREE.Raycaster();
   private dummy=new THREE.Object3D();
+  private gaits=new Map<number,AntGait>();
+  private visualTime=0;
   private last=performance.now();private frameCounter=0;private fpsStart=performance.now();
 
   constructor(private host:HTMLElement) {
@@ -44,7 +47,7 @@ export class ColonyScene {
     this.camera.position.set(18,23,23);this.camera.lookAt(0,0,0);
     this.controls=new OrbitControls(this.camera,this.renderer.domElement);
     this.controls.enableDamping=true;this.controls.dampingFactor=.08;
-    this.controls.maxPolarAngle=Math.PI*.46;this.controls.minDistance=17;this.controls.maxDistance=65;
+    this.controls.maxPolarAngle=Math.PI*.46;this.controls.minDistance=3;this.controls.maxDistance=65;
     const ambient=new THREE.HemisphereLight(0xc4efd5,0x172932,2.1);this.scene.add(ambient);
     const sun=new THREE.DirectionalLight(0xfaf4dc,3);sun.position.set(-9,24,12);sun.castShadow=true;
     sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:16,bottom:-16,near:1,far:65});sun.shadow.bias=-.0004;
@@ -60,7 +63,7 @@ export class ColonyScene {
     for(let part=0;part<3;part++){
       const mesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,12,8),material,64);mesh.castShadow=true;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);this.antMeshes.push(mesh);this.scene.add(mesh);
     }
-    this.legs=new THREE.InstancedMesh(new THREE.CylinderGeometry(.014,.014,1,5),material,64*6);this.scene.add(this.legs);
+    this.legs=new THREE.InstancedMesh(new THREE.CylinderGeometry(.014,.014,1,5),material,64*12);this.scene.add(this.legs);
     this.cargo=new THREE.InstancedMesh(new THREE.BoxGeometry(.18,.18,.18),new THREE.MeshStandardMaterial({color:0xf8b85b,emissive:0xb46616,emissiveIntensity:.6,metalness:.3,roughness:.35}),64);this.scene.add(this.cargo);
     this.delivered=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,.12,.12),this.cargo.material,384);this.scene.add(this.delivered);
     [...this.antMeshes,this.legs,this.cargo,this.delivered].forEach(mesh=>mesh.count=0);
@@ -90,7 +93,8 @@ export class ColonyScene {
   }
 
   update(frame:Frame):void {
-    this.previous=this.frame?.seed===frame.seed && this.frame.ants.length===frame.ants.length?this.frame:null;
+    this.previous=this.frame?.seed===frame.seed && this.frame.tick<=frame.tick && this.frame.ants.length===frame.ants.length?this.frame:null;
+    if(!this.previous){this.gaits.clear();this.visualTime=frame.seconds;}
     this.frame=frame;this.received=performance.now();
     if(this.tool==='wall')this.wallPreview.refresh();
     const raw=atob(frame.pheromones),n=frame.field_width*frame.field_height;
@@ -134,12 +138,26 @@ export class ColonyScene {
     this.controls.enabled=this.tool==='inspect';this.controls.update();this.fieldMesh.visible=this.showField;
     const f=this.frame;
     if(f){const alpha=Math.min(1,(now-this.received)/110);let carrying=0;
-      this.antMeshes.forEach(m=>m.count=f.ants.length);this.legs.count=f.ants.length*6;
+      const visualTime=this.previous?THREE.MathUtils.lerp(this.previous.seconds,f.seconds,alpha):f.seconds;
+      const gaitDt=f.paused?0:Math.min(.1,Math.max(0,visualTime-this.visualTime));this.visualTime=visualTime;
+      this.antMeshes.forEach(m=>m.count=f.ants.length);this.legs.count=f.ants.length*12;
       for(const ant of f.ants){const prev=this.previous?.ants[ant.id];const x=prev?THREE.MathUtils.lerp(prev.x,ant.x,alpha):ant.x;const z=prev?THREE.MathUtils.lerp(prev.y,ant.y,alpha):ant.y;
         const heading=prev?prev.heading+Math.atan2(Math.sin(ant.heading-prev.heading),Math.cos(ant.heading-prev.heading))*alpha:ant.heading;const c=Math.cos(heading),s=Math.sin(heading);
         const sizes:[[number,number,number,number],[number,number,number,number],[number,number,number,number]]=[[-.075,.125,.075,.1],[.06,.08,.07,.075],[.15,.05,.055,.055]];
         sizes.forEach(([offset,sx,sy,sz],index)=>{this.dummy.position.set(x+c*offset,.13,z+s*offset);this.dummy.rotation.set(0,-heading,0);this.dummy.scale.set(sx,sy,sz);this.dummy.updateMatrix();this.antMeshes[index].setMatrixAt(ant.id,this.dummy.matrix);this.antMeshes[index].setColorAt(ant.id,new THREE.Color(ant.id===this.selected?0xdfffaf:ant.frozen?0x91a5b4:ant.carrying?0xffc579:0xb6d9c3));});
-        for(let leg=0;leg<6;leg++){const side=leg<3?-1:1;const along=(leg%3-1)*.11;const gait=f.paused?0:Math.sin(f.seconds*17+leg*2+ant.id)*.025;const start=new THREE.Vector3(x+c*along,.14,z+s*along),end=new THREE.Vector3(x+c*(along+gait)-s*.24*side,.032,z+s*(along+gait)+c*.24*side);this.dummy.position.copy(start).add(end).multiplyScalar(.5);this.dummy.scale.set(1,start.distanceTo(end),1);this.dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),end.clone().sub(start).normalize());this.dummy.updateMatrix();this.legs.setMatrixAt(ant.id*6+leg,this.dummy.matrix);}
+        let gait=this.gaits.get(ant.id);if(!gait){gait=new AntGait();this.gaits.set(ant.id,gait);}
+        const feet=gait.update(x,z,heading,gaitDt);
+        for(let leg=0;leg<6;leg++){
+          const along=(leg%3-1)*.11,side=leg<3?-1:1,foot=feet[leg];
+          const hip=new THREE.Vector3(x+c*along,.14,z+s*along),toe=new THREE.Vector3(foot.x,foot.y,foot.z);
+          const knee=hip.clone().lerp(toe,.52);knee.y=.18;knee.x-=s*.045*side;knee.z+=c*.045*side;
+          for(let segment=0;segment<2;segment++){
+            const start=segment===0?hip:knee,end=segment===0?knee:toe;
+            this.dummy.position.copy(start).add(end).multiplyScalar(.5);this.dummy.scale.set(1,start.distanceTo(end),1);
+            this.dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),end.clone().sub(start).normalize());this.dummy.updateMatrix();
+            this.legs.setMatrixAt(ant.id*12+leg*2+segment,this.dummy.matrix);
+          }
+        }
         if(ant.carrying){this.dummy.position.set(x,.34,z);this.dummy.rotation.set(0,-heading,0);this.dummy.scale.set(1,1,1);this.dummy.updateMatrix();this.cargo.setMatrixAt(carrying++,this.dummy.matrix);}
         if(ant.id===this.selected){this.ring.position.set(x,.045,z);const points:number[]=[];ant.rays.forEach((d,i)=>{const angle=ant.sense_heading-Math.PI+i*Math.PI*2/12;points.push(ant.sense_x,.10,ant.sense_y,ant.sense_x+Math.cos(angle)*d,.10,ant.sense_y+Math.sin(angle)*d);});this.rays.geometry.dispose();this.rays.geometry=new THREE.BufferGeometry();this.rays.geometry.setAttribute('position',new THREE.Float32BufferAttribute(points,3));}
       }
