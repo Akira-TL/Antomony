@@ -179,6 +179,7 @@ class TrainingSession:
                              reason="手动冻结" if group in self.model.manual_frozen else
                              f"基础阶段仅 {int(torch.count_nonzero(mask[start:end]))} 个连接可更新"
                              if self.model.phase == "motor" and group == "action" else
+                             "预训练动作锁定" if self.model.phase != "motor" and group == "action" else
                              "基础阶段冻结" if self.model.phase == "motor" and group != "action" else "可更新")
                   for group, label, start, end in GROUPS]
         status = "尚未推理" if decision is None else "已写入" if decision.wrote else (

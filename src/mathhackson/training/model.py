@@ -57,6 +57,8 @@ class SelfModifyingPolicy:
             mask[:2] = 0
             for row, columns in enumerate(MOTOR_ACTION_INPUTS):
                 mask[row, list(columns)] = 1
+        else:
+            mask[:2] = 0
         for group, _, start, end in GROUPS:
             if group in self.manual_frozen or (self.phase == "motor" and group != "action"):
                 mask[start:end] = 0

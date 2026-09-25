@@ -85,8 +85,8 @@ def test_partial_freeze_masks_both_update_paths(tmp_path: Path):
     for _ in range(100):
         session.step()
     assert torch.equal(before[2], session.model.weights[2])
-    assert not torch.equal(before[0:2], session.model.weights[0:2])
-    assert session.model.outer_updates > 0 and session.model.self_updates > 0
+    assert torch.equal(before[0:2], session.model.weights[0:2])
+    assert session.model.outer_updates == 0 and session.model.self_updates > 0
 
 
 def test_basic_stage_only_trains_action_rows_and_records_true_values(tmp_path: Path):
@@ -211,7 +211,19 @@ def test_state_exposes_every_weight_and_effective_freeze(tmp_path: Path):
     assert not any(any(row) for row in session.state().trainable)
     session.command(Command(action="freeze", group="action", frozen=False))
     session.model.phase = "meta"
-    assert sum(sum(row) for row in session.state().trainable) == 624
+    assert sum(sum(row) for row in session.state().trainable) == 592
+    assert session.state().groups[0].reason == "预训练动作锁定"
+
+
+def test_meta_training_keeps_pretrained_motor_weights_even_when_writer_runs(tmp_path: Path):
+    session = TrainingSession(tmp_path)
+    session.model.phase = "meta"
+    before = session.model.weights[:2].detach().clone()
+    for _ in range(150):
+        session.step()
+    assert session.model.self_updates > 0
+    assert session.model.outer_updates > 0
+    assert torch.equal(before, session.model.weights[:2])
 
 
 def test_weight_trace_records_actual_steps_and_outer_update(tmp_path: Path):
