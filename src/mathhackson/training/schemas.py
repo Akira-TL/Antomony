@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .environment import Lesson
 from .model import Group, Phase
-from .recurrent import Phase as RecurrentPhase
+from .recurrent import Phase as RecurrentPhase, WriteMode
 
 Task = Literal["normal", "shift", "mixed"]
 
@@ -103,9 +103,10 @@ class State(BaseModel):
 
 class RecurrentCommand(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
-    action: Literal["play", "pause", "step", "phase", "task", "speed", "reset"]
+    action: Literal["play", "pause", "step", "phase", "task", "speed", "reset", "write_mode"]
     phase: RecurrentPhase = "motor"
     task: Task = "normal"
+    write_mode: WriteMode = "off"
     speed: Literal[1, 4, 16] = 1
 
 
@@ -125,6 +126,7 @@ class RecurrentEpisode(BaseModel):
     reached: bool
     steps: int
     reward: float
+    writes: int
     checkpoint: str
 
 
@@ -155,6 +157,12 @@ class RecurrentState(BaseModel):
     perturbation: float
     active_perturbation: float
     outer_updates: int
+    self_updates: int
+    write_mode: WriteMode
+    write_probability: float
+    write_status: str
     hidden: list[float]
+    fast: list[float]
+    fast_delta: list[float]
     groups: list[RecurrentParameterGroup]
     history: list[RecurrentEpisode]

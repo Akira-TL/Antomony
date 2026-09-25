@@ -2,14 +2,15 @@ import {createElement,Activity,Play,Pause,StepForward,RotateCcw,Focus} from 'luc
 import type {IconNode} from 'lucide';
 import * as THREE from 'three';
 import {ColonyScene} from '../scene';
-import type {RecurrentState,RecurrentCommand,RecurrentPhase,RecurrentTask} from './types';
+import type {RecurrentState,RecurrentCommand,RecurrentPhase,RecurrentTask,WriteMode} from './types';
 import './style.css';
 import './recurrent-style.css';
+import './recurrent-write-style.css';
 
 const $=<T extends HTMLElement=HTMLElement>(selector:string):T=>document.querySelector<T>(selector)!;
 const icon=(node:IconNode)=>createElement(node,{width:18,height:18,'stroke-width':1.7}).outerHTML;
 const button=(id:string,title:string,node:IconNode)=>`<button type="button" class="icon-button" id="${id}" title="${title}" aria-label="${title}">${icon(node)}</button>`;
-const phases:Record<RecurrentPhase,string>={motor:'基础动作',memory:'循环记忆',autonomous:'停止外部训练'};
+const phases:Record<RecurrentPhase,string>={motor:'基础动作',memory:'循环记忆',adaptive:'条件写入',autonomous:'停止外部训练'};
 const tasks:Record<RecurrentTask,string>={normal:'正常',shift:'转向扰动',mixed:'正常与扰动混合'};
 
 $('#app').innerHTML=`
@@ -20,6 +21,7 @@ $('#app').innerHTML=`
     <div class="toolbar"><div class="segmented phases" role="group" aria-label="训练阶段">
       <button type="button" data-phase="motor" aria-pressed="true">基础动作</button>
       <button type="button" data-phase="memory" aria-pressed="false">循环记忆</button>
+      <button type="button" data-phase="adaptive" aria-pressed="false">条件写入</button>
       <button type="button" data-phase="autonomous" aria-pressed="false">停止外部训练</button>
     </div><div class="run-controls">${button('play','开始训练',Play)}${button('step','单步',StepForward)}${button('reset','重置回合，保留参数',RotateCcw)}
       <label class="speed-label">速度<select id="speed" aria-label="运行速度"><option value="1">1×</option><option value="4">4×</option><option value="16">16×</option></select></label>
@@ -28,6 +30,7 @@ $('#app').innerHTML=`
     <div class="workspace">
       <section class="experiment"><div class="section-heading"><h2>单蚁场景</h2><span id="running" class="state-tag">已暂停</span></div>
         <div class="course-controls"><label>任务<select id="task"><option value="normal">正常</option><option value="shift">转向扰动</option><option value="mixed">正常与扰动混合</option></select></label>
+          <label>写入对照<select id="write-mode" aria-label="运行时写入方式"><option value="off">关闭</option><option value="learned">模型判断</option><option value="always">始终写入</option></select></label>
           <span class="muted" id="perturbation">本回合无扰动</span></div>
         <div class="scene-wrap"><div id="scene"></div><div class="scene-caption"><span>蚂蚁 01</span><span id="position">x 0.00 · y 0.00</span></div>
           <div class="camera-tools">${button('focus','居中观察蚂蚁与食物',Focus)}<label><input id="follow" type="checkbox" checked>跟随</label></div>
@@ -36,17 +39,20 @@ $('#app').innerHTML=`
         <div class="telemetry"><div><span>前进</span><strong id="move">—</strong><small id="move-probability">—</small></div>
           <div><span>本步转向</span><strong id="turn">—</strong><small id="turn-value">—</small></div>
           <div><span>回合奖励</span><strong id="reward">0.000</strong><small id="step-reward">本步 0.000</small></div>
+          <div><span>回合内写入</span><strong id="write">尚未推理</strong><small id="write-count">累计 0</small></div>
           <div><span>外部更新</span><strong id="outer-count">0</strong><small id="phase-note">基础动作训练</small></div></div>
         <div class="progress-heading"><h2 id="episode">第 1 回合</h2><span id="progress-text">0 / 96 步</span></div><progress id="progress" value="0" max="96"></progress>
         <div class="history-heading"><h2>回合记录</h2><span class="muted" id="history-count">尚无完整回合</span></div>
-        <div class="history-scroll"><table><thead><tr><th>回合</th><th>任务</th><th>结果</th><th>步数</th><th>奖励</th></tr></thead><tbody id="history"></tbody></table></div>
+        <div class="history-scroll"><table><thead><tr><th>回合</th><th>任务</th><th>结果</th><th>步数</th><th>写入</th><th>奖励</th></tr></thead><tbody id="history"></tbody></table></div>
       </section>
       <section class="network" aria-label="真实循环状态与参数"><div class="section-heading"><h2>隐藏状态</h2><span class="muted">4 维</span></div>
         <div id="hidden" class="hidden-values"></div>
+        <div class="section-heading"><h2>回合内动作修正</h2><span class="muted">3 个受限参数</span></div>
+        <div id="fast-values" class="fast-values"></div>
         <div class="section-heading"><h2>参数与冻结</h2><span class="muted" id="parameter-count">—</span></div>
         <div id="parameters" class="recurrent-parameters"></div>
       </section>
-    </div><footer><span>独立训练会话 · 工程试验</span><span>隐藏状态不是参数写入，也不是学习收益证据</span></footer>
+    </div><footer><span>独立训练会话 · 工程试验</span><span>隐藏状态与运行时写入分别记录；效果尚未验证</span></footer>
   </main>`;
 
 const scene=new ColonyScene($('#scene'),true);
@@ -74,6 +80,7 @@ function render(next:RecurrentState):void {
   $('#play').innerHTML=icon(next.paused?Play:Pause);$('#play').title=next.paused?'开始训练':'暂停';$('#play').setAttribute('aria-label',$('#play').title);
   document.querySelectorAll<HTMLButtonElement>('[data-phase]').forEach(control=>control.setAttribute('aria-pressed',String(control.dataset.phase===next.phase)));
   $<HTMLSelectElement>('#task').value=next.task;$<HTMLSelectElement>('#speed').value=String(next.speed);
+  $<HTMLSelectElement>('#write-mode').value=next.write_mode;
   $('#perturbation').textContent=next.perturbation===0?'本回合无扰动':next.active_perturbation===0?'转向扰动尚未生效':`转向扰动 ${next.active_perturbation>0?'+':''}${next.active_perturbation.toFixed(2)}`;
   $('#position').textContent=`x ${next.x.toFixed(2)} · y ${next.y.toFixed(2)}`;
   $('#distance').textContent=`食物距离 ${next.distance.toFixed(2)}`;
@@ -83,12 +90,16 @@ function render(next:RecurrentState):void {
   $('#turn').textContent=inferred?`${(next.turn*next.max_turn).toFixed(2)}°`:'—';
   $('#turn-value').textContent=inferred?`输出 ${next.turn.toFixed(4)}`:'等待推理';
   $('#reward').textContent=next.total_reward.toFixed(3);$('#step-reward').textContent=`本步 ${next.reward.toFixed(3)}`;
+  $('#write').textContent=next.write_status;
+  $('#write-count').textContent=`累计 ${next.self_updates} · 判断概率 ${(next.write_probability*100).toFixed(1)}%`;
   $('#outer-count').textContent=String(next.outer_updates);
-  $('#phase-note').textContent=next.phase==='motor'?'仅训练四个动作连接':next.phase==='memory'?'动作锁定 · 训练循环记忆':'外部训练停止';
+  $('#phase-note').textContent=next.phase==='motor'?'仅训练四个动作连接':next.phase==='memory'?'动作锁定 · 训练循环记忆':next.phase==='adaptive'?'动作锁定 · 训练写入判断':'外部训练停止';
   $('#episode').textContent=`第 ${next.episode} 回合`;
   $('#progress-text').textContent=`${next.steps} / ${next.horizon} 步`;
   $<HTMLProgressElement>('#progress').value=next.steps;
   $('#hidden').innerHTML=next.hidden.map((value,index)=>`<div><span>h${index}</span><strong>${value.toFixed(5)}</strong></div>`).join('');
+  const fastLabels=['前进偏置','转向增益','转向偏置'];
+  $('#fast-values').innerHTML=next.fast.map((value,index)=>`<div><span>${fastLabels[index]}</span><strong>${value.toFixed(5)}</strong><small>本步 Δ ${next.fast_delta[index].toFixed(5)}</small></div>`).join('');
   const count=next.groups.reduce((sum,group)=>sum+group.trainable.flat().filter(Boolean).length,0);
   $('#parameter-count').textContent=`当前可训练 ${count}`;
   $('#parameters').innerHTML=next.groups.map(group=>{
@@ -102,7 +113,7 @@ function render(next:RecurrentState):void {
   const history=JSON.stringify(next.history);
   if(history!==historySignature){
     $('#history-count').textContent=next.history.length?`最近 ${next.history.length} 回合`:'尚无完整回合';
-    $('#history').innerHTML=next.history.slice(-12).reverse().map(record=>`<tr><td>${record.episode}</td><td>${tasks[record.task]}<small>${phases[record.phase]} · 扰动 ${record.perturbation.toFixed(2)}</small></td><td>${record.reached?'到达':'未到达'}</td><td>${record.steps}</td><td class="${record.reward<0?'negative':'positive'}">${record.reward.toFixed(3)}</td></tr>`).join('');
+    $('#history').innerHTML=next.history.slice(-12).reverse().map(record=>`<tr><td>${record.episode}</td><td>${tasks[record.task]}<small>${phases[record.phase]} · 扰动 ${record.perturbation.toFixed(2)}</small></td><td>${record.reached?'到达':'未到达'}</td><td>${record.steps}</td><td>${record.writes}</td><td class="${record.reward<0?'negative':'positive'}">${record.reward.toFixed(3)}</td></tr>`).join('');
     historySignature=history;
   }
   if(next.tick!==lastTick||next.episode!==lastEpisode||next.session!==lastSession){
@@ -123,6 +134,7 @@ function render(next:RecurrentState):void {
   }
   $('#error').textContent=next.error;$('#error').hidden=!next.error;
   document.querySelectorAll<HTMLButtonElement|HTMLSelectElement>('.toolbar button,.toolbar select,.course-controls select').forEach(control=>control.disabled=busy||!connected);
+  $<HTMLSelectElement>('#write-mode').disabled=busy||!connected||next.phase!=='autonomous';
   $('#app').dataset.tick=String(next.tick);$('#app').dataset.episode=String(next.episode);
 }
 
@@ -146,6 +158,7 @@ $('#step').addEventListener('click',()=>void send({action:'step'}));
 $('#reset').addEventListener('click',()=>void send({action:'reset'}));
 $('#focus').addEventListener('click',focus);
 $('#task').addEventListener('change',()=>void send({action:'task',task:$<HTMLSelectElement>('#task').value as RecurrentTask}));
+$('#write-mode').addEventListener('change',()=>void send({action:'write_mode',write_mode:$<HTMLSelectElement>('#write-mode').value as WriteMode}));
 $('#speed').addEventListener('change',()=>void send({action:'speed',speed:Number($<HTMLSelectElement>('#speed').value) as 1|4|16}));
 document.querySelectorAll<HTMLButtonElement>('[data-phase]').forEach(control=>control.addEventListener('click',()=>void send({action:'phase',phase:control.dataset.phase as RecurrentPhase})));
 

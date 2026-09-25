@@ -1,0 +1,9 @@
+.fast-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;border-top:1px solid #34373d;border-bottom:1px solid #34373d;background:#34373d}
+.fast-values>div{min-width:0;background:#191c20;padding:13px 8px;display:grid;gap:5px}
+.fast-values span{color:#b9c9d0;font-size:10px}
+.fast-values strong{font-family:ui-monospace,monospace;font-size:13px;font-weight:500;color:#e8d6a9;overflow-wrap:anywhere}
+.fast-values small{font-family:ui-monospace,monospace;font-size:9px;color:#a7b4bc;overflow-wrap:anywhere}
+.telemetry{grid-template-columns:repeat(5,minmax(0,1fr))}
+.telemetry #write{font-size:13px;min-height:25.5px}
+@media(max-width:1000px){.telemetry{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.telemetry{grid-template-columns:repeat(2,minmax(0,1fr))}.fast-values strong{font-size:11px}}

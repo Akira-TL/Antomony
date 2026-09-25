@@ -17,14 +17,16 @@ export interface TrainingCommand {
   phase?:Phase;lesson?:Lesson;group?:GroupId;frozen?:boolean;speed?:1|4|16;max_turn?:number;
 }
 
-export type RecurrentPhase='motor'|'memory'|'autonomous';
+export type RecurrentPhase='motor'|'memory'|'adaptive'|'autonomous';
 export type RecurrentTask='normal'|'shift'|'mixed';
+export type WriteMode='off'|'learned'|'always';
 export interface RecurrentGroup {id:string;label:string;values:number[][];changes:number[][];trainable:boolean[][]}
-export interface RecurrentEpisode {episode:number;phase:RecurrentPhase;task:RecurrentTask;perturbation:number;reached:boolean;steps:number;reward:number;checkpoint:string}
+export interface RecurrentEpisode {episode:number;phase:RecurrentPhase;task:RecurrentTask;perturbation:number;reached:boolean;steps:number;reward:number;writes:number;checkpoint:string}
 export interface RecurrentState {
   session:string;paused:boolean;error:string;phase:RecurrentPhase;task:RecurrentTask;speed:number;tick:number;episode:number;steps:number;horizon:number;
   x:number;y:number;heading:number;target_x:number;target_y:number;distance:number;max_turn:number;
   move:boolean;turn:number;move_probability:number;reward:number;total_reward:number;reached:boolean;
-  perturbation:number;active_perturbation:number;outer_updates:number;hidden:number[];groups:RecurrentGroup[];history:RecurrentEpisode[];
+  perturbation:number;active_perturbation:number;outer_updates:number;self_updates:number;write_mode:WriteMode;write_probability:number;write_status:string;
+  hidden:number[];fast:number[];fast_delta:number[];groups:RecurrentGroup[];history:RecurrentEpisode[];
 }
-export interface RecurrentCommand {action:'play'|'pause'|'step'|'phase'|'task'|'speed'|'reset';phase?:RecurrentPhase;task?:RecurrentTask;speed?:1|4|16}
+export interface RecurrentCommand {action:'play'|'pause'|'step'|'phase'|'task'|'speed'|'reset'|'write_mode';phase?:RecurrentPhase;task?:RecurrentTask;speed?:1|4|16;write_mode?:WriteMode}

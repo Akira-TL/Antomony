@@ -1,4 +1,4 @@
-"""单蚁循环记忆对照：基础动作与跨步状态分开训练。"""
+"""单蚁循环记忆与受限的反馈后动作参数写入。"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,10 +8,13 @@ import numpy as np
 import torch
 from torch import Tensor
 
-Phase = Literal["motor", "memory", "autonomous"]
+Phase = Literal["motor", "memory", "adaptive", "autonomous"]
+WriteMode = Literal["off", "learned", "always"]
 HIDDEN_WIDTH = 4
 INPUT_WIDTH = 16
 MOTOR_CONNECTIONS = ((0, 2, 15), (1,))
+FAST_LIMITS = torch.tensor([.3, .15, .12])
+FAST_STEPS = torch.tensor([.025, .012, .012])
 
 
 @dataclass
@@ -22,6 +25,14 @@ class Action:
     action_logp: Tensor
     entropy: Tensor
     turn_loss: Tensor
+
+
+@dataclass
+class Write:
+    requested: bool
+    wrote: bool
+    probability: float
+    logp: Tensor
 
 
 class RecurrentPolicy:
@@ -37,23 +48,37 @@ class RecurrentPolicy:
             self.rng.normal(0, .08, (HIDDEN_WIDTH, HIDDEN_WIDTH)).astype(np.float32)))
         self.hidden_bias = torch.nn.Parameter(torch.zeros(HIDDEN_WIDTH))
         self.action_weights = torch.nn.Parameter(torch.zeros(2, HIDDEN_WIDTH))
+        self.gate_weights = torch.nn.Parameter(torch.zeros(HIDDEN_WIDTH + 1))
+        with torch.no_grad():
+            self.gate_weights[-1] = -2.
+        self.write_weights = torch.nn.Parameter(torch.from_numpy(
+            self.rng.normal(0, .05, (3, HIDDEN_WIDTH + 1)).astype(np.float32)))
         self.parameters = (self.motor, self.input_weights, self.hidden_weights,
-                           self.hidden_bias, self.action_weights)
+                           self.hidden_bias, self.action_weights, self.gate_weights,
+                           self.write_weights)
         self.phase: Phase = "motor"
+        self.write_mode: WriteMode = "off"
         self.hidden = torch.zeros(HIDDEN_WIDTH)
+        self.fast = torch.zeros(3)
+        self.fast_delta = torch.zeros(3)
+        self.self_updates = 0
         self.outer_updates = 0
         self.outer_delta = [torch.zeros_like(value) for value in self.parameters]
 
     def reset_state(self) -> None:
         self.hidden = torch.zeros(HIDDEN_WIDTH)
+        self.fast = torch.zeros(3)
+        self.fast_delta = torch.zeros(3)
 
     def trainable_masks(self) -> list[Tensor]:
         motor = torch.zeros_like(self.motor)
         if self.phase == "motor":
             for row, columns in enumerate(MOTOR_CONNECTIONS):
                 motor[row, list(columns)] = 1
-        memory = self.phase == "memory"
-        return [motor] + [torch.full_like(value, int(memory)) for value in self.parameters[1:]]
+        memory = self.phase in {"memory", "adaptive"}
+        writing = self.phase == "adaptive"
+        return [motor] + [torch.full_like(value, int(memory)) for value in self.parameters[1:5]] + [
+            torch.full_like(value, int(writing)) for value in self.parameters[5:]]
 
     def decide(self, observation: np.ndarray) -> Action:
         if observation.shape != (INPUT_WIDTH,) or not np.isfinite(observation).all():
@@ -64,6 +89,9 @@ class RecurrentPolicy:
             if self.phase != "motor":
                 correction = torch.tanh(self.action_weights @ self.hidden)
                 output = output + correction * torch.tensor([.4, .12])
+                if self.write_mode != "off":
+                    output = output + torch.stack((self.fast[0],
+                                                   self.fast[1] * float(observation[1]) + self.fast[2]))
             move_dist = torch.distributions.Bernoulli(logits=output[0])
             turn_dist = torch.distributions.Normal(output[1], .35)
             if training:
@@ -78,15 +106,35 @@ class RecurrentPolicy:
             return Action(move, turn, float(move_dist.probs.detach()), logp,
                           move_dist.entropy() + turn_dist.entropy(), (output[1] - target).square())
 
-    def observe_result(self, observation: np.ndarray) -> None:
+    def observe_result(self, observation: np.ndarray, *, terminal: bool = False) -> Write:
         if observation.shape != (INPUT_WIDTH,) or not np.isfinite(observation).all():
             raise ValueError("反馈必须是 16 个有限值")
         with torch.set_grad_enabled(self.phase != "autonomous"):
             values = torch.from_numpy(observation.astype(np.float32))
             self.hidden = torch.tanh(self.input_weights @ values +
                                      self.hidden_weights @ self.hidden + self.hidden_bias)
+            self.fast_delta = torch.zeros_like(self.fast)
+            if terminal or self.write_mode == "off" or self.phase in {"motor", "memory"}:
+                return Write(False, False, 0., torch.zeros(()))
+            features = torch.cat((self.hidden, torch.ones(1)))
+            gate = torch.distributions.Bernoulli(logits=self.gate_weights @ features)
+            probability = float(gate.probs.detach())
+            requested = (True if self.write_mode == "always" else
+                         bool(self.rng.random() < probability) if self.phase == "adaptive" else
+                         probability >= .5)
+            gate_logp = gate.log_prob(torch.tensor(float(requested))) if self.write_mode == "learned" else torch.zeros(())
+            wrote = False
+            if requested:
+                proposal = torch.clamp(self.fast + torch.tanh(self.write_weights @ features) * FAST_STEPS,
+                                       -FAST_LIMITS, FAST_LIMITS)
+                self.fast_delta = (proposal - self.fast).detach()
+                wrote = bool(torch.count_nonzero(self.fast_delta))
+                self.fast = proposal
+                self.self_updates += int(wrote)
+            return Write(requested, wrote, probability, gate_logp)
 
-    def finish(self, actions: list[Action], rewards: list[float], baseline: float, optimize: bool) -> None:
+    def finish(self, actions: list[Action], writes: list[Write], rewards: list[float],
+               baseline: float, optimize: bool) -> None:
         self.outer_delta = [torch.zeros_like(value) for value in self.parameters]
         if optimize and self.phase != "autonomous" and actions:
             returns: list[float] = []
@@ -96,10 +144,13 @@ class RecurrentPolicy:
                 returns.append(future)
             returns.reverse()
             loss = torch.zeros(())
-            for action, value in zip(actions, returns, strict=True):
+            for index, (action, write, value) in enumerate(zip(actions, writes, returns, strict=True)):
                 loss = loss - action.action_logp * (value - baseline) - .003 * action.entropy
                 if self.phase == "motor":
                     loss = loss + 8. * action.turn_loss
+                if self.phase == "adaptive" and self.write_mode == "learned" and index + 1 < len(returns):
+                    future = returns[index + 1] - .02 * int(write.requested)
+                    loss = loss - write.logp * (future - baseline)
             (loss / len(actions)).backward()
             masks = self.trainable_masks()
             gradients = [torch.zeros_like(value) if value.grad is None else value.grad * mask
@@ -121,6 +172,7 @@ class RecurrentPolicy:
         for parameter in self.parameters:
             parameter.grad = None
         self.hidden = self.hidden.detach()
+        self.fast = self.fast.detach()
 
     def values(self) -> list[list[list[float]]]:
         return [value.detach().reshape(value.shape[0], -1).tolist() for value in self.parameters]

@@ -11,11 +11,13 @@ import torch
 from mathhackson.colony.geometry import unit
 
 from .environment import SingleAntEnvironment
-from .recurrent import Action, RecurrentPolicy
+from .recurrent import Action, RecurrentPolicy, Write
 from .schemas import RecurrentCommand, RecurrentEpisode, RecurrentParameterGroup, RecurrentState, Task
 
-GROUP_LABELS = ("基础动作", "观察到隐藏状态", "隐藏状态到隐藏状态", "隐藏状态偏置", "记忆行动修正")
-GROUP_IDS = ("motor", "input_weights", "hidden_weights", "hidden_bias", "action_weights")
+GROUP_LABELS = ("基础动作", "观察到隐藏状态", "隐藏状态到隐藏状态", "隐藏状态偏置",
+                "记忆行动修正", "写入判断", "写入方向与幅度")
+GROUP_IDS = ("motor", "input_weights", "hidden_weights", "hidden_bias",
+             "action_weights", "gate_weights", "write_weights")
 
 
 class RecurrentSession:
@@ -40,9 +42,13 @@ class RecurrentSession:
         self.env.reset()
         self.model.reset_state()
         self.actions: list[Action] = []
+        self.writes: list[Write] = []
         self.rewards: list[float] = []
         self.observations: list[np.ndarray] = []
         self.hidden_states: list[np.ndarray] = []
+        self.fast_states: list[np.ndarray] = []
+        self.fast_deltas: list[np.ndarray] = []
+        self.start_self = self.model.self_updates
         if self.task == "normal" or (self.task == "mixed" and self.rng.random() < .5):
             self.perturbation = 0.
         else:
@@ -68,7 +74,7 @@ class RecurrentSession:
 
     def finish(self, reason: str, optimize: bool) -> None:
         if self.actions:
-            self.model.finish(self.actions, self.rewards, self.baseline, optimize)
+            self.model.finish(self.actions, self.writes, self.rewards, self.baseline, optimize)
             filename = f"episode-{self.episode:06d}.npz"
             np.savez_compressed(
                 self.directory / filename,
@@ -77,15 +83,22 @@ class RecurrentSession:
                 hidden_weights=self.model.hidden_weights.detach().numpy(),
                 hidden_bias=self.model.hidden_bias.detach().numpy(),
                 action_weights=self.model.action_weights.detach().numpy(),
+                gate_weights=self.model.gate_weights.detach().numpy(),
+                write_weights=self.model.write_weights.detach().numpy(),
                 observations=np.asarray(self.observations),
                 hidden_states=np.asarray(self.hidden_states),
+                fast_states=np.asarray(self.fast_states),
+                fast_deltas=np.asarray(self.fast_deltas),
                 rewards=np.asarray(self.rewards),
                 actions=np.asarray([(action.move, action.turn) for action in self.actions]),
+                gates=np.asarray([(write.requested, write.wrote, write.probability) for write in self.writes]),
                 perturbation=self.perturbation,
             )
             record = RecurrentEpisode(episode=self.episode, phase=self.model.phase, task=self.task,
                                       perturbation=self.perturbation, reached=self.env.reached,
-                                      steps=len(self.actions), reward=sum(self.rewards), checkpoint=filename)
+                                      steps=len(self.actions), reward=sum(self.rewards),
+                                      writes=self.model.self_updates - self.start_self,
+                                      checkpoint=filename)
             (self.directory / filename.replace(".npz", ".json")).write_text(
                 record.model_dump_json(indent=2), encoding="utf-8")
             self.history.append(record)
@@ -101,20 +114,25 @@ class RecurrentSession:
         observation = self.env.observation()
         decision = self.model.decide(observation)
         reward = self.env.step(decision.move, decision.turn)
-        self.model.observe_result(self.env.observation())
+        write = self.model.observe_result(self.env.observation(), terminal=self.env.done)
         self.actions.append(decision)
+        self.writes.append(write)
         self.rewards.append(reward)
         self.observations.append(observation)
         self.hidden_states.append(self.model.hidden.detach().numpy().copy())
+        self.fast_states.append(self.model.fast.detach().numpy().copy())
+        self.fast_deltas.append(self.model.fast_delta.numpy().copy())
         self.tick += 1
         if self.env.done:
             self.finish("到达目标" if self.env.reached else "回合结束", True)
 
     def command(self, command: RecurrentCommand) -> None:
-        if command.action == "phase" and command.phase == "memory" and self.model.phase == "motor":
+        if command.action == "phase" and command.phase in {"memory", "adaptive"} and command.phase != self.model.phase:
             left, right = self.motor_alignment()
             if left < 5 or right < 5:
                 raise ValueError(f"基础动作尚未通过定向检查：两侧分别触达 {left}/6、{right}/6")
+        if command.action == "write_mode" and self.model.phase != "autonomous":
+            raise ValueError("只可在停止外部训练后切换写入对照")
         if command.action == "pause":
             self.paused = True
         elif command.action == "play":
@@ -133,12 +151,19 @@ class RecurrentSession:
             self.finish("配置改变，未执行外部更新", False)
             if command.action == "phase":
                 self.model.phase = command.phase
+                if command.phase in {"motor", "memory"}:
+                    self.model.write_mode = "off"
+                elif command.phase == "adaptive":
+                    self.model.write_mode = "learned"
             elif command.action == "task":
                 self.task = command.task
+            elif command.action == "write_mode":
+                self.model.write_mode = command.write_mode
             self._begin()
 
     def state(self) -> RecurrentState:
         action = self.actions[-1] if self.actions else None
+        write = self.writes[-1] if self.writes else None
         masks = self.model.trainable_masks()
         groups = [RecurrentParameterGroup(id=identity, label=label, values=value,
                                           changes=change.detach().reshape(change.shape[0], -1).tolist(),
@@ -159,4 +184,11 @@ class RecurrentSession:
                      reached=self.env.reached, perturbation=self.perturbation,
                      active_perturbation=self.env.turn_bias,
                      outer_updates=self.model.outer_updates,
-                     hidden=self.model.hidden.detach().tolist(), groups=groups, history=self.history)
+                     self_updates=self.model.self_updates, write_mode=self.model.write_mode,
+                     write_probability=write.probability if write else 0.,
+                     write_status="尚未推理" if write is None else "已写入" if write.wrote else
+                     "选择跳过" if self.model.write_mode == "learned" else
+                     "写入关闭" if self.model.write_mode == "off" else "幅度为零",
+                     hidden=self.model.hidden.detach().tolist(),
+                     fast=self.model.fast.detach().tolist(),
+                     fast_delta=self.model.fast_delta.tolist(), groups=groups, history=self.history)
