@@ -1,4 +1,5 @@
 from pathlib import Path
+from hashlib import sha256
 
 import numpy as np
 import pytest
@@ -46,3 +47,12 @@ def test_comparison_rejects_previous_recurrent_shape(tmp_path: Path):
              write_weights=np.zeros((3, 5)))
     with pytest.raises(ValueError, match="旧版循环模型"):
         read_parameters(path)
+
+
+def test_pinned_foundation_checkpoint_is_complete_and_unchanged():
+    path = Path(__file__).resolve().parents[2] / "checkpoints/recurrent/foundation-episode-002570.npz"
+    assert sha256(path.read_bytes()).hexdigest() == (
+        "48a98f424328ddd1af71202b753bae555d0984cd9392921f9f07ea3f817f74b3")
+    parameters = read_parameters(path)
+    assert len(parameters) == 7
+    assert parameters[0][0, 0] > 2.

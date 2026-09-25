@@ -1,0 +1,10 @@
+{
+  "format": "recurrent-foundation-v1",
+  "model_version": "sparse-memory-v2",
+  "source_session": "67c6d8af3fad",
+  "source_episode": 2570,
+  "source_phase": "autonomous",
+  "source_task": "shift",
+  "checkpoint": "foundation-episode-002570.npz",
+  "source_sha256": "48a98f424328ddd1af71202b753bae555d0984cd9392921f9f07ea3f817f74b3"
+}
