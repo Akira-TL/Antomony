@@ -10,7 +10,7 @@ from mathhackson.colony.pheromone import Pheromones
 
 
 class RoundTripEnvironment:
-    horizon = 192
+    horizon = 256
     max_turn = 10.
     food_visibility = 1.5
 
@@ -54,8 +54,7 @@ class RoundTripEnvironment:
                       min(1., float(np.linalg.norm(offset)) / 8.))
         else:
             direction = home_direction if self.carrying else food_direction
-            strength = home_strength if self.carrying else food_strength
-            target = (float(direction @ facing), float(direction @ left), 1. - strength)
+            target = (float(direction @ facing), float(direction @ left), 0.)
         return np.asarray([
             *target, float(self.move), self.turn, np.clip(self.reward, -1., 1.),
             float(self.contact), self.progress / .18,
@@ -91,7 +90,7 @@ class RoundTripEnvironment:
         self.leg_steps += 1
         self.progress = before - float(np.linalg.norm(target - self.position))
         picked_up = not self.carrying and float(np.linalg.norm(self.food - self.position)) < .4
-        delivered = self.carrying and float(np.linalg.norm(self.home - self.position)) < .45
+        delivered = self.carrying and float(np.linalg.norm(self.home - self.position)) < 1.2
         if picked_up:
             self.carrying = True
             self.pickups += 1
@@ -100,7 +99,7 @@ class RoundTripEnvironment:
             self.carrying = False
             self.delivered += 1
             self.leg_steps = 0
-        self.reward = (2. * self.progress + 2. * picked_up + 6. * delivered - .01
+        self.reward = (.5 * self.progress + .5 * picked_up + 8. * delivered - .03
                        - .008 * (release_home + release_food) - .1 * self.contact)
         return self.reward
 

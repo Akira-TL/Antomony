@@ -43,6 +43,16 @@ def test_homing_observation_never_contains_nest_direction():
     assert np.array_equal(world.observation(), before)
     assert before.shape == (17,)
     assert before[0] == before[1] == 0.
+    assert before[2] == 0.
+
+
+def test_delivery_uses_nest_area_not_an_exact_point():
+    world = RoundTripEnvironment(4)
+    world.carrying = True
+    world.position = np.asarray([1.3, 0.], np.float32)
+    world.heading = math.pi
+    world.step(True, 0., False, True)
+    assert world.delivered == 1
 
 
 def test_second_departure_uses_food_scent_outside_visibility():
