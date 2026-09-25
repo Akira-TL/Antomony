@@ -187,3 +187,66 @@ class RecurrentState(BaseModel):
     fast_trace: list[list[float]]
     groups: list[RecurrentParameterGroup]
     history: list[RecurrentEpisode]
+
+
+class RoundTripCommand(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    action: Literal["play", "pause", "step", "phase", "speed", "reset", "write_mode"]
+    phase: Literal["memory", "adaptive", "autonomous"] = "memory"
+    write_mode: WriteMode = "off"
+    speed: Literal[1, 4, 16] = 1
+
+
+class RoundTripEpisode(BaseModel):
+    episode: int
+    phase: RecurrentPhase
+    steps: int
+    pickups: int
+    delivered: int
+    reward: float
+    writes: int
+    checkpoint: str
+
+
+class RoundTripState(BaseModel):
+    session: str
+    paused: bool
+    error: str
+    phase: RecurrentPhase
+    write_mode: WriteMode
+    speed: int
+    tick: int
+    episode: int
+    steps: int
+    horizon: int
+    x: float
+    y: float
+    heading: float
+    food_x: float
+    food_y: float
+    carrying: bool
+    pickups: int
+    delivered: int
+    move: bool
+    turn: float
+    move_probability: float
+    release_home: bool
+    release_food: bool
+    release_home_probability: float
+    release_food_probability: float
+    home_scent: float
+    food_scent: float
+    reward: float
+    total_reward: float
+    write_probability: float
+    write_status: str
+    self_updates: int
+    outer_updates: int
+    hidden: list[float]
+    fast: list[float]
+    release_fast: list[float]
+    groups: list[RecurrentParameterGroup]
+    field_width: int
+    field_height: int
+    pheromones: str
+    history: list[RoundTripEpisode]
