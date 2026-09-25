@@ -2,6 +2,7 @@ export interface AntState {
   id:number;x:number;y:number;heading:number;carrying:boolean;delivered:number;contacts:number;
   updates:number;frozen:boolean;error:number;delta:number;drift:number;fingerprint:string;
   birth_loss:number;warm_loss:number;hidden:number[];inputs:number[];prediction:number[];rays:number[];action:number;
+  sense_x:number;sense_y:number;sense_heading:number;
 }
 export interface WallState {id:number;x:number;y:number;hx:number;hy:number}
 export interface FoodState {id:number;x:number;y:number;amount:number}

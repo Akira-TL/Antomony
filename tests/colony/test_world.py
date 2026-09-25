@@ -45,6 +45,15 @@ def test_pause_single_step_and_field_clear_do_not_fake_learning():
     assert w.field.values.sum()==0
 
 
+def test_sensor_rays_keep_the_pose_that_actually_produced_them():
+    w=World(9,4,warmup=5)
+    position=w.ants[0].position.copy(); heading=w.ants[0].heading
+    w.tick(); frame=snapshot(w)
+    assert frame.ants[0].sense_x==float(position[0])
+    assert frame.ants[0].sense_y==float(position[1])
+    assert frame.ants[0].sense_heading==heading
+
+
 def test_invalid_commands_are_rejected():
     import pytest
     from pydantic import ValidationError

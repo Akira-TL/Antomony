@@ -40,6 +40,9 @@ class AntView(BaseModel):
     prediction: list[float]
     rays: list[float]
     action: int
+    sense_x: float
+    sense_y: float
+    sense_heading: float
 
 class WallView(BaseModel):
     id: int
@@ -84,7 +87,7 @@ class Frame(BaseModel):
 
 
 def snapshot(w: World) -> Frame:
-    ants=[AntView(id=a.id,x=float(a.position[0]),y=float(a.position[1]),heading=a.heading,carrying=a.carrying,delivered=a.delivered,contacts=a.contacts,updates=a.brain.updates,frozen=a.brain.frozen,error=a.brain.last_loss,delta=a.brain.last_delta,drift=a.brain.drift,fingerprint=a.brain.fingerprint(),birth_loss=a.brain.birth_loss,warm_loss=a.brain.warm_loss,hidden=a.brain.hidden.tolist(),inputs=a.inputs.tolist(),prediction=a.brain.output.tolist(),rays=a.rays,action=a.action) for a in w.ants]
+    ants=[AntView(id=a.id,x=float(a.position[0]),y=float(a.position[1]),heading=a.heading,carrying=a.carrying,delivered=a.delivered,contacts=a.contacts,updates=a.brain.updates,frozen=a.brain.frozen,error=a.brain.last_loss,delta=a.brain.last_delta,drift=a.brain.drift,fingerprint=a.brain.fingerprint(),birth_loss=a.brain.birth_loss,warm_loss=a.brain.warm_loss,hidden=a.brain.hidden.tolist(),inputs=a.inputs.tolist(),prediction=a.brain.output.tolist(),rays=a.rays,action=a.action,sense_x=a.sense_x,sense_y=a.sense_y,sense_heading=a.sense_heading) for a in w.ants]
     field=np.clip(w.field.values*72,0,255).astype(np.uint8)
     return Frame(tick=w.tick_count,seconds=round(w.tick_count*w.dt,1),seed=w.seed,paused=w.paused,rate=w.rate,delivered=sum(a.delivered for a in w.ants),contacts=w.contact_count,samples=w.samples,mean_error=w.error_sum/max(1,w.samples),tick_ms=round(w.last_ms,2),wind=w.wind,field_enabled=w.field.enabled,field_width=w.field.width,field_height=w.field.height,pheromones=base64.b64encode(field.tobytes()).decode(),ants=ants,walls=[WallView(**asdict(x)) for x in w.walls],foods=[FoodView(**asdict(x)) for x in w.foods],events=[EventView(**asdict(e)) for e in w.events])
 

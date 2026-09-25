@@ -33,6 +33,9 @@ class Ant:
     inputs: Array=field(default_factory=lambda:np.zeros(8,np.float32))
     rays: list[float]=field(default_factory=list)
     action: int=0
+    sense_x: float=0.
+    sense_y: float=0.
+    sense_heading: float=0.
 
 @dataclass(frozen=True)
 class Event:
@@ -91,6 +94,7 @@ class World:
         return random_dir
 
     def sense(self,ant: Ant,positions: Array) -> Array:
+        ant.sense_x=float(ant.position[0]); ant.sense_y=float(ant.position[1]); ant.sense_heading=ant.heading
         directions=np.stack([unit(ant.heading+float(turn)) for turn in self.turns])
         clearance=[]
         for d in directions:
