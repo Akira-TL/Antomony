@@ -54,6 +54,15 @@ def test_sensor_rays_keep_the_pose_that_actually_produced_them():
     assert frame.ants[0].sense_heading==heading
 
 
+def test_neural_motion_predictions_affect_actual_action_choice():
+    a,b=World(37,4,warmup=80),World(37,4,warmup=80)
+    for ant in a.ants+b.ants: ant.brain.frozen=True
+    # 相同感知、规则和随机流，仅反转一个体对候选运动的预测。
+    b.ants[0].brain.head.stable[:,:2]*=-1
+    a.tick(); b.tick()
+    assert a.ants[0].action!=b.ants[0].action
+
+
 def test_invalid_commands_are_rejected():
     import pytest
     from pydantic import ValidationError
