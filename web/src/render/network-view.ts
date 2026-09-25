@@ -6,22 +6,24 @@ export class NetworkDiagram {
   private signals:Signals|null=null;
   private received=0;
   private selected=0;
+  private generation=-1;
   private loading=false;
   private lastPoll=0;
   private updateFlash=false;
   private paused=false;
   constructor(private canvas:HTMLCanvasElement){requestAnimationFrame(this.draw);}
-  select(id:number,paused:boolean):void{
+  select(id:number,paused:boolean,generation=0):void{
     this.paused=paused;
-    if(id!==this.selected){this.selected=id;this.signals=null;this.lastPoll=0;}
+    if(id!==this.selected||generation!==this.generation){this.selected=id;this.generation=generation;this.signals=null;this.lastPoll=0;this.updateFlash=false;}
     if(!this.loading&&performance.now()-this.lastPoll>180)void this.poll();
   }
   private async poll():Promise<void>{
-    this.loading=true;this.lastPoll=performance.now();const id=this.selected;
+    this.loading=true;this.lastPoll=performance.now();const id=this.selected,generation=this.generation;
     try{
       const response=await fetch(`/api/network?ant=${id}`,{signal:AbortSignal.timeout(2000)});
+      if(!response.ok)return;
       const signals=await response.json() as Signals|null;
-      if(id!==this.selected||!signals)return;
+      if(id!==this.selected||generation!==this.generation||!signals)return;
       if(!this.signals||signals.tick!==this.signals.tick){
         this.updateFlash=!!this.signals&&signals.updates>this.signals.updates;
         this.received=performance.now();

@@ -13,6 +13,7 @@ export class ColonyScene {
   readonly wallPreview:WallPreview;
   readonly foodPreview:FoodPreview;
   tool:Tool='inspect'; selected=0; showField=true; fps=0;
+  active=true; interactive=true;
   onPoint:(x:number,y:number,id:number|null)=>void=()=>{};
   private frame:Frame|null=null;
   private previous:Frame|null=null;
@@ -72,7 +73,7 @@ export class ColonyScene {
     this.ring=new THREE.Mesh(new THREE.RingGeometry(.32,.36,48),new THREE.MeshBasicMaterial({color:0xd3ffb1,side:THREE.DoubleSide,transparent:true,opacity:.9}));this.ring.rotation.x=-Math.PI/2;this.scene.add(this.ring,this.rays,this.wallGroup,this.foodGroup);
     this.wallPreview=new WallPreview(this.scene,host);
     this.foodPreview=new FoodPreview(this.scene,host);
-    const resize=()=>{const w=host.clientWidth,h=host.clientHeight;this.renderer.setSize(w,h);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();};new ResizeObserver(resize).observe(host);resize();
+    const resize=()=>{const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);this.renderer.setSize(w,h);this.camera.aspect=w/h;this.camera.updateProjectionMatrix();};new ResizeObserver(resize).observe(host);resize();
     let down=new THREE.Vector2();
     this.renderer.domElement.addEventListener('pointermove',e=>{const p=this.groundPoint(e);if(this.tool==='wall'){if(p)this.wallPreview.move(p.x,p.z);else this.wallPreview.hide();}else if(this.tool==='food'){if(p)this.foodPreview.move(p.x,p.z);else this.foodPreview.hide();}});
     this.renderer.domElement.addEventListener('wheel',e=>{
@@ -84,6 +85,14 @@ export class ColonyScene {
     this.renderer.domElement.addEventListener('pointerdown',e=>{down.set(e.clientX,e.clientY);});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(e.button!==0||Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;this.click(e);});
     this.animate();
+  }
+
+  fitArena():void {
+    const aspect=Math.max(.4,this.host.clientWidth/Math.max(1,this.host.clientHeight));
+    const tangent=Math.tan(this.camera.fov*Math.PI/360);
+    const distance=Math.max(12.5/tangent,15.3/(tangent*aspect));
+    this.controls.target.set(0,0,0);this.camera.position.set(0,distance*.94,distance*.342);
+    this.camera.lookAt(0,0,0);this.controls.update();
   }
 
   private label(text:string,x:number,y:number,z:number,color:number):THREE.Sprite {
@@ -126,6 +135,7 @@ export class ColonyScene {
   }
 
   private click(event:PointerEvent):void {
+    if(!this.interactive)return;
     const p=this.groundPoint(event);if(!p)return;
     let id:number|null=null;
     if(this.frame){const close=this.frame.ants.map(a=>({id:a.id,d:Math.hypot(a.x-p.x,a.y-p.z)})).sort((a,b)=>a.d-b.d)[0];if(close&&close.d<.85)id=close.id;}
@@ -133,18 +143,21 @@ export class ColonyScene {
   }
 
   private animate=():void=>{
-    requestAnimationFrame(this.animate);const now=performance.now();this.last=now;this.frameCounter++;
+    requestAnimationFrame(this.animate);
+    if(!this.active)return;
+    const now=performance.now();this.last=now;this.frameCounter++;
     if(now-this.fpsStart>1000){this.fps=this.frameCounter*1000/(now-this.fpsStart);this.frameCounter=0;this.fpsStart=now;}
-    this.controls.enabled=this.tool==='inspect';this.controls.update();this.fieldMesh.visible=this.showField;
+    this.controls.enabled=this.interactive&&this.tool==='inspect';this.controls.update();this.fieldMesh.visible=this.showField;
+    this.ring.visible=this.rays.visible=this.selected>=0;
     const f=this.frame;
     if(f){const alpha=Math.min(1,(now-this.received)/110);let carrying=0;
       const visualTime=this.previous?THREE.MathUtils.lerp(this.previous.seconds,f.seconds,alpha):f.seconds;
-      const gaitDt=f.paused?0:Math.min(.1,Math.max(0,visualTime-this.visualTime));this.visualTime=visualTime;
+      const gaitDt=Math.min(.1,Math.max(0,visualTime-this.visualTime));this.visualTime=visualTime;
       this.antMeshes.forEach(m=>m.count=f.ants.length);this.legs.count=f.ants.length*12;
       for(const ant of f.ants){const prev=this.previous?.ants[ant.id];const x=prev?THREE.MathUtils.lerp(prev.x,ant.x,alpha):ant.x;const z=prev?THREE.MathUtils.lerp(prev.y,ant.y,alpha):ant.y;
         const heading=prev?prev.heading+Math.atan2(Math.sin(ant.heading-prev.heading),Math.cos(ant.heading-prev.heading))*alpha:ant.heading;const c=Math.cos(heading),s=Math.sin(heading);
         const sizes:[[number,number,number,number],[number,number,number,number],[number,number,number,number]]=[[-.075,.125,.075,.1],[.06,.08,.07,.075],[.15,.05,.055,.055]];
-        sizes.forEach(([offset,sx,sy,sz],index)=>{this.dummy.position.set(x+c*offset,.13,z+s*offset);this.dummy.rotation.set(0,-heading,0);this.dummy.scale.set(sx,sy,sz);this.dummy.updateMatrix();this.antMeshes[index].setMatrixAt(ant.id,this.dummy.matrix);this.antMeshes[index].setColorAt(ant.id,new THREE.Color(ant.id===this.selected?0xdfffaf:ant.frozen?0x91a5b4:ant.carrying?0xffc579:0xb6d9c3));});
+        sizes.forEach(([offset,sx,sy,sz],index)=>{this.dummy.position.set(x+c*offset,.13,z+s*offset);this.dummy.rotation.set(0,-heading,0);this.dummy.scale.set(sx,sy,sz);this.dummy.updateMatrix();this.antMeshes[index].setMatrixAt(ant.id,this.dummy.matrix);this.antMeshes[index].setColorAt(ant.id,new THREE.Color(ant.id===this.selected?0xdfffaf:ant.carrying?0xffc579:f.mode==='rules'?0x91a5b4:ant.frozen?0x91a5b4:0xb6d9c3));});
         let gait=this.gaits.get(ant.id);if(!gait){gait=new AntGait();this.gaits.set(ant.id,gait);}
         const feet=gait.update(x,z,heading,gaitDt);
         for(let leg=0;leg<6;leg++){
