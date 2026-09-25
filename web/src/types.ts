@@ -14,6 +14,9 @@ export interface Frame {
   ants:AntState[];walls:WallState[];foods:FoodState[];events:EventState[];
 }
 export interface ComparisonFrame extends Frame {reference:Frame|null}
+export type SceneFrame = Pick<Frame,'mode'|'tick'|'seconds'|'seed'|'delivered'|'field_width'|'field_height'|'pheromones'|'walls'|'foods'> & {
+  ants:Pick<AntState,'id'|'x'|'y'|'heading'|'carrying'|'frozen'|'rays'|'sense_x'|'sense_y'|'sense_heading'>[];
+};
 export type Tool='inspect'|'wall'|'erase'|'food'|'scent';
 export interface Command {
   kind:'pause'|'step'|'reset'|'speed'|'wall'|'erase'|'food'|'scent'|'clear'|'learning'|'freeze-ant'|'wind'|'fields'|'compare';

@@ -1,4 +1,4 @@
-Status: claimed
+Status: completed
 Category: enhancement
 
 # 单蚁训练与参数检查页面
@@ -21,4 +21,5 @@ Category: enhancement
 
 ## 阶段记录
 
-- 已完成隔离的单蚁环境、可自修改矩阵、三阶段控制、参数冻结与逐步权重记录；12 项定向测试通过。界面及真实浏览器验收仍待完成。
+- 第一阶段完成隔离的单蚁环境、可自修改矩阵、三阶段控制、参数冻结与逐步权重记录；12 项定向测试通过。
+- 独立 3D 页面、完整参数矩阵、按组冻结、行列定位、真实回合记录、下载与响应式布局已完成。真实浏览器验收及边界见 `docs/engineering/single-ant-training-acceptance.md`；自主试跑的实际结果是跳过写入，不宣称学习增益。

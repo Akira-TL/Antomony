@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
-import type {Frame,Tool} from './types';
+import type {SceneFrame,Tool} from './types';
 import {WallPreview} from './wall-preview';
 import {FoodPreview} from './editor/food-preview';
 import {AntGait} from './render/gait';
@@ -15,8 +15,8 @@ export class ColonyScene {
   tool:Tool='inspect'; selected=0; showField=true; fps=0;
   active=true; interactive=true;
   onPoint:(x:number,y:number,id:number|null)=>void=()=>{};
-  private frame:Frame|null=null;
-  private previous:Frame|null=null;
+  private frame:SceneFrame|null=null;
+  private previous:SceneFrame|null=null;
   private received=0;
   private antMeshes:THREE.InstancedMesh[]=[];
   private legs:THREE.InstancedMesh;
@@ -35,16 +35,16 @@ export class ColonyScene {
   private visualTime=0;
   private last=performance.now();private frameCounter=0;private fpsStart=performance.now();
 
-  constructor(private host:HTMLElement) {
+  constructor(private host:HTMLElement,private training=false) {
     this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
     this.renderer.shadowMap.enabled=true;
     this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    this.renderer.setClearColor(0x091214,1);
+    this.renderer.setClearColor(training?0x16191c:0x091214,1);
     this.renderer.toneMapping=THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure=1.35;
     host.append(this.renderer.domElement);
-    this.scene.fog=new THREE.Fog(0x091214,50,105);
+    this.scene.fog=new THREE.Fog(training?0x16191c:0x091214,50,105);
     this.camera.position.set(18,23,23);this.camera.lookAt(0,0,0);
     this.controls=new OrbitControls(this.camera,this.renderer.domElement);
     this.controls.enableDamping=true;this.controls.dampingFactor=.08;
@@ -54,12 +54,14 @@ export class ColonyScene {
     sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:16,bottom:-16,near:1,far:65});sun.shadow.bias=-.0004;
     this.scene.add(sun);
     const base=new THREE.Mesh(new THREE.BoxGeometry(28.8,.65,20.8),new THREE.MeshStandardMaterial({color:0x142c2b,roughness:.8,metalness:.1}));base.position.y=-.38;base.receiveShadow=true;this.scene.add(base);
-    const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshStandardMaterial({color:0x17342e,roughness:.92}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;this.scene.add(floor);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshStandardMaterial({color:training?0x292c30:0x17342e,roughness:.92}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;this.scene.add(floor);
     const grid=new THREE.GridHelper(28,56,0x416454,0x28483e);grid.scale.z=20/28;grid.position.y=.009;(grid.material as THREE.Material).transparent=true;(grid.material as THREE.Material).opacity=.28;this.scene.add(grid);
     const border=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(28.5,.06,20.5)),new THREE.LineBasicMaterial({color:0x82b49a,transparent:true,opacity:.5}));border.position.y=.02;this.scene.add(border);
+    if(!training){
     const nest=new THREE.Mesh(new THREE.CylinderGeometry(1.65,1.8,.18,64),new THREE.MeshStandardMaterial({color:0x356b54,metalness:.45,roughness:.36}));nest.position.set(-10,.08,0);this.scene.add(nest);
     for(const r of [1.25,1.85]){const torus=new THREE.Mesh(new THREE.TorusGeometry(r,.018,8,90),new THREE.MeshBasicMaterial({color:0xa8e6b5}));torus.rotation.x=Math.PI/2;torus.position.set(-10,.19,0);this.scene.add(torus);}
     this.scene.add(this.label('巢穴 / HOME',-10,1.1,0,0xc5f7d4));
+    }
     const material=new THREE.MeshStandardMaterial({color:0xbcdbbf,metalness:.45,roughness:.38,emissive:0x3c7255,emissiveIntensity:.3});
     for(let part=0;part<3;part++){
       const mesh=new THREE.InstancedMesh(new THREE.SphereGeometry(1,12,8),material,64);mesh.castShadow=true;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);this.antMeshes.push(mesh);this.scene.add(mesh);
@@ -114,7 +116,7 @@ export class ColonyScene {
     const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas),transparent:true,depthTest:false}));sprite.scale.set(4.2,.8,1);sprite.position.set(x,y,z);return sprite;
   }
 
-  update(frame:Frame):void {
+  update(frame:SceneFrame):void {
     this.previous=this.frame?.seed===frame.seed && this.frame.tick<=frame.tick && this.frame.ants.length===frame.ants.length?this.frame:null;
     if(!this.previous){this.gaits.clear();this.visualTime=frame.seconds;}
     this.frame=frame;this.received=performance.now();
@@ -138,7 +140,7 @@ export class ColonyScene {
     const fk=JSON.stringify(frame.foods.map(f=>[f.id,f.x,f.y,Math.ceil(f.amount/8)]));
     if(fk!==this.foodKey){this.clear(this.foodGroup);this.foodKey=fk;
       for(const f of frame.foods.filter(food=>food.amount>0)){const base=new THREE.Mesh(new THREE.CylinderGeometry(.8,.86,.08,32),new THREE.MeshStandardMaterial({color:0x665038,roughness:.8}));base.position.set(f.x,.05,f.y);this.foodGroup.add(base);
-        for(let i=0;i<Math.min(27,Math.ceil(f.amount/8));i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.23,.23,.23),new THREE.MeshStandardMaterial({color:0xf8b95f,emissive:0x8d4e15,emissiveIntensity:.35,roughness:.38}));m.position.set(f.x+((i%3)-1)*.26,.2+Math.floor(i/9)*.25,f.y+(Math.floor(i/3)%3-1)*.26);m.castShadow=true;this.foodGroup.add(m);}this.foodGroup.add(this.label('资源 '+f.id,f.x,1.5,f.y,0xffce88));}
+        for(let i=0;i<Math.min(27,Math.ceil(f.amount/8));i++){const m=new THREE.Mesh(new THREE.BoxGeometry(.23,.23,.23),new THREE.MeshStandardMaterial({color:0xf8b95f,emissive:0x8d4e15,emissiveIntensity:.35,roughness:.38}));m.position.set(f.x+((i%3)-1)*.26,.2+Math.floor(i/9)*.25,f.y+(Math.floor(i/3)%3-1)*.26);m.castShadow=true;this.foodGroup.add(m);}this.foodGroup.add(this.label(this.training?'目标':'资源 '+f.id,f.x,1.5,f.y,0xffce88));}
     }
   }
 
