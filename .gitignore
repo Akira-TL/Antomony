@@ -1,0 +1,22 @@
+# 本机受限赛事材料：保留原件，不提交或公开学生记录。
+/materials/competition/attachments/
+/materials/competition/extracted/
+/materials/web-snapshots/
+
+# 机器级技能的项目引用可重建；来源清单另行纳入版本控制。
+/.agents/skills/
+/.codegraph/
+/.venv/
+__pycache__/
+*.py[cod]
+/.pytest_cache/
+/.ruff_cache/
+/.mypy_cache/
+/logs/
+/tmp/
+/build/
+/dist/
+*.egg-info/
+.env
+.env.*
+!.env.example
