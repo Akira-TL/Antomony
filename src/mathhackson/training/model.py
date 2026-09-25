@@ -15,7 +15,7 @@ GROUPS: tuple[tuple[Group, str, int, int], ...] = (
     ("query", "读取位置", 3, 19), ("key", "写入位置", 19, 35),
     ("rate", "写入幅度", 35, 39),
 )
-INPUTS = ("目标方向余弦", "目标方向正弦", "目标距离", "上次前进", "上次转向",
+INPUTS = ("食物方向余弦", "食物方向正弦", "食物距离", "上次前进", "上次转向",
           "上次奖励", "上次碰撞", "上次进展", "离巢标记左", "离巢标记中",
           "离巢标记右", "食物标记左", "食物标记中", "食物标记右", "回合进度", "常数")
 
@@ -31,6 +31,7 @@ class Decision:
     action_logp: Tensor
     gate_logp: Tensor
     entropy: Tensor
+    turn_loss: Tensor
 
 
 class SelfModifyingPolicy:
@@ -70,9 +71,12 @@ class SelfModifyingPolicy:
                 move = bool(move_dist.probs >= .5)
                 raw_turn = float(output[1])
                 requested = bool(gate_dist.probs >= .5)
-            turn = float(np.tanh(raw_turn))
+            # 扩大输出对可用角度的覆盖；最终角度仍由模型给出，环境上限不变。
+            turn = float(np.tanh(3. * raw_turn))
             action_logp = move_dist.log_prob(torch.tensor(float(move))) + turn_dist.log_prob(torch.tensor(raw_turn))
             gate_logp = gate_dist.log_prob(torch.tensor(float(requested)))
+            turn_target = torch.tensor((4. / 3.) * float(observation[1]), dtype=output.dtype)
+            turn_loss = torch.square(output[1] - turn_target)
             self.self_delta.zero_()
             wrote = False
             # 本步行动先由旧权重产生；写入只能影响下一次推理，包括写入控制本身。
@@ -92,7 +96,7 @@ class SelfModifyingPolicy:
                 self.weights = updated
                 self.self_updates += int(wrote)
             return Decision(move, turn, float(move_dist.probs.detach()), float(gate_dist.probs.detach()),
-                            requested, wrote, action_logp, gate_logp, move_dist.entropy() + turn_dist.entropy())
+                            requested, wrote, action_logp, gate_logp, move_dist.entropy() + turn_dist.entropy(), turn_loss)
 
     def finish(self, decisions: list[Decision], rewards: list[float], baseline: float, optimize: bool) -> None:
         final = self.weights.detach().clone()
@@ -107,6 +111,8 @@ class SelfModifyingPolicy:
             loss = torch.zeros(())
             for i, decision in enumerate(decisions):
                 loss = loss - decision.action_logp * (returns[i] - baseline) - .003 * decision.entropy
+                if self.phase == "motor":
+                    loss = loss + 8. * decision.turn_loss
                 if self.phase == "meta":
                     # 判断写入不影响本步动作，故从下一步的实际回报分配信用。
                     future = returns[i + 1] if i + 1 < len(returns) else 0.

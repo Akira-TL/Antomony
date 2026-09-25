@@ -30,7 +30,7 @@ def test_self_write_is_after_action_and_control_can_modify_itself():
     output = before @ torch.from_numpy(observation())
     decision = model.decide(observation())
     assert decision.move == bool(output[0] >= 0.)
-    assert decision.turn == pytest.approx(float(torch.tanh(output[1])))
+    assert decision.turn == pytest.approx(float(torch.tanh(3. * output[1])))
     assert decision.wrote
     assert not torch.equal(before[2], model.weights[2])
     assert model.outer_updates == 0
@@ -44,6 +44,21 @@ def test_gate_can_skip_without_changing_any_weights():
     assert not model.decide(observation()).requested_write
     assert torch.equal(before, model.weights)
     assert model.self_updates == 0
+
+
+def test_basic_training_learns_both_turn_signs_without_runtime_direction_rule():
+    left, right = SelfModifyingPolicy(7), SelfModifyingPolicy(7)
+    left_input, right_input = observation(), observation()
+    left_input[0:2] = [0., 1.]
+    right_input[0:2] = [0., -1.]
+    for _ in range(18):
+        for model, current in ((left, left_input), (right, right_input)):
+            decisions = [model.decide(current) for _ in range(12)]
+            model.finish(decisions, [0.] * len(decisions), 0., True)
+    left.phase = right.phase = "autonomous"
+    assert left.decide(left_input).turn > .5
+    assert right.decide(right_input).turn < -.5
+    assert left.outer_updates == right.outer_updates == 18
 
 
 @pytest.mark.parametrize("phase", ["motor", "meta", "autonomous"])
