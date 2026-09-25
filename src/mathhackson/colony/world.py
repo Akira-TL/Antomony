@@ -8,6 +8,8 @@ import numpy as np
 from .geometry import Array, Wall, move_discs, ray_distance, unit, relocate_for_wall
 from .pheromone import Pheromones
 from .brain import Brain
+from .control.rules import RuleController
+from typing import Literal
 from .navigation import choose_motion, deposit_trail, direction
 
 @dataclass
@@ -22,10 +24,11 @@ class Ant:
     id: int
     position: Array
     heading: float
-    brain: Brain
+    brain: Brain | RuleController
     home: Array
     carrying: bool=False
     following_trail: bool=False
+    distance: float=0.
     delivered: int=0
     contacts: int=0
     age: float=0.
@@ -66,9 +69,10 @@ class World:
     half=np.asarray([14.,10.],dtype=np.float32)
     turns=np.linspace(-np.pi,np.pi,12,endpoint=False).astype(np.float32)
 
-    def __init__(self,seed: int=42,count: int=32,warmup: int=220) -> None:
+    def __init__(self,seed: int=42,count: int=32,warmup: int=220,*,mode: Literal['neural','rules']='neural') -> None:
         if not 1<=count<=64: raise ValueError('个体数量必须在1到64之间')
         if not 0<=seed<2**31: raise ValueError('种子超出范围')
+        self.mode=mode
         self.seed=seed; self.tick_count=0; self.paused=False; self.rate=1
         self.nest=np.asarray([-10.,0.],np.float32)
         self.walls=[Wall(1,-2.5,-4.,.4,2.2),Wall(2,2.,3.,.4,2.2)]
@@ -78,11 +82,12 @@ class World:
         for i in range(count):
             p=self.nest+np.asarray([((i%8)-3.5)*.49,((i//8)-(math.ceil(count/8)-1)/2)*.49],np.float32)
             heading=float(i*2.39996323)
-            self.ants.append(Ant(i,p,heading,Brain(seed*1009+i*97+3,warmup),(self.nest-p).astype(np.float32),wander=heading,last_mark_position=p.copy()))
+            controller = Brain(seed*1009+i*97+3,warmup) if mode=='neural' else RuleController(seed*1009+i*97+3)
+            self.ants.append(Ant(i,p,heading,controller,(self.nest-p).astype(np.float32),wander=heading,last_mark_position=p.copy()))
         self.events:deque[Event]=deque(maxlen=24)
         self.samples=0; self.error_sum=0.; self.last_ms=0.; self.contact_count=0
         self.wind=0.; self.pheromone_visible=True
-        self.event('ready','独立预热完成；开始局部探索')
+        self.event('ready','独立预热完成；开始局部探索' if mode=='neural' else '普通规则蚁群；不创建或调用神经网络')
 
     def event(self,kind: str,message: str,ant: int=-1,value: float=0.) -> None:
         self.events.appendleft(Event(self.tick_count,kind,message,ant,value))
@@ -131,10 +136,11 @@ class World:
             target=np.asarray([actual@forward/(self.speed*self.dt),actual@right/(self.speed*self.dt),float(contacts[i])],np.float32)
             loss=float(np.mean((predictions[i]-target)**2)); self.error_sum+=loss; self.samples+=1
             ant.brain.last_loss=loss
-            if not ant.brain.frozen:
+            if isinstance(ant.brain, Brain) and not ant.brain.frozen:
                 ant.brain.train(chosen[i],target)
                 if ant.id==0 and self.tick_count%20==0:
                     self.event('learn',f'个体 {i:02d} 更新运动预测参数',i,ant.brain.last_delta)
+            ant.distance += float(np.linalg.norm(actual))
             ant.position=moved[i]; ant.home-=actual; ant.motion=actual/(self.speed*self.dt)
             ant.heading=headings[i]; ant.age+=self.dt
             ant.stuck=ant.stuck+1 if float(np.linalg.norm(actual))<.035 else max(0,ant.stuck-1)

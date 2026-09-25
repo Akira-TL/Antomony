@@ -10,21 +10,26 @@ from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ValidationError
 from .world import World
+from .control.session import ComparisonSession, ComparisonFrame
 from .protocol import Command, Frame, apply_command, snapshot
 
 class Engine:
     def __init__(self) -> None:
-        self.world: World|None=None
+        self.session: ComparisonSession|None=None
         self.commands:asyncio.Queue[Command]=asyncio.Queue(maxsize=64)
 
+    @property
+    def world(self) -> World | None:
+        return self.session.world if self.session else None
+
     async def run(self) -> None:
-        self.world=World()
+        self.session=ComparisonSession()
         while True:
             start=asyncio.get_running_loop().time()
             while not self.commands.empty():
                 command=self.commands.get_nowait()
-                self.world=apply_command(self.world,command)
-            if not self.world.paused: self.world.tick()
+                self.session.dispatch(command)
+            self.session.tick()
             elapsed=asyncio.get_running_loop().time()-start
             await asyncio.sleep(max(.003,self.world.dt/self.world.rate-elapsed))
 
@@ -48,8 +53,8 @@ async def health() -> Health:
     return Health(ready=engine.world is not None,tick=engine.world.tick_count if engine.world else 0)
 
 @app.get('/api/state')
-async def state() -> Frame|None:
-    return snapshot(engine.world) if engine.world else None
+async def state() -> ComparisonFrame|None:
+    return engine.session.frame() if engine.session else None
 
 class WallPreview(BaseModel):
     valid: bool
@@ -60,6 +65,9 @@ class WallPreview(BaseModel):
 async def wall_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,le=10), hx: float = Query(default=.4,ge=.25,le=4), hy: float = Query(default=2.,ge=.25,le=4), angle: float = Query(default=0.,ge=-1000,le=1000)) -> WallPreview:
     world=engine.world
     if world is None: return WallPreview(valid=False,message='模型尚未就绪')
+    if engine.session and engine.session.reference:
+        other,_,message=engine.session.reference.plan_wall(x,y,hx,hy,angle)
+        if other is None: return WallPreview(valid=False,message='普通侧：'+message)
     wall,positions,message=world.plan_wall(x,y,hx,hy,angle)
     if wall is None or positions is None: return WallPreview(valid=False,message=message)
     count=sum(float(np.linalg.norm(p-a.position))>1e-6 for p,a in zip(positions,world.ants,strict=True))
@@ -69,13 +77,16 @@ async def wall_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,l
 async def food_preview(x: float = Query(ge=-14,le=14), y: float = Query(ge=-10,le=10)) -> WallPreview:
     if engine.world is None:
         return WallPreview(valid=False,message='模型尚未就绪')
+    if engine.session and engine.session.reference:
+        valid,message=engine.session.reference.plan_food(x,y)
+        if not valid: return WallPreview(valid=False,message='普通侧：'+message)
     valid,message=engine.world.plan_food(x,y)
     return WallPreview(valid=valid,message=message)
 
 @app.get('/api/export')
 async def export() -> Response:
     if engine.world is None: return Response('{}',status_code=503,media_type='application/json')
-    return Response(snapshot(engine.world).model_dump_json(),media_type='application/json',headers={'Content-Disposition':'attachment; filename="colony-snapshot.json"'})
+    return Response(engine.session.frame().model_dump_json(),media_type='application/json',headers={'Content-Disposition':'attachment; filename="colony-snapshot.json"'})
 
 @app.websocket('/ws')
 async def connection(ws: WebSocket) -> None:
@@ -85,7 +96,7 @@ async def connection(ws: WebSocket) -> None:
     await ws.accept()
     async def send() -> None:
         while True:
-            if engine.world is not None: await ws.send_text(snapshot(engine.world).model_dump_json())
+            if engine.session is not None: await ws.send_text(engine.session.frame().model_dump_json())
             await asyncio.sleep(.1)
     sender=asyncio.create_task(send())
     try:
