@@ -7,11 +7,11 @@ from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .schemas import Command, State
+from .schemas import Command, State, WeightTrace
 from .session import TrainingSession
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -55,6 +55,11 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/api/training/state")
 async def state() -> State:
     return current().state()
+
+
+@app.get("/api/training/trace")
+async def trace(row: int = Query(ge=0, le=38), column: int = Query(ge=0, le=15)) -> WeightTrace:
+    return current().weight_trace(row, column)
 
 
 @app.get("/api/health")

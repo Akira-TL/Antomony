@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import deque
+from dataclasses import dataclass
 from pathlib import Path
 from uuid import uuid4
 
@@ -7,7 +9,19 @@ import numpy as np
 
 from .environment import SingleAntEnvironment
 from .model import GROUPS, INPUTS, Decision, SelfModifyingPolicy
-from .schemas import Command, EpisodeRecord, GroupState, State
+from .schemas import Command, EpisodeRecord, GroupState, State, TracePoint, WeightTrace
+
+
+@dataclass(frozen=True)
+class WeightSample:
+    sequence: int
+    tick: int
+    episode: int
+    phase: str
+    source: str
+    status: str
+    weights: np.ndarray
+    delta: np.ndarray
 
 
 class TrainingSession:
@@ -24,7 +38,24 @@ class TrainingSession:
         self.episode = 1
         self.baseline = 0.
         self.history: list[EpisodeRecord] = []
+        self.trace: deque[WeightSample] = deque(maxlen=256)
+        self._sample("initial", "初始参数", np.zeros((39, 16), dtype=np.float32))
         self._begin()
+
+    def _sample(self, source: str, status: str, delta: np.ndarray) -> None:
+        self.trace.append(WeightSample(self.trace[-1].sequence + 1 if self.trace else 0,
+                                       self.tick, self.episode, self.model.phase, source, status,
+                                       self.model.weights.detach().numpy().copy(), delta.copy()))
+
+    def weight_trace(self, row: int, column: int) -> WeightTrace:
+        if not 0 <= row < 39 or not 0 <= column < 16:
+            raise ValueError("参数位置超出范围")
+        points = [TracePoint(sequence=sample.sequence, tick=sample.tick, episode=sample.episode,
+                             phase=sample.phase, source=sample.source, status=sample.status,
+                             value=float(sample.weights[row, column]), delta=float(sample.delta[row, column]),
+                             changed=int(np.count_nonzero(sample.delta)),
+                             total_change=float(np.abs(sample.delta).sum())) for sample in self.trace]
+        return WeightTrace(session=self.id, row=row, column=column, points=points)
 
     def _begin(self) -> None:
         self.decisions: list[Decision] = []
@@ -39,6 +70,8 @@ class TrainingSession:
         if self.decisions:
             before_outer = self.model.weights.detach().numpy().copy()
             self.model.finish(self.decisions, self.rewards, self.baseline, optimize)
+            outer_delta = self.model.outer_delta.numpy().copy()
+            self._sample("outer", "回合末外部更新" if np.any(outer_delta) else "回合结束，参数未更新", outer_delta)
             filename = f"episode-{self.episode:06d}.npz"
             record = EpisodeRecord(episode=self.episode, phase=self.model.phase, lesson=self.env.lesson,
                                    steps=len(self.decisions), reward=sum(self.rewards), reached=self.env.reached,
@@ -71,6 +104,10 @@ class TrainingSession:
         self.rewards.append(reward)
         self.trajectory.append(self.model.weights.detach().numpy().copy())
         self.tick += 1
+        self_delta = self.model.self_delta.numpy().copy()
+        status = ("模型自写入" if decision.wrote else "基础阶段不自写入" if self.model.phase == "motor"
+                  else "模型跳过写入" if not decision.requested_write else "冻结或变化为零")
+        self._sample("self" if decision.wrote else "skip", status, self_delta)
         if self.env.done:
             self.finish("到达目标" if self.env.reached else "回合结束", True)
 

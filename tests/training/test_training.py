@@ -179,3 +179,37 @@ def test_state_exposes_every_weight_and_effective_freeze(tmp_path: Path):
     assert len(state.inputs) == 16
     assert [group.frozen for group in state.groups] == [False, True, True, True, True]
     assert sum(end - start for _, _, start, end in GROUPS) == len(state.weights)
+
+
+def test_weight_trace_records_actual_steps_and_outer_update(tmp_path: Path):
+    session = TrainingSession(tmp_path)
+    while not session.history:
+        session.step()
+    trace = session.weight_trace(0, 0)
+    assert len(trace.points) == session.history[0].steps + 2
+    assert trace.points[0].source == "initial"
+    assert all(point.source == "skip" and point.delta == 0 for point in trace.points[1:-1])
+    assert trace.points[-1].source == "outer"
+    assert trace.points[-1].changed > 0
+    assert trace.points[-1].value == pytest.approx(session.state().weights[0][0])
+    assert trace.points[-1].value - trace.points[-2].value == pytest.approx(trace.points[-1].delta)
+    assert [point.sequence for point in trace.points] == list(range(len(trace.points)))
+
+
+def test_weight_trace_captures_self_writes_and_freeze_as_flatline(tmp_path: Path):
+    session = TrainingSession(tmp_path)
+    session.command(Command(action="phase", phase="meta"))
+    for _ in range(32):
+        session.step()
+    trace = session.weight_trace(2, 0)
+    assert any(point.source == "self" and point.changed > 0 for point in trace.points)
+    for previous, current in zip(trace.points, trace.points[1:]):
+        if current.source in {"self", "skip"}:
+            assert current.value - previous.value == pytest.approx(current.delta, abs=1e-7)
+    session.command(Command(action="freeze_all", frozen=True))
+    frozen = session.weight_trace(2, 0).points[-1].value
+    for _ in range(110):
+        session.step()
+    assert all(point.value == frozen and point.delta == 0 for point in session.weight_trace(2, 0).points[-110:])
+    with pytest.raises(ValueError):
+        session.weight_trace(39, 0)

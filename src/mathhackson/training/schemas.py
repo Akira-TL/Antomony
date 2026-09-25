@@ -40,6 +40,26 @@ class EpisodeRecord(BaseModel):
     checkpoint: str
 
 
+class TracePoint(BaseModel):
+    sequence: int
+    tick: int
+    episode: int
+    phase: Phase
+    source: Literal["initial", "skip", "self", "outer"]
+    status: str
+    value: float
+    delta: float
+    changed: int
+    total_change: float
+
+
+class WeightTrace(BaseModel):
+    session: str
+    row: int
+    column: int
+    points: list[TracePoint]
+
+
 class State(BaseModel):
     session: str
     paused: bool
