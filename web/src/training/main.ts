@@ -3,7 +3,7 @@ import type {IconNode} from 'lucide';
 import * as THREE from 'three';
 import {ColonyScene} from '../scene';
 import {NetworkView} from './network';
-import type {TrainingState,TrainingCommand,Phase,Lesson,GroupId} from './types';
+import type {TrainingState,TrainingCommand,Phase,Lesson,GroupId,WeightTrace} from './types';
 import './style.css';
 
 const $=<T extends HTMLElement=HTMLElement>(selector:string):T=>document.querySelector<T>(selector)!;
@@ -48,7 +48,11 @@ $('#app').innerHTML=`
       <section class="network" aria-label="模型参数与冻结状态">
         <div class="section-heading"><h2>参数与冻结</h2><div class="parameter-actions"><span>39 × 16 · 624 参数</span>${button('freeze-all','冻结全部参数',Lock)}${button('unfreeze-all','解除手动冻结',Unlock)}</div></div>
         <div id="groups" class="groups"></div>
-        <div class="network-toolbar"><div class="segmented" role="group" aria-label="矩阵视图"><button type="button" data-view="weight" aria-pressed="true">权重</button><button type="button" data-view="self" aria-pressed="false">自写入 Δ</button><button type="button" data-view="outer" aria-pressed="false">外部更新 Δ</button></div><span class="legend"><i></i>负<i></i>正</span></div>
+        <div class="weight-trace-heading"><h2>选中权重的变化</h2><span id="weight-trace-status" role="status">等待逐步记录</span></div>
+        <canvas id="weight-trace" width="700" height="200" aria-label="选中权重的真实逐步轨迹"></canvas>
+        <div class="trace-legend"><span><i class="self-mark"></i>模型自写入</span><span><i class="outer-mark"></i>回合末外部更新</span><span><i class="skip-mark"></i>没有变化</span></div>
+        <ol id="weight-events" class="weight-events" aria-label="最近的权重变化"></ol>
+        <div class="network-toolbar"><div class="segmented" role="group" aria-label="矩阵视图"><button type="button" data-view="weight" aria-pressed="true">当前权重</button><button type="button" data-view="self" aria-pressed="false">本步自写入 Δ</button><button type="button" data-view="outer" aria-pressed="false">最近外部更新 Δ</button></div><span class="legend"><i></i>负<i></i>正</span></div>
         <canvas id="matrix" tabindex="0" aria-label="完整参数矩阵"></canvas>
         <div class="parameter-picker"><span>参数定位</span><label>行<input id="parameter-row" type="number" min="0" max="38" step="1" value="0" required></label><label>列<input id="parameter-column" type="number" min="0" max="15" step="1" value="0" required></label></div>
         <div id="parameter-detail" class="parameter-detail"></div>
@@ -59,10 +63,13 @@ $('#app').innerHTML=`
 
 const scene=new ColonyScene($('#scene'),true);
 scene.showField=false;
-const network=new NetworkView($('#matrix'),$('#parameter-detail'));
+const network=new NetworkView($('#matrix'),$('#parameter-detail'),$('#weight-trace'),$('#weight-trace-status'),$('#weight-events'));
+let traceSelection='';
 network.onSelect=(row,column)=>{
   if(document.activeElement!==$('#parameter-row'))$<HTMLInputElement>('#parameter-row').value=String(row);
   if(document.activeElement!==$('#parameter-column'))$<HTMLInputElement>('#parameter-column').value=String(column);
+  const selection=`${row}:${column}`;
+  if(selection!==traceSelection){traceSelection=selection;void loadTrace();}
 };
 const emptyField=btoa('\0'.repeat(96*64*2));
 const pathMaterial=new THREE.LineBasicMaterial({color:0x63bccf,transparent:true,opacity:.65});
@@ -73,6 +80,19 @@ let busy=false,connected=false,revision=0,lastTick=-1,lastEpisode=-1,lastSession
 let groupSignature='';
 let historySignature='';
 let commandError='';
+
+async function loadTrace():Promise<void> {
+  if(!state)return;
+  const {row,column}=network,session=state.session;
+  try{
+    const response=await fetch(`/api/training/trace?row=${row}&column=${column}`,{cache:'no-store',signal:AbortSignal.timeout(5000)});
+    if(!response.ok)throw new Error(`轨迹接口返回 ${response.status}`);
+    const trace=await response.json() as WeightTrace;
+    if(trace.session===session&&state?.session===session&&network.row===row&&network.column===column)network.setTrace(trace);
+  }catch{
+    if(state?.session===session&&network.row===row&&network.column===column)$('#weight-trace-status').textContent='轨迹暂不可用';
+  }
+}
 
 function focus():void {
   if(!state)return;
@@ -197,7 +217,7 @@ async function poll():Promise<void> {
     const response=await fetch('/api/training/state',{cache:'no-store',signal:AbortSignal.timeout(5000)});
     if(!response.ok)throw new Error(`服务返回 ${response.status}`);
     const next=await response.json() as TrainingState;
-    if(requestRevision===revision&&!busy)render(next);
+    if(requestRevision===revision&&!busy){render(next);await loadTrace();}
   }catch{
     connected=false;$('#connection').textContent='连接中断';$('#connection').className='disconnected';
     showError('无法连接独立训练服务，正在重试。');setControlsEnabled(false);
