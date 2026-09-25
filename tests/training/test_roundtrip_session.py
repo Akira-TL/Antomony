@@ -22,6 +22,7 @@ def test_roundtrip_session_starts_paused_and_records_both_release_channels(tmp_p
     session.command(RoundTripCommand(action="step"))
     assert session.episode == 2
     assert len(session.history) == 1
+    assert session.history[0].completed
     with np.load(session.directory / session.history[0].checkpoint, allow_pickle=False) as archive:
         assert archive["actions"].shape == (2, 4)
         assert archive["observations"].shape == (2, 17)
@@ -38,6 +39,7 @@ def test_phase_change_preserves_parameters_but_resets_episode_state(tmp_path):
     assert session.model.phase == "adaptive" and session.model.write_mode == "learned"
     assert torch.equal(session.model.motor, motor)
     assert session.history[0].steps == 1
+    assert not session.history[0].completed
     with pytest.raises(ValueError, match="停止外部训练"):
         session.command(RoundTripCommand(action="write_mode", write_mode="always"))
     session.command(RoundTripCommand(action="phase", phase="autonomous"))

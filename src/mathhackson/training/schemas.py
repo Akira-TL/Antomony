@@ -200,6 +200,7 @@ class RoundTripCommand(BaseModel):
 class RoundTripEpisode(BaseModel):
     episode: int
     phase: RecurrentPhase
+    completed: bool
     steps: int
     pickups: int
     delivered: int

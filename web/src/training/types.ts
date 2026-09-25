@@ -34,3 +34,15 @@ export interface RecurrentState {
   fast:number[];fast_delta:number[];fast_trace:number[][];groups:RecurrentGroup[];history:RecurrentEpisode[];
 }
 export interface RecurrentCommand {action:'play'|'pause'|'step'|'phase'|'task'|'speed'|'reset'|'write_mode';phase?:RecurrentPhase;task?:RecurrentTask;speed?:1|4|16;write_mode?:WriteMode}
+
+export interface RoundTripEpisode {episode:number;phase:RecurrentPhase;completed:boolean;steps:number;pickups:number;delivered:number;reward:number;writes:number;checkpoint:string}
+export interface RoundTripState {
+  session:string;paused:boolean;error:string;phase:RecurrentPhase;write_mode:WriteMode;speed:number;
+  tick:number;episode:number;steps:number;horizon:number;x:number;y:number;heading:number;food_x:number;food_y:number;
+  carrying:boolean;pickups:number;delivered:number;move:boolean;turn:number;move_probability:number;
+  release_home:boolean;release_food:boolean;release_home_probability:number;release_food_probability:number;
+  home_scent:number;food_scent:number;reward:number;total_reward:number;write_probability:number;write_status:string;
+  self_updates:number;outer_updates:number;hidden:number[];fast:number[];release_fast:number[];groups:RecurrentGroup[];
+  field_width:number;field_height:number;pheromones:string;history:RoundTripEpisode[];
+}
+export interface RoundTripCommand {action:'play'|'pause'|'step'|'phase'|'speed'|'reset'|'write_mode';phase?:'memory'|'adaptive'|'autonomous';speed?:1|4|16;write_mode?:WriteMode}

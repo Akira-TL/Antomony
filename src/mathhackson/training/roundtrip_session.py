@@ -70,7 +70,8 @@ class RoundTripSession:
                 delivered=self.env.delivered,
             )
             record = RoundTripEpisode(
-                episode=self.episode, phase=self.model.phase, steps=len(self.actions),
+                episode=self.episode, phase=self.model.phase, completed=self.env.done,
+                steps=len(self.actions),
                 pickups=self.env.pickups, delivered=self.env.delivered, reward=total,
                 writes=self.model.self_updates - self.start_self, checkpoint=filename)
             (self.directory / filename.replace(".npz", ".json")).write_text(
