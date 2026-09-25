@@ -69,6 +69,15 @@ def test_memory_phase_keeps_motor_immutable_and_resets_hidden_each_episode(tmp_p
     assert session.history[-1].checkpoint
 
 
+def test_motor_stays_aligned_after_fifty_training_episodes(tmp_path: Path):
+    session = RecurrentSession(tmp_path)
+    for _ in range(50):
+        current = session.episode
+        while session.episode == current:
+            session.step()
+    assert session.motor_alignment() == (6, 6)
+
+
 def test_shift_is_environment_only_and_starts_after_feedback_window(tmp_path: Path):
     session = RecurrentSession(tmp_path)
     session.command(RecurrentCommand(action="task", task="shift"))

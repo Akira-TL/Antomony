@@ -24,6 +24,7 @@ class Action:
     move_probability: float
     action_logp: Tensor
     entropy: Tensor
+    move_loss: Tensor
     turn_loss: Tensor
 
 
@@ -102,9 +103,12 @@ class RecurrentPolicy:
                 raw_turn = float(output[1])
             turn = float(np.tanh(3. * raw_turn))
             logp = move_dist.log_prob(torch.tensor(float(move))) + turn_dist.log_prob(torch.tensor(raw_turn))
+            move_target = torch.tensor(float(observation[0] > .25), dtype=output.dtype)
+            move_loss = torch.nn.functional.binary_cross_entropy_with_logits(output[0], move_target)
             target = torch.tensor((4. / 3.) * float(observation[1]), dtype=output.dtype)
             return Action(move, turn, float(move_dist.probs.detach()), logp,
-                          move_dist.entropy() + turn_dist.entropy(), (output[1] - target).square())
+                          move_dist.entropy() + turn_dist.entropy(), move_loss,
+                          (output[1] - target).square())
 
     def observe_result(self, observation: np.ndarray, *, terminal: bool = False) -> Write:
         if observation.shape != (INPUT_WIDTH,) or not np.isfinite(observation).all():
@@ -147,7 +151,7 @@ class RecurrentPolicy:
             for index, (action, write, value) in enumerate(zip(actions, writes, returns, strict=True)):
                 loss = loss - action.action_logp * (value - baseline) - .003 * action.entropy
                 if self.phase == "motor":
-                    loss = loss + 8. * action.turn_loss
+                    loss = loss + 4. * action.move_loss + 8. * action.turn_loss
                 if self.phase == "adaptive" and self.write_mode == "learned" and index + 1 < len(returns):
                     future = returns[index + 1] - .02 * int(write.requested)
                     loss = loss - write.logp * (future - baseline)
