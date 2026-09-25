@@ -60,3 +60,12 @@ dialog::backdrop {background:#020908b5;backdrop-filter:blur(7px)} dialog h2 {fon
 @media(min-height:950px) {.canvas-wrap{min-height:610px}.sidebar{gap:16px}.card{padding:21px}.event{padding:11px 0}#network{height:110px}}
 @media(max-width:1150px) {.workspace{padding:16px;gap:12px;grid-template-columns:minmax(0,1fr) 266px}.topbar{padding:0 18px}.top-title{display:none}h1{font-size:21px}.metrics article{padding:0 10px}.metrics small{font-size:8px}.tool{padding:7px}.tool b{margin:0 3px 0 0}.toolbar{flex-wrap:wrap}.interaction-hint{font-size:9px}.legend{font-size:9px;gap:8px}.canvas-wrap{min-height:450px}.card{padding:14px}}
 @media(max-width:830px) {.workspace{grid-template-columns:minmax(0,1fr);min-height:0}.canvas-wrap{height:58vh;min-height:430px;flex:none}.sidebar{display:grid;grid-template-columns:1fr 1fr}.event-card{grid-column:1/3}.connection button{display:none}.metrics strong{font-size:22px}.arena-heading{padding-bottom:14px}.connection{font-size:10px}footer{gap:14px;font-size:8px}.legend{bottom:12px}.interaction-hint{top:38px;max-width:none;left:18px;text-align:left}.scene-label{top:15px}}
+@media(min-width:831px) {
+  .workspace {height:calc(100vh - 110px);min-height:0}
+  .arena-panel,.sidebar {min-height:0}
+  .canvas-wrap {min-height:260px}
+  .sidebar {overflow-y:auto;scrollbar-width:thin;scrollbar-color:#395345 transparent}
+  .arena-heading,.toolbar,.metrics {flex-shrink:0}
+  .metrics {margin-top:12px;padding:12px 0}
+  .metrics strong {font-size:24px;margin:5px 0 4px}
+}

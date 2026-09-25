@@ -37,7 +37,7 @@ export class ColonyScene {
     this.renderer.toneMappingExposure=1.35;
     host.append(this.renderer.domElement);
     this.scene.fog=new THREE.Fog(0x091214,50,105);
-    this.camera.position.set(24,29,29);this.camera.lookAt(0,0,0);
+    this.camera.position.set(18,23,23);this.camera.lookAt(0,0,0);
     this.controls=new OrbitControls(this.camera,this.renderer.domElement);
     this.controls.enableDamping=true;this.controls.dampingFactor=.08;
     this.controls.maxPolarAngle=Math.PI*.46;this.controls.minDistance=17;this.controls.maxDistance=65;
@@ -59,6 +59,7 @@ export class ColonyScene {
     this.legs=new THREE.InstancedMesh(new THREE.CylinderGeometry(.014,.014,1,5),material,64*6);this.scene.add(this.legs);
     this.cargo=new THREE.InstancedMesh(new THREE.BoxGeometry(.18,.18,.18),new THREE.MeshStandardMaterial({color:0xf8b85b,emissive:0xb46616,emissiveIntensity:.6,metalness:.3,roughness:.35}),64);this.scene.add(this.cargo);
     this.delivered=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,.12,.12),this.cargo.material,384);this.scene.add(this.delivered);
+    [...this.antMeshes,this.legs,this.cargo,this.delivered].forEach(mesh=>mesh.count=0);
     this.fieldTexture=new THREE.DataTexture(new Uint8Array(96*64*4),96,64,THREE.RGBAFormat);this.fieldTexture.flipY=true;this.fieldTexture.magFilter=THREE.LinearFilter;this.fieldTexture.minFilter=THREE.LinearFilter;
     this.fieldMesh=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshBasicMaterial({map:this.fieldTexture,transparent:true,depthWrite:false,opacity:.8,blending:THREE.AdditiveBlending}));this.fieldMesh.rotation.x=-Math.PI/2;this.fieldMesh.position.y=.022;this.scene.add(this.fieldMesh);
     this.ring=new THREE.Mesh(new THREE.RingGeometry(.32,.36,48),new THREE.MeshBasicMaterial({color:0xd3ffb1,side:THREE.DoubleSide,transparent:true,opacity:.9}));this.ring.rotation.x=-Math.PI/2;this.scene.add(this.ring,this.rays,this.wallGroup,this.foodGroup);
