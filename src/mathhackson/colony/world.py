@@ -39,6 +39,11 @@ class Ant:
     next_emergency: int=0
     decisions: int=0
     trail_distance: float=0.
+    last_mark_position: Array|None=None
+    last_mark_tick: int=0
+    waypoint: Array|None=None
+    waypoint_deadline: int=0
+    escape_until: int=0
     ignore_scent_until: int=0
     recent_positions: deque[Array]=field(default_factory=lambda:deque(maxlen=40))
     sense_x: float=0.
@@ -72,7 +77,7 @@ class World:
         for i in range(count):
             p=self.nest+np.asarray([((i%8)-3.5)*.49,((i//8)-(math.ceil(count/8)-1)/2)*.49],np.float32)
             heading=float(i*2.39996323)
-            self.ants.append(Ant(i,p,heading,Brain(seed*1009+i*97+3,warmup),self.nest-p,wander=heading))
+            self.ants.append(Ant(i,p,heading,Brain(seed*1009+i*97+3,warmup),(self.nest-p).astype(np.float32),wander=heading,last_mark_position=p.copy()))
         self.events:deque[Event]=deque(maxlen=24)
         self.samples=0; self.error_sum=0.; self.last_ms=0.; self.contact_count=0
         self.wind=0.; self.pheromone_visible=True
@@ -143,13 +148,17 @@ class World:
         if ant.carrying and np.linalg.norm(ant.position-self.nest)<1.5:
             ant.carrying=False; ant.delivered+=1; ant.age=0.; ant.home=self.nest-ant.position
             ant.wander=ant.heading+math.pi; ant.target_heading=ant.wander; ant.next_decision=0
-            ant.trail_distance=0.; ant.recent_positions.clear()
+            ant.trail_distance=0.; ant.recent_positions.clear(); ant.waypoint=None
+            ant.last_mark_position=ant.position.copy(); ant.last_mark_tick=self.tick_count
             self.event('delivery',f'个体 {ant.id:02d} 搬回一个像素块',ant.id)
         elif not ant.carrying:
+            if np.linalg.norm(ant.position-self.nest)<1.5:
+                ant.age=0.
             for f in self.foods:
                 if f.amount>0 and math.hypot(float(ant.position[0])-f.x,float(ant.position[1])-f.y)<.8:
                     f.amount-=1; ant.carrying=True; ant.age=0; ant.next_decision=0
-                    ant.trail_distance=0.; ant.recent_positions.clear()
+                    ant.trail_distance=0.; ant.recent_positions.clear(); ant.waypoint=None
+                    ant.last_mark_position=ant.position.copy(); ant.last_mark_tick=self.tick_count
                     self.event('pickup',f'个体 {ant.id:02d} 发现资源',ant.id); break
 
     def plan_wall(self,x: float,y: float,hx: float=.4,hy: float=2.) -> tuple[Wall|None,Array|None,str]:
@@ -173,7 +182,8 @@ class World:
             delta=position-ant.position
             if float(np.linalg.norm(delta))>1e-6:
                 ant.home-=delta; ant.position=position.copy(); ant.motion.fill(0)
-                ant.next_decision=0; ant.recent_positions.clear(); displaced+=1
+                ant.next_decision=0; ant.recent_positions.clear(); ant.waypoint=None
+                ant.last_mark_position=position.copy(); ant.last_mark_tick=self.tick_count; displaced+=1
         self.walls.append(wall); self.field.set_walls(self.walls)
         self.event('wall',f'已加入真实碰撞墙；就近移开 {displaced} 只个体（编辑，不训练）')
         return '墙已放置' if not displaced else f'墙已放置；已就近移开 {displaced} 只个体'

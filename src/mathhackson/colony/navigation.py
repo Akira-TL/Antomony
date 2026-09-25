@@ -11,12 +11,48 @@ DECISION_TICKS = 4
 MAX_TURN = .42
 
 
+def exploration(world: World, ant: Ant, reverse: bool = False) -> Array:
+    """只选局部射线已确认可达的位置；目标保持到到达、超时或被新墙阻断。"""
+    if ant.waypoint is not None:
+        offset = ant.waypoint-ant.position
+        distance = float(np.linalg.norm(offset))
+        clear = ray_distance(ant.position, offset/max(distance, .01), world.walls,
+                             world.half, world.radius, reach=distance)
+        if reverse or distance < .35 or world.tick_count >= ant.waypoint_deadline or clear < distance-.02:
+            ant.waypoint = None
+    if ant.waypoint is None:
+        probes = np.stack([unit(ant.heading+float(turn)) for turn in world.turns])
+        lengths = np.asarray(ant.rays if len(ant.rays)==len(probes) else [
+            ray_distance(ant.position, d, world.walls, world.half, world.radius) for d in probes])
+        usable = lengths >= .45
+        if not np.any(usable):
+            return unit(ant.heading+math.pi)
+        # 优先较远净空；只在相近的有效采样之间保留朝向偏好和小扰动。
+        scores = lengths + (.8 if reverse else .22)*np.cos(world.turns-(math.pi if reverse else 0.))
+        scores += ant.brain.rng.normal(0, .035, len(scores))
+        scores[~usable] = -np.inf
+        index = int(np.argmax(scores))
+        ant.waypoint = (ant.position+probes[index]*min(2.1, float(lengths[index])*.85)).astype(np.float32)
+        ant.waypoint_deadline = world.tick_count+30
+    offset = ant.waypoint-ant.position
+    return offset/max(.01, float(np.linalg.norm(offset)))
+
+
 def direction(world: World, ant: Ant) -> Array:
-    ant.wander = ant.heading + float(ant.brain.rng.normal(0, .30))
-    forward = unit(ant.heading)
-    if ant.carrying:
+    # 距上次实际留下空间标记太久，才重新找有效目标；不是每次碰撞都反转。
+    timed_out = world.tick_count-ant.last_mark_tick >= 30 and world.tick_count >= ant.ignore_scent_until
+    if timed_out:
+        ant.ignore_scent_until = world.tick_count+80
+        ant.escape_until = world.tick_count+20
+        ant.waypoint = None
+    escaping = world.tick_count < ant.escape_until
+    if ant.carrying and not escaping:
         norm = float(np.linalg.norm(ant.home))
-        return ant.home / max(norm, .01)
+        aim = ant.home/max(norm, .01)
+        reach = min(norm, 2.4)
+        if ray_distance(ant.position, aim, world.walls, world.half, world.radius, reach=reach) >= reach-.02:
+            return aim
+        return exploration(world, ant, timed_out)
     visible: list[tuple[float, Array]] = []
     for food in world.foods:
         delta = np.asarray([food.x, food.y], np.float32) - ant.position
@@ -25,18 +61,16 @@ def direction(world: World, ant: Ant) -> Array:
             aim = delta / distance
             if ray_distance(ant.position, aim, world.walls, world.half, 0, reach=distance) >= distance-1e-4:
                 visible.append((distance, aim))
-    if visible:
+    if visible and not escaping and not ant.carrying:
         return min(visible, key=lambda pair: pair[0])[1]
-    # 局部身体历史只用于摆脱反复打转，不读取全局食物位置或虚假信号标签。
-    if len(ant.recent_positions) == 40 and world.tick_count >= ant.ignore_scent_until:
-        if np.linalg.norm(ant.position-ant.recent_positions[0]) < .9:
-            ant.ignore_scent_until = world.tick_count + 80
-            ant.wander += (1 if ant.id % 2 else -1) * 1.2
-    wanted = .65*forward + .35*unit(ant.wander)
+    wanted = exploration(world, ant, timed_out).copy()
     if world.tick_count >= ant.ignore_scent_until:
         angles = ant.heading + np.asarray([-.9, -.45, 0., .45, .9], np.float32)
         probes = np.stack([unit(float(angle)) for angle in angles])
-        scent = np.asarray([world.field.sample(ant.position+1.1*d, 1) for d in probes])
+        channel = 0 if ant.carrying else 1
+        scent = np.asarray([world.field.sample(ant.position+1.1*d, channel)
+                            if ray_distance(ant.position, d, world.walls, world.half, world.radius) >= 1.1 else 0.
+                            for d in probes])
         # 嗅探前方，而不是每步追逐任意方向的浓度梯度峰。
         weights = scent / (1. + scent)
         if float(weights.sum()) > .01:
@@ -87,10 +121,16 @@ def choose_motion(world: World, ant: Ant, x: Array, positions: Array) -> tuple[f
 
 
 def deposit_trail(world: World, ant: Ant, actual: Array) -> None:
-    distance = min(float(np.linalg.norm(actual)), world.speed*world.dt)
-    ant.trail_distance += distance
-    if distance < .01:
+    """距上个标记足够远才沉积；原地抖动不能靠往返路程反复增强标记。"""
+    ant.trail_distance += min(float(np.linalg.norm(actual)), world.speed*world.dt)
+    if ant.last_mark_position is None:
+        ant.last_mark_position = (ant.position-actual).copy()
+    distance = float(np.linalg.norm(ant.position-ant.last_mark_position))
+    if distance < .36:
         return
     channel = 1 if ant.carrying else 0
-    strength = (.55 if ant.carrying else .18)*distance*math.exp(-ant.trail_distance/12.)
+    # 新标记的源龄衰减与环境中已有标记的蒸发是两件不同的事。
+    strength = (.42 if ant.carrying else .13)*math.exp(-ant.age/24.)
     world.field.deposit(ant.position, channel, strength)
+    ant.last_mark_position = ant.position.copy()
+    ant.last_mark_tick = world.tick_count
