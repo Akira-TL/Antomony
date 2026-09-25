@@ -10,7 +10,9 @@ from torch import Tensor
 
 Phase = Literal["motor", "memory", "adaptive", "autonomous"]
 WriteMode = Literal["off", "learned", "always"]
-HIDDEN_WIDTH = 4
+HIDDEN_WIDTH = 8
+MEMORY_LAGS = (1, 8, 12, 16)
+MODEL_VERSION = "sparse-memory-v2"
 INPUT_WIDTH = 16
 MOTOR_CONNECTIONS = ((0, 2, 15), (1,))
 FAST_LIMITS = torch.tensor([.3, .15, .12])
@@ -46,7 +48,7 @@ class RecurrentPolicy:
         self.input_weights = torch.nn.Parameter(torch.from_numpy(
             self.rng.normal(0, .08, (HIDDEN_WIDTH, INPUT_WIDTH)).astype(np.float32)))
         self.hidden_weights = torch.nn.Parameter(torch.from_numpy(
-            self.rng.normal(0, .08, (HIDDEN_WIDTH, HIDDEN_WIDTH)).astype(np.float32)))
+            self.rng.normal(0, .08, (HIDDEN_WIDTH, HIDDEN_WIDTH * len(MEMORY_LAGS))).astype(np.float32)))
         self.hidden_bias = torch.nn.Parameter(torch.zeros(HIDDEN_WIDTH))
         self.action_weights = torch.nn.Parameter(torch.zeros(2, HIDDEN_WIDTH))
         self.gate_weights = torch.nn.Parameter(torch.zeros(HIDDEN_WIDTH + 1))
@@ -60,6 +62,7 @@ class RecurrentPolicy:
         self.phase: Phase = "motor"
         self.write_mode: WriteMode = "off"
         self.hidden = torch.zeros(HIDDEN_WIDTH)
+        self.hidden_history: list[Tensor] = []
         self.fast = torch.zeros(3)
         self.fast_delta = torch.zeros(3)
         self.self_updates = 0
@@ -68,6 +71,7 @@ class RecurrentPolicy:
 
     def reset_state(self) -> None:
         self.hidden = torch.zeros(HIDDEN_WIDTH)
+        self.hidden_history = []
         self.fast = torch.zeros(3)
         self.fast_delta = torch.zeros(3)
 
@@ -115,8 +119,12 @@ class RecurrentPolicy:
             raise ValueError("反馈必须是 16 个有限值")
         with torch.set_grad_enabled(self.phase != "autonomous"):
             values = torch.from_numpy(observation.astype(np.float32))
+            taps = torch.cat(tuple(self.hidden_history[-lag] if len(self.hidden_history) >= lag
+                                   else torch.zeros_like(self.hidden) for lag in MEMORY_LAGS))
             self.hidden = torch.tanh(self.input_weights @ values +
-                                     self.hidden_weights @ self.hidden + self.hidden_bias)
+                                     self.hidden_weights @ taps + self.hidden_bias)
+            self.hidden_history.append(self.hidden)
+            self.hidden_history = self.hidden_history[-max(MEMORY_LAGS):]
             self.fast_delta = torch.zeros_like(self.fast)
             if terminal or self.write_mode == "off" or self.phase in {"motor", "memory"}:
                 return Write(False, False, 0., torch.zeros(()))

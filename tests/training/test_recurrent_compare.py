@@ -36,3 +36,13 @@ def test_comparison_rejects_legacy_checkpoint(tmp_path: Path):
     np.savez(path, weights=np.zeros((39, 16)))
     with pytest.raises(ValueError, match="缺少循环模型参数"):
         read_parameters(path)
+
+
+def test_comparison_rejects_previous_recurrent_shape(tmp_path: Path):
+    path = tmp_path / "old-recurrent.npz"
+    np.savez(path, motor=np.zeros((2, 16)), input_weights=np.zeros((4, 16)),
+             hidden_weights=np.zeros((4, 4)), hidden_bias=np.zeros(4),
+             action_weights=np.zeros((2, 4)), gate_weights=np.zeros(5),
+             write_weights=np.zeros((3, 5)))
+    with pytest.raises(ValueError, match="旧版循环模型"):
+        read_parameters(path)

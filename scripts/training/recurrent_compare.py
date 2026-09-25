@@ -10,7 +10,7 @@ import numpy as np
 import torch
 
 from mathhackson.training.environment import SingleAntEnvironment
-from mathhackson.training.recurrent import RecurrentPolicy, WriteMode
+from mathhackson.training.recurrent import MODEL_VERSION, RecurrentPolicy, WriteMode
 
 PARAMETERS = ("motor", "input_weights", "hidden_weights", "hidden_bias",
               "action_weights", "gate_weights", "write_weights")
@@ -35,6 +35,8 @@ def read_parameters(checkpoint: Path) -> tuple[np.ndarray, ...]:
         missing = set(PARAMETERS) - set(archive.files)
         if missing:
             raise ValueError(f"检查点缺少循环模型参数：{', '.join(sorted(missing))}")
+        if "model_version" not in archive or str(archive["model_version"]) != MODEL_VERSION:
+            raise ValueError("检查点属于旧版循环模型，不能用于稀疏记忆模型对照")
         return tuple(np.asarray(archive[name], np.float32).copy() for name in PARAMETERS)
 
 

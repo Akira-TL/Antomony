@@ -11,7 +11,7 @@ import torch
 from mathhackson.colony.geometry import unit
 
 from .environment import SingleAntEnvironment
-from .recurrent import Action, RecurrentPolicy, Write
+from .recurrent import Action, MODEL_VERSION, RecurrentPolicy, Write
 from .schemas import (PerturbationKind, RecurrentCommand, RecurrentEpisode,
                       RecurrentParameterGroup, RecurrentState, Task)
 
@@ -83,6 +83,7 @@ class RecurrentSession:
             filename = f"episode-{self.episode:06d}.npz"
             np.savez_compressed(
                 self.directory / filename,
+                model_version=MODEL_VERSION,
                 motor=self.model.motor.detach().numpy(),
                 input_weights=self.model.input_weights.detach().numpy(),
                 hidden_weights=self.model.hidden_weights.detach().numpy(),

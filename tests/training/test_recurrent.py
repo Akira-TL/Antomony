@@ -5,7 +5,7 @@ import pytest
 import torch
 
 from mathhackson.training.environment import SingleAntEnvironment
-from mathhackson.training.recurrent import RecurrentPolicy
+from mathhackson.training.recurrent import HIDDEN_WIDTH, MEMORY_LAGS, RecurrentPolicy
 from mathhackson.training.schemas import RecurrentCommand
 from mathhackson.training.recurrent_session import RecurrentSession
 
@@ -40,7 +40,28 @@ def test_feedback_changes_next_action_through_hidden_state_only():
     assert before.turn == 0.
     assert after_positive.turn > 0.
     assert after_negative.turn < 0.
-    assert model.hidden.shape == (4,)
+    assert model.hidden.shape == (HIDDEN_WIDTH,)
+
+
+def test_sparse_hidden_taps_use_exact_requested_delays():
+    assert MEMORY_LAGS == (1, 8, 12, 16)
+    model = RecurrentPolicy(4)
+    model.phase = "autonomous"
+    with torch.no_grad():
+        model.input_weights.zero_()
+        model.hidden_weights.zero_()
+        model.hidden_bias.zero_()
+        for index, lag in enumerate(MEMORY_LAGS):
+            model.hidden_weights[index, index * HIDDEN_WIDTH + index] = 1.
+    model.hidden_history = [torch.zeros(HIDDEN_WIDTH) for _ in range(16)]
+    for index, lag in enumerate(MEMORY_LAGS):
+        model.hidden_history[-lag][index] = .5
+    model.hidden_history[-7][4] = 1.
+    model.observe_result(observation())
+    assert torch.all(model.hidden[:4] > 0)
+    assert torch.count_nonzero(model.hidden[4:]) == 0
+    model.reset_state()
+    assert model.hidden_history == []
 
 
 def test_memory_phase_keeps_motor_immutable_and_resets_hidden_each_episode(tmp_path: Path):
