@@ -20,3 +20,28 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# BEGIN akira-research managed ignores
+# Language/runtime caches
+__pycache__/
+*.py[cod]
+.Rhistory
+.RData
+
+# Machine/raw research artifacts and disposable execution outputs
+.research/artifacts/
+.research/cache/
+.research/tmp/
+.research/analysis/**/outputs/
+.research/analysis/**/logs/
+
+# Human convenience copies and reproducible generated figures
+literature/papers/*.pdf
+analysis/**/figures/*.png
+analysis/**/figures/*.jpg
+analysis/**/figures/*.jpeg
+analysis/**/figures/*.tif
+analysis/**/figures/*.tiff
+analysis/**/figures/*.pdf
+analysis/**/figures/*.svg
+# END akira-research managed ignores
