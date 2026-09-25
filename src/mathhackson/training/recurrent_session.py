@@ -11,6 +11,7 @@ import torch
 from mathhackson.colony.geometry import unit
 
 from .environment import SingleAntEnvironment
+from .motor_checkpoint import MotorCheckpoint, load_motor_checkpoint
 from .recurrent import Action, MEMORY_LAGS, MODEL_VERSION, RecurrentPolicy, Write
 from .schemas import (PerturbationKind, RecurrentCommand, RecurrentEpisode,
                       RecurrentParameterGroup, RecurrentParameterHistory,
@@ -23,12 +24,16 @@ GROUP_IDS = ("motor", "input_weights", "hidden_weights", "hidden_bias",
 
 
 class RecurrentSession:
-    def __init__(self, directory: Path, seed: int = 20260926) -> None:
+    def __init__(self, directory: Path, seed: int = 20260926,
+                 motor_checkpoint: Path | None = None, continue_motor: bool = False) -> None:
         self.id = uuid4().hex[:12]
         self.directory = directory / self.id
         self.directory.mkdir(parents=True, exist_ok=True)
         self.rng = np.random.default_rng(seed)
         self.model = RecurrentPolicy(seed)
+        self.motor_source: MotorCheckpoint | None = (
+            load_motor_checkpoint(self.model, motor_checkpoint, freeze_motor=not continue_motor)
+            if motor_checkpoint is not None else None)
         self.env = SingleAntEnvironment(seed + 1)
         self.task: Task = "normal"
         self.paused = True
@@ -206,6 +211,8 @@ class RecurrentSession:
                      else self.env.turn_bias,
                      outer_updates=self.model.outer_updates,
                      self_updates=self.model.self_updates, write_mode=self.model.write_mode,
+                     motor_source_episode=self.motor_source.source_episode if self.motor_source else None,
+                     motor_source_session=self.motor_source.source_session if self.motor_source else None,
                      write_probability=write.probability if write else 0.,
                      write_status="尚未推理" if write is None else "已写入" if write.wrote else
                      "选择跳过" if self.model.write_mode == "learned" else

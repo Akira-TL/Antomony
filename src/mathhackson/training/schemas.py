@@ -173,6 +173,8 @@ class RecurrentState(BaseModel):
     outer_updates: int
     self_updates: int
     write_mode: WriteMode
+    motor_source_episode: int | None
+    motor_source_session: str | None
     write_probability: float
     write_status: str
     hidden: list[float]

@@ -181,7 +181,8 @@ function render(next:RecurrentState):void {
   }
   state=next;connected=true;
   $('#connection').textContent='已连接';$('#connection').className='connected';
-  $('#session-id').textContent=next.session;
+  $('#session-id').textContent=next.motor_source_episode
+    ?`${next.session} · 接续第 ${next.motor_source_episode} 回合动作参数`:next.session;
   $('#running').textContent=next.paused?'已暂停':'运行中';$('#running').classList.toggle('live',!next.paused);
   $('#play').innerHTML=icon(next.paused?Play:Pause);$('#play').title=next.paused?'开始训练':'暂停';$('#play').setAttribute('aria-label',$('#play').title);
   document.querySelectorAll<HTMLButtonElement>('[data-phase]').forEach(control=>control.setAttribute('aria-pressed',String(control.dataset.phase===next.phase)));

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -63,7 +64,12 @@ async def run_recurrent() -> None:
 async def lifespan(_: FastAPI):
     global session, recurrent_session
     session = TrainingSession(ROOT / "logs" / "training")
-    recurrent_session = RecurrentSession(ROOT / "logs" / "recurrent-training")
+    checkpoint = os.environ.get("MOTOR_CHECKPOINT")
+    recurrent_session = RecurrentSession(
+        ROOT / "logs" / "recurrent-training",
+        motor_checkpoint=Path(checkpoint) if checkpoint else None,
+        continue_motor=os.environ.get("MOTOR_CONTINUE") == "1",
+    )
     task = asyncio.create_task(run())
     recurrent_task = asyncio.create_task(run_recurrent())
     yield

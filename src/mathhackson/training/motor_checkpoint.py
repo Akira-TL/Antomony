@@ -59,13 +59,13 @@ def extract_motor_checkpoint(path: Path) -> MotorCheckpoint:
     )
 
 
-def load_motor_checkpoint(policy: RecurrentPolicy, path: Path) -> MotorCheckpoint:
+def load_motor_checkpoint(policy: RecurrentPolicy, path: Path, *, freeze_motor: bool = True) -> MotorCheckpoint:
     if policy.phase != "motor" or policy.outer_updates or policy.self_updates:
         raise ValueError("动作快照只能加载到尚未训练的新模型")
     checkpoint = MotorCheckpoint.model_validate_json(path.read_text(encoding="utf-8"))
     with torch.no_grad():
         policy.motor.copy_(checkpoint.motor_matrix())
-    policy.phase = "memory"
+    policy.phase = "memory" if freeze_motor else "motor"
     policy.write_mode = "off"
     policy.reset_state()
     return checkpoint
