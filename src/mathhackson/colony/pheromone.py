@@ -44,7 +44,7 @@ class Pheromones:
         change[:,:,:-1]+=exchange; change[:,:,1:]-=exchange
         exchange=(self.values[:,1:,:]-self.values[:,:-1,:])*coefficient*(free[1:,:]&free[:-1,:])[None,:,:]
         change[:,:-1,:]+=exchange; change[:,1:,:]-=exchange
-        self.values+=change; self.values*=np.exp(-.035*dt)
+        self.values+=change; self.values*=np.exp(-np.log(2.)*dt/np.asarray([10.,6.],np.float32)[:,None,None])
         self.values[:,self.blocked]=0; np.clip(self.values,0,8,out=self.values)
 
     def sample(self,p: Array,channel: int) -> float:

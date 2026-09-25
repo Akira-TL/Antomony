@@ -8,6 +8,7 @@ import numpy as np
 from .geometry import Array, Wall, move_discs, ray_distance, unit
 from .pheromone import Pheromones
 from .brain import Brain
+from .navigation import choose_motion, deposit_trail, direction
 
 @dataclass
 class Food:
@@ -33,6 +34,13 @@ class Ant:
     inputs: Array=field(default_factory=lambda:np.zeros(8,np.float32))
     rays: list[float]=field(default_factory=list)
     action: int=0
+    target_heading: float=0.
+    next_decision: int=0
+    next_emergency: int=0
+    decisions: int=0
+    trail_distance: float=0.
+    ignore_scent_until: int=0
+    recent_positions: deque[Array]=field(default_factory=lambda:deque(maxlen=40))
     sense_x: float=0.
     sense_y: float=0.
     sense_heading: float=0.
@@ -74,24 +82,7 @@ class World:
         self.events.appendleft(Event(self.tick_count,kind,message,ant,value))
 
     def direction(self,ant: Ant) -> Array:
-        ant.wander+=float(ant.brain.rng.normal(0,.12))
-        if ant.stuck>4: ant.wander+=.45
-        random_dir=unit(ant.wander)
-        if ant.carrying:
-            norm=float(np.linalg.norm(ant.home))
-            return ant.home/max(norm,.01)
-        visible=[]
-        for f in self.foods:
-            delta=np.asarray([f.x,f.y],np.float32)-ant.position; distance=float(np.linalg.norm(delta))
-            if f.amount>0 and distance<4.8 and distance>1e-5:
-                direction=delta/distance
-                if ray_distance(ant.position,direction,self.walls,self.half,0,reach=distance)>=distance-1e-4:
-                    visible.append((distance,direction))
-        if visible: return min(visible,key=lambda pair:pair[0])[1]
-        gradient=self.field.gradient(ant.position,1); norm=float(np.linalg.norm(gradient))
-        if norm>.012:
-            return gradient/norm+.25*random_dir
-        return random_dir
+        return direction(self,ant)
 
     def sense(self,ant: Ant,positions: Array) -> Array:
         ant.sense_x=float(ant.position[0]); ant.sense_y=float(ant.position[1]); ant.sense_heading=ant.heading
@@ -119,15 +110,11 @@ class World:
         start=time.perf_counter(); positions=np.stack([a.position for a in self.ants])
         motions=[]; chosen=[]; predictions=[]; headings=[]
         for ant in self.ants:
-            wanted=self.direction(ant); x=self.sense(ant,positions)
-            predicted=ant.brain.predict(x)
-            forward=unit(ant.heading); right=np.asarray([-forward[1],forward[0]],np.float32)
-            local=np.asarray([wanted@forward,wanted@right],np.float32)
-            scores=predicted[:,:2]@local-2.3*np.clip(predicted[:,2],0,1)+.07*np.cos(self.turns)
-            scores+=ant.brain.rng.normal(0,.06 if ant.carrying else .15,len(scores))
-            index=int(np.argmax(scores)); ant.action=index; ant.inputs=x[index].copy()
-            predictions.append(ant.brain.inspect(ant.inputs)); chosen.append(ant.inputs)
-            angle=ant.heading+float(self.turns[index]); headings.append(angle)
+            x=self.sense(ant,positions)
+            angle,features=choose_motion(self,ant,x,positions)
+            ant.inputs=features.copy()
+            predictions.append(ant.brain.inspect(features)); chosen.append(features)
+            headings.append(angle)
             displacement=unit(angle)*self.speed*self.dt
             # 外力只改变物理世界；不向模型发送干预类别或正确补偿量。
             if abs(float(ant.position[0]))<5: displacement[1]+=self.wind*self.dt
@@ -146,20 +133,23 @@ class World:
             ant.heading=headings[i]; ant.age+=self.dt
             ant.stuck=ant.stuck+1 if float(np.linalg.norm(actual))<.035 else max(0,ant.stuck-1)
             if contacts[i]: ant.contacts+=1; self.contact_count+=1
+            ant.recent_positions.append(ant.position.copy())
             self.collect(ant)
-            self.field.deposit(ant.position,1 if ant.carrying else 0,.25*math.exp(-.04*ant.age))
+            deposit_trail(self,ant,actual)
         self.field.tick(self.dt); self.tick_count+=1
         self.last_ms=(time.perf_counter()-start)*1000
 
     def collect(self,ant: Ant) -> None:
         if ant.carrying and np.linalg.norm(ant.position-self.nest)<1.5:
             ant.carrying=False; ant.delivered+=1; ant.age=0.; ant.home=self.nest-ant.position
-            ant.wander=ant.heading+math.pi; ant.heading+=math.pi
+            ant.wander=ant.heading+math.pi; ant.target_heading=ant.wander; ant.next_decision=0
+            ant.trail_distance=0.; ant.recent_positions.clear()
             self.event('delivery',f'个体 {ant.id:02d} 搬回一个像素块',ant.id)
         elif not ant.carrying:
             for f in self.foods:
                 if f.amount>0 and math.hypot(float(ant.position[0])-f.x,float(ant.position[1])-f.y)<.8:
-                    f.amount-=1; ant.carrying=True; ant.age=0; ant.heading+=math.pi
+                    f.amount-=1; ant.carrying=True; ant.age=0; ant.next_decision=0
+                    ant.trail_distance=0.; ant.recent_positions.clear()
                     self.event('pickup',f'个体 {ant.id:02d} 发现资源',ant.id); break
 
     def add_wall(self,x: float,y: float,hx: float=.4,hy: float=2.) -> str:
