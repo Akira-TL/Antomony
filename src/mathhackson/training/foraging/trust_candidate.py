@@ -11,8 +11,9 @@ import torch
 from mathhackson.training.direction.policy import DirectionMotor
 from .adaptation import AdaptationConfig, AdaptationProposal, NovelDirectionLearner
 from .environment import LocalObservation
+from .memory import MemoryPolicy
 from .policy import DirectionDecision, ForagingPolicy
-from .reward import DIRECTIONS, direction_distribution, discounted_returns
+from .reward import DIRECTIONS, direction_distribution
 
 
 class TrustConfig(AdaptationConfig):
@@ -43,8 +44,9 @@ def rotation_probabilities(weights: torch.Tensor, bases: torch.Tensor, features:
 
 class TrustDirectionLearner(NovelDirectionLearner):
     adapter_kind = "direction-trust"
+    config_type = TrustConfig
 
-    def __init__(self, policy: ForagingPolicy, motor: DirectionMotor, seed: int,
+    def __init__(self, policy: ForagingPolicy | MemoryPolicy, motor: DirectionMotor, seed: int,
                  config: TrustConfig | None = None) -> None:
         if config is not None and not isinstance(config, TrustConfig):
             raise ValueError("分布约束候选需要专用配置")
@@ -67,10 +69,7 @@ class TrustDirectionLearner(NovelDirectionLearner):
     def propose(self, next_observation: LocalObservation) -> AdaptationProposal:
         if not self.ready or self.proposal is not None:
             raise ValueError("尚无完整后到反馈，或已有待定提案")
-        with torch.no_grad():
-            bootstrap = 0. if self.terminal else float(self.predict(
-                torch.from_numpy(next_observation.vector()), tuple(self.history))[2])
-        advantage = discounted_returns(self.rewards, bootstrap, self.config.gamma) - torch.stack(self.values)
+        advantage = self.feedback_advantage(next_observation)
         loss = -(torch.stack(self.log_probabilities) * advantage).mean()
         gradient = torch.autograd.grad(loss, self.offset)[0].detach()
         if not bool(torch.isfinite(gradient).all()):

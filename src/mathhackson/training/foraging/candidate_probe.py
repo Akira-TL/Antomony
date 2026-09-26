@@ -18,6 +18,7 @@ from .adaptation import AdaptationConfig, AdaptationProposal, NovelDirectionLear
 from .candidate_value import CandidateValue, evaluate_candidate
 from .colony import ColonyConfig
 from .disturbance import DisturbanceConfig, DisturbedColony
+from .memory import MemoryPolicy
 from .policy import ForagingPolicy
 from .trust_candidate import CandidateDiagnostics, TrustConfig, TrustDirectionLearner
 
@@ -33,6 +34,8 @@ class ProbePlan(BaseModel):
     adaptation: AdaptationConfig | TrustConfig
     disturbance: DisturbanceConfig
     policy_directory: str
+    policy_kind: Literal["recurrent", "mlp-memory"] = "recurrent"
+    policy_episode: int = Field(default=8, ge=0)
     motor_path: str
     initial_residual_norm: float = Field(default=0., ge=0., allow_inf_nan=False)
     initial_residual_pattern: Literal["isotropic", "coherent-fourth"] = "isotropic"
@@ -48,7 +51,12 @@ class ProbePlan(BaseModel):
             raise ValueError("初始残差必须小于在线残差安全上限")
         if self.sample_interval is not None and self.sample_interval % self.adaptation.window:
             raise ValueError("固定采样间隔必须为反馈窗口的整数倍")
+        if self.policy_kind == "mlp-memory" and self.adaptation.feedback_mode != "observed-window":
+            raise ValueError("记忆模型必须显式使用已发生窗口反馈")
         return self
+
+    def policy_path(self, index: int) -> Path:
+        return Path(self.policy_directory) / f"episode-{self.policy_episode:04d}-ant-{index:02d}.npz"
 
 
 class SourceArtifact(BaseModel):
@@ -114,7 +122,8 @@ def initialize_residual(agent: NovelDirectionLearner, *, seed: int, norm: float,
 def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> WorldRecord:
     motor, _ = load_motor(Path(plan.motor_path))
     learner = TrustDirectionLearner if plan.candidate_kind == "trust" else NovelDirectionLearner
-    agents = [learner(ForagingPolicy.load(Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz"),
+    policy_type = MemoryPolicy if plan.policy_kind == "mlp-memory" else ForagingPolicy
+    agents = [learner(policy_type.load(plan.policy_path(i)),
                                     motor, seed * 8 + i, plan.adaptation) for i in range(plan.environment.ants)]
     for i, agent in enumerate(agents):
         initialize_residual(agent, seed=seed * 8 + i, norm=plan.initial_residual_norm, pattern=plan.initial_residual_pattern)
@@ -201,7 +210,7 @@ def main() -> None:
         plan = plan.model_copy(update={"seeds": (9599,), "pairs_per_world": 1, "branch_horizon": 3,
                                        "environment": plan.environment.model_copy(update={"ants": 2, "horizon": max(20, (plan.sample_interval or plan.adaptation.window) + 4)})})
     torch.set_num_threads(1)
-    paths = [Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz" for i in range(plan.environment.ants)]
+    paths = [plan.policy_path(i) for i in range(plan.environment.ants)]
     sources = [SourceArtifact(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest())
                for path in [*paths, Path(plan.motor_path)]]
     args.output.mkdir(parents=True, exist_ok=False)

@@ -64,7 +64,7 @@ def world_key(norm_index: int, seed: int) -> str:
 
 
 def collect_curriculum(plan: CurriculumPlan, output: Path, *, plan_sha256: str, smoke: bool = False) -> None:
-    sources = [Path(plan.probe.policy_directory) / f"episode-0008-ant-{i:02d}.npz" for i in range(plan.probe.environment.ants)]
+    sources = [plan.probe.policy_path(i) for i in range(plan.probe.environment.ants)]
     sources.append(Path(plan.probe.motor_path))
     identities = [SourceArtifact(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest()) for path in sources]
     output.mkdir(parents=True, exist_ok=False)

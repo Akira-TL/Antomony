@@ -6,6 +6,7 @@ import copy
 from dataclasses import dataclass
 import math
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,6 +15,7 @@ import torch
 from mathhackson.fast_residual import FastResidualParameter
 from mathhackson.training.direction.policy import DirectionMotor
 from .environment import LocalObservation
+from .memory import MemoryPolicy
 from .policy import DirectionDecision, ForagingPolicy
 from .reward import DIRECTIONS, direction_distribution, discounted_returns
 
@@ -26,6 +28,7 @@ class AdaptationConfig(BaseModel):
     maximum_step_norm: float = Field(default=.05, gt=0.)
     maximum_residual_norm: float = Field(default=1., gt=0.)
     recent_capacity: int = Field(default=8, ge=0)
+    feedback_mode: Literal["critic", "observed-window"] = "critic"
 
 
 @dataclass(frozen=True)
@@ -41,13 +44,17 @@ class AdaptationProposal:
 
 class NovelSignalLearner:
     adapter_kind = "signal"
-    def __init__(self, policy: ForagingPolicy, motor: DirectionMotor, seed: int,
+    config_type = AdaptationConfig
+
+    def __init__(self, policy: ForagingPolicy | MemoryPolicy, motor: DirectionMotor, seed: int,
                  config: AdaptationConfig | None = None) -> None:
-        self.config = config or AdaptationConfig()
+        self.config = config or self.config_type()
+        if isinstance(policy, MemoryPolicy) and self.config.feedback_mode != "observed-window":
+            raise ValueError("记忆模型的价值输出尚未校准，必须显式选择已发生窗口反馈")
         self.policy = copy.deepcopy(policy)
         self.policy.set_phase("frozen")
-        self.policy.novel_signal.requires_grad_(True)
-        self.policy.novel_strength.requires_grad_(True)
+        for parameter in self.adaptive_parameters():
+            parameter.requires_grad_(True)
         self.motor = copy.deepcopy(motor).freeze()
         self.random = torch.Generator().manual_seed(seed)
         self.parameter = FastResidualParameter(self.weights(), recent_capacity=self.config.recent_capacity)
@@ -65,6 +72,8 @@ class NovelSignalLearner:
         return torch.cat([p.detach().flatten() for p in self.adaptive_parameters()]).numpy().copy()
 
     def adaptive_parameters(self) -> tuple[torch.nn.Parameter, ...]:
+        if not isinstance(self.policy, ForagingPolicy):
+            raise ValueError("信号连接适配只支持原局部往返模型；记忆模型使用方向修正")
         return self.policy.reserved_parameters()
 
     def predict(self, observation: torch.Tensor, history: tuple[torch.Tensor, ...]) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -106,10 +115,7 @@ class NovelSignalLearner:
     def propose(self, next_observation: LocalObservation) -> AdaptationProposal:
         if not self.ready or self.proposal is not None:
             raise ValueError("尚无完整后到反馈，或已有待定提案")
-        with torch.no_grad():
-            bootstrap = 0. if self.terminal else float(self.predict(torch.from_numpy(next_observation.vector()), tuple(self.history))[2])
-        returns = discounted_returns(self.rewards, bootstrap, self.config.gamma)
-        advantage = returns - torch.stack(self.values)
+        advantage = self.feedback_advantage(next_observation)
         loss = -(torch.stack(self.log_probabilities) * advantage).mean()
         gradients = torch.autograd.grad(loss, self.adaptive_parameters())
         gradient = torch.cat([g.flatten() for g in gradients]).detach().numpy()
@@ -123,6 +129,16 @@ class NovelSignalLearner:
                                            float(np.linalg.norm(gradient)), float(np.mean(self.rewards)),
                                            min(self.rewards), max(self.responses), len(self.rewards))
         return self.proposal
+
+    def feedback_advantage(self, next_observation: LocalObservation) -> torch.Tensor:
+        if not self.ready:
+            raise ValueError("必须先取得完整窗口或终止反馈")
+        if self.config.feedback_mode == "observed-window":
+            return discounted_returns(self.rewards, 0., self.config.gamma)
+        with torch.no_grad():
+            bootstrap = 0. if self.terminal else float(self.predict(torch.from_numpy(next_observation.vector()), tuple(self.history))[2])
+        returns = discounted_returns(self.rewards, bootstrap, self.config.gamma)
+        return returns - torch.stack(self.values)
 
     def resolve(self, proposal: AdaptationProposal, *, accept: tuple[bool, ...]) -> bool:
         if proposal is not self.proposal or len(accept) != len(self.adaptive_parameters()) or any(type(x) is not bool for x in accept):
@@ -164,13 +180,13 @@ class NovelSignalLearner:
         with path.with_suffix(".residual.npz").open("xb") as stream:
             np.savez(stream, adapter_kind=self.adapter_kind, stable=self.parameter.stable, fast=self.parameter.fast,
                      recent=np.asarray(self.parameter.recent, dtype=np.float32).reshape(-1, self.parameter.stable.size),
-                     decisions=self.decisions, writes=self.writes)
+                     decisions=self.decisions, writes=self.writes, config_json=self.config.model_dump_json())
 
 
 class NovelDirectionLearner(NovelSignalLearner):
     adapter_kind = "direction"
 
-    def __init__(self, policy: ForagingPolicy, motor: DirectionMotor, seed: int,
+    def __init__(self, policy: ForagingPolicy | MemoryPolicy, motor: DirectionMotor, seed: int,
                  config: AdaptationConfig | None = None) -> None:
         self.offset = torch.nn.Parameter(torch.zeros(45))
         super().__init__(policy, motor, seed, config)
@@ -189,10 +205,18 @@ class NovelDirectionLearner(NovelSignalLearner):
 
     @classmethod
     def load(cls, path: Path, motor: DirectionMotor, seed: int, config: AdaptationConfig | None = None) -> NovelDirectionLearner:
-        agent = cls(ForagingPolicy.load(path), motor, seed, config)
+        with np.load(path, allow_pickle=False) as data:
+            memory = str(data["version"]) == "local-mlp-memory-v1"
+        policy = MemoryPolicy.load(path) if memory else ForagingPolicy.load(path)
         with np.load(path.with_suffix(".residual.npz"), allow_pickle=False) as data:
             if str(data["adapter_kind"]) != cls.adapter_kind or data["stable"].shape != (45,) or data["fast"].shape != (45,):
                 raise ValueError("方向适配检查点不兼容")
+            if "config_json" in data:
+                saved_config = cls.config_type.model_validate_json(str(data["config_json"]))
+                if config is not None and config != saved_config:
+                    raise ValueError("显式配置与保存的更新配置不一致")
+                config = saved_config
+            agent = cls(policy, motor, seed, config)
             stable, fast = data["stable"].copy(), data["fast"].copy()
             if not np.isfinite(stable).all() or not np.isfinite(fast).all():
                 raise ValueError("方向适配参数非有限")
