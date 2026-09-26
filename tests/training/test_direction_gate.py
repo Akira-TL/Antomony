@@ -1,6 +1,8 @@
 import numpy as np
 import pytest
 import torch
+from dataclasses import replace
+from pathlib import Path
 
 from mathhackson.training.direction.gate import FeedbackHistory, Feedback, UpdateGate, accept_proposal
 from mathhackson.training.direction.adaptation import DirectionCorrection
@@ -51,3 +53,24 @@ def test_gate_rejects_nonfinite_input_and_out_of_bounds_proposal():
         gate.probability(np.full(34, np.nan, dtype=np.float32))
     with pytest.raises(ValueError):
         accept_proposal(DirectionCorrection(DirectionMotor(8)), 1., True)
+
+
+def test_training_teacher_keeps_real_state_and_equal_branches_only_pay_write_cost(monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "scripts/training"))
+    from direction_gate import Episode, Individual, teacher_benefit, WRITE_COST
+    from mathhackson.training.direction.environment import DirectionEnvironment
+    model = DirectionCorrection(DirectionMotor(41))
+    optimizer = torch.optim.SGD(model.plastic_parameters(), lr=.05)
+    env = DirectionEnvironment(.2, .8, 1., 2.)
+    original_env = replace(env)
+    individual = Individual(model, optimizer, env, FeedbackHistory(),
+                            [p.detach().clone() for p in model.motor.parameters()])
+    episode = Episode(motor_seed=41, scene_seed=4101, scenario="positive", magnitude=.15)
+    benefit = teacher_benefit(individual, episode, 70, proposed=0.)
+    assert benefit == pytest.approx(-WRITE_COST, abs=1e-12)
+    assert env == original_env
+    assert model.offset.item() == 0.
+    individual.assert_frozen()
+    individual.observe_and_propose(.8, .15, 71)
+    assert model.offset.item() == 0.
+    individual.assert_frozen()
