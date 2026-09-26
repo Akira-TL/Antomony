@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [空载返巢奖励配对诊断](return-reward-ablation.md) - 结果前设计；固定两个新种子、20世界，只改变返巢奖励。
+- [空载返巢奖励配对诊断](return-reward-ablation.md) - 已冻结并登记；固定两个新种子、20世界，只改变返巢奖励。
 
 - [复杂来源连续更新对照](continuous-adaptation.md) - 已冻结并登记；固定80世界，主要比较同初始化的三种更新方式。
 
@@ -25,6 +25,8 @@
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
 
 ## Relations
+
+- [返巢奖励诊断](return-reward-ablation.md) → [实际实施](../study/return-reward-ablation/README.md)。
 
 - [连续对照](continuous-adaptation.md) → [基础资格](../analysis/matched-foundation/README.md)、[固定接受模型](../data/memory-acceptance-models/README.md)、[实际实施](../study/continuous-adaptation/README.md)、[连续数据](../data/continuous-adaptation/README.md)、[连续分析](../analysis/continuous-adaptation/README.md)。
 
