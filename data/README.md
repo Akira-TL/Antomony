@@ -21,7 +21,7 @@
 
 ## Relations
 
-- [近似规模基础数据](matched-foundation/README.md) → [实际实施](../study/matched-foundation/README.md)。
+- [近似规模基础数据](matched-foundation/README.md) → [实际实施](../study/matched-foundation/README.md)、[资格分析](../analysis/matched-foundation/README.md)。
 
 - [新基础接受数据](memory-update-learning/README.md) → [实际采样](../study/memory-update-learning/README.md)、[接受学习结果](../analysis/memory-update-learning/README.md)。
 

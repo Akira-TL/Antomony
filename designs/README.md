@@ -22,7 +22,7 @@
 
 ## Relations
 
-- [近似规模基础资格](matched-foundation.md) → [实际实施](../study/matched-foundation/README.md)、[模型与轨迹](../data/matched-foundation/README.md)、[原基础资格结果](../analysis/foundation-qualification/README.md)。
+- [近似规模基础资格](matched-foundation.md) → [实际实施](../study/matched-foundation/README.md)、[模型与轨迹](../data/matched-foundation/README.md)、[资格分析](../analysis/matched-foundation/README.md)。
 
 - [新基础接受课程](memory-update-learning.md) → [实际采样](../study/memory-update-learning/README.md)、[原始数据](../data/memory-update-learning/README.md)、[接受学习结果](../analysis/memory-update-learning/README.md)。
 

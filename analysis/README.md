@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [近似规模模型基础资格](matched-foundation/README.md) - 待执行；固定终点参数、48世界配对描述。
+- [近似规模模型基础资格](matched-foundation/README.md) - 已完成；三组通过最低要求，探索与返回仍不同。
 
 - [新基础接受学习](memory-update-learning/README.md) - 已完成；仅1/4种子优于两参照，没有所选焦点交付改善，未通过。
 
