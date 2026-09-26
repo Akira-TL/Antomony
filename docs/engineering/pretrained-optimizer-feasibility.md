@@ -72,6 +72,8 @@ optimizer.step()
 
 最小运行入口已准备为 `bash scripts/training/pretrained-probe.sh`，先核对文件哈希，关闭运行时 Hub 联网，以本地权重做 128 步确定性简单损失下降检查，并检查参数有限、学习型优化器自身权重不变和状态恢复后下一步相同。这里只是接入验收；尚未产生 `cpu-probe.json`，不能把脚本存在当成通过。
 
-依赖采用 `uv run --no-sync --with` 临时层，固定 `huggingface-hub==0.34.4`、`safetensors==0.4.5`、`mup==1.0.0`；没有改 `pyproject.toml`、`uv.lock` 或现有 PyTorch。两次 uv 获取分别遇到 wheel metadata 和 μP 源码包的 TLS 握手失败；使用系统证书链重试与一次 curl 独立获取仍失败。没有关闭证书校验，也没有修改网络、代理或服务配置。错误日志位于 `logs/pretrained-probe-*.log`。停止继续重复安装，保留已下载模型供后续接入。
+最初的 `uv run --no-sync --with` 获取遇到 TLS 错误。后续一次镜像下载恢复了连通，但该临时层递归解析了不需要的新版 CUDA PyTorch；发现后已停止对应进程，未替换项目环境。现改为 `scripts/training/pretrained-setup.sh` 将显式列出的九个小依赖以 `uv pip --no-deps --target` 安装在 `logs/external-models/runtime/`，推理脚本离线运行并复用现有 CPU PyTorch。列表固定在 `pretrained-runtime.txt`；项目现有的 NumPy、PyYAML、filelock 等依赖由原 `.venv` 提供，未改项目锁文件。
+
+本机安装使用进程级 `UV_DEFAULT_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple`，没有修改全局索引、代理、网络、证书校验或服务配置。实际加载已进入 128 步更新后的恢复检查，但复制模型丢失 μP 的 `infshape` 标记，接入验收暂未完整通过。错误保留在 `logs/pretrained-probe-*.log`，后续修复应只补恢复流程的形状标记，不改外部权重或优化算法。
 
 动作基础已独立完成三个初始化的训练与验收，见[动作验收](direction-motor-acceptance.md)。这解决“用于比较的基础动作是否合格”，不解决“现成更新器能否利用局部后果改善行为”。后续优先打通外部更新器实载与可用在线损失，再决定是否训练额外的更新门控；不先从零重训整个学习型优化器。

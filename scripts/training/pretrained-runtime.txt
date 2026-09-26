@@ -1,0 +1,9 @@
+huggingface-hub==0.34.4
+safetensors==0.4.5
+mup==1.0.0
+requests==2.32.5
+tqdm==4.67.1
+charset-normalizer==3.4.3
+urllib3==2.5.0
+idna==3.10
+certifi==2025.8.3

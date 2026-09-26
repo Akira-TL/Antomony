@@ -28,6 +28,8 @@ class ProbeResult(BaseModel):
     finite: bool
     optimizer_weights_unchanged: bool
     restored_next_step_equal: bool
+    torch_version: str
+    torch_path: str
 
 
 def main() -> None:
@@ -85,6 +87,7 @@ def main() -> None:
             a.equal(b) for a, b in zip(original, optimizer.network.parameters(), strict=True)),
         restored_next_step_equal=all(
             a.equal(b) for a, b in zip(model.parameters(), restored.parameters(), strict=True)),
+        torch_version=torch.__version__, torch_path=torch.__file__,
     )
     path = ROOT / "logs/external-models/mulo/cpu-probe.json"
     with path.open("x", encoding="utf-8") as stream:
