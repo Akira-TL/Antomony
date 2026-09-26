@@ -34,11 +34,14 @@ class ProbePlan(BaseModel):
     disturbance: DisturbanceConfig
     policy_directory: str
     motor_path: str
+    initial_residual_norm: float = Field(default=0., ge=0., allow_inf_nan=False)
 
     @model_validator(mode="after")
     def check_candidate_configuration(self) -> ProbePlan:
         if (self.candidate_kind == "trust") != isinstance(self.adaptation, TrustConfig):
             raise ValueError("候选类型与参数配置不一致")
+        if self.initial_residual_norm >= self.adaptation.maximum_residual_norm:
+            raise ValueError("初始残差必须小于在线残差安全上限")
         return self
 
 
@@ -79,11 +82,30 @@ class WorldRecord(BaseModel):
     deaths: int
 
 
+def initialize_residual(agent: NovelDirectionLearner, *, seed: int, norm: float) -> None:
+    if (not np.isfinite(norm) or norm < 0. or norm >= agent.config.maximum_residual_norm
+            or agent.history or agent.awaiting_feedback or agent.rewards or agent.proposal is not None
+            or agent.decisions or agent.writes or np.any(agent.parameter.fast)):
+        raise ValueError("初始扰动只能用于尚未行动的新个体且必须在安全范围内")
+    if norm == 0.:
+        return
+    random = np.random.default_rng(seed)
+    vector = random.normal(size=agent.parameter.fast.shape)
+    vector *= norm / np.linalg.norm(vector)
+    agent.parameter.fast = vector.astype(np.float32)
+    agent.assign_weights(agent.parameter.effective)
+
+
 def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> WorldRecord:
     motor, _ = load_motor(Path(plan.motor_path))
     learner = TrustDirectionLearner if plan.candidate_kind == "trust" else NovelDirectionLearner
     agents = [learner(ForagingPolicy.load(Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz"),
                                     motor, seed * 8 + i, plan.adaptation) for i in range(plan.environment.ants)]
+    for i, agent in enumerate(agents):
+        initialize_residual(agent, seed=seed * 8 + i, norm=plan.initial_residual_norm)
+        if plan.initial_residual_norm:
+            agent.save(directory / f"tick-0000-ant-{i:02d}.npz")
+    initial = [agent.parameter.fast.copy() for agent in agents]
     disturbance = plan.disturbance if condition == "persistent" else plan.disturbance.model_copy(update={"injury_per_step": 0.})
     env = DisturbedColony(seed, plan.environment, disturbance)
     pairs = zeros = terminals = 0
@@ -127,7 +149,8 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
             if env.steps % 64 == 0 or env.done:
                 for i, agent in enumerate(agents):
                     agent.save(directory / f"tick-{env.steps:04d}-ant-{i:02d}.npz")
-    if any(agent.writes or np.any(agent.parameter.fast) for agent in agents):
+    if any(agent.writes or not np.array_equal(agent.parameter.fast, before)
+           for agent, before in zip(agents, initial, strict=True)):
         raise AssertionError("分支评价污染了主轨迹参数")
     return WorldRecord(condition=condition, seed=seed, steps=env.steps, pairs=pairs, zero_candidates=zeros,
                        terminal_candidates=terminals, deliveries=sum(a.deliveries for a in env.ants), deaths=int(env.killed.sum()))
