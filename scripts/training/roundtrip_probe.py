@@ -12,10 +12,12 @@ from mathhackson.training.roundtrip_environment import RoundTripEnvironment
 from mathhackson.training.roundtrip_policy import ROUNDTRIP_MODEL_VERSION, RoundTripPolicy
 from mathhackson.training.roundtrip_session import RoundTripSession
 from mathhackson.training.roundtrip_session import ROUNDTRIP_GROUP_IDS
-from mathhackson.training.scent_curriculum import (MemoryMetrics, ScentMetrics,
+from mathhackson.training.scent_curriculum import (MemoryMetrics, ScentMetrics, TeacherMetrics,
                                                    evaluate_scent_memory,
+                                                   evaluate_teacher_scent,
                                                    pretrain_scent_memory,
-                                                   pretrain_scent_reader)
+                                                   pretrain_scent_reader,
+                                                   pretrain_teacher_scent)
 from mathhackson.training.schemas import RoundTripCommand
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -48,6 +50,9 @@ class ProbeReport(BaseModel):
     memory_pretrain_steps: int
     memory_before: MemoryMetrics | None = None
     memory_after: MemoryMetrics | None = None
+    teacher_steps: int
+    teacher_before: TeacherMetrics | None = None
+    teacher_after: TeacherMetrics | None = None
     memory_episodes: int
     adaptive_episodes: int
     evaluations: list[Evaluation]
@@ -119,10 +124,11 @@ def main() -> None:
     parser.add_argument("--seeds", type=int, default=40)
     parser.add_argument("--scent-steps", type=int, default=0)
     parser.add_argument("--memory-pretrain-steps", type=int, default=0)
+    parser.add_argument("--teacher-steps", type=int, default=0)
     parser.add_argument("--checkpoint", type=Path)
     arguments = parser.parse_args()
     if min(arguments.memory, arguments.adaptive, arguments.scent_steps,
-           arguments.memory_pretrain_steps) < 0 or arguments.seeds < 1:
+           arguments.memory_pretrain_steps, arguments.teacher_steps) < 0 or arguments.seeds < 1:
         parser.error("训练次数不能为负，验收场景数至少为 1")
     session = RoundTripSession(ROOT / "logs" / "roundtrip-probe", FOUNDATION, seed=91)
     if arguments.checkpoint is not None:
@@ -168,6 +174,24 @@ def main() -> None:
         memory_after = pretrain_scent_memory(session.model, steps=arguments.memory_pretrain_steps,
                                              checkpoint=save_memory_checkpoint)
         evaluations.append(evaluate(session.model, "间断气味预训练，无写入", arguments.seeds, "off"))
+    teacher_before = teacher_after = None
+    if arguments.teacher_steps:
+        teacher_before = evaluate_teacher_scent(session.model)
+
+        def save_teacher_checkpoint(step: int, metrics: TeacherMetrics) -> None:
+            np.savez_compressed(
+                session.directory / f"teacher-step-{step:06d}.npz",
+                model_version=ROUNDTRIP_MODEL_VERSION, stage="teacher", step=step,
+                train_seed=1000, train_seeds=64, validation_seed=2000, validation_seeds=16,
+                return_turn_error=metrics.return_error,
+                cue_missing_turn_error=metrics.cue_missing_error,
+                **{identity: parameter.detach().numpy() for identity, parameter in
+                   zip(ROUNDTRIP_GROUP_IDS, session.model.parameters, strict=True)},
+            )
+
+        teacher_after = pretrain_teacher_scent(session.model, steps=arguments.teacher_steps,
+                                                checkpoint=save_teacher_checkpoint)
+        evaluations.append(evaluate(session.model, "真实轨迹基础训练，无写入", arguments.seeds, "off"))
     train(session, arguments.memory)
     if arguments.memory:
         evaluations.append(evaluate(session.model, "基础循迹，无写入", arguments.seeds, "off"))
@@ -185,6 +209,8 @@ def main() -> None:
                          scent_conflict_accuracy=scent_metrics.conflict_accuracy if scent_metrics else None,
                          memory_pretrain_steps=arguments.memory_pretrain_steps,
                          memory_before=memory_before, memory_after=memory_after,
+                         teacher_steps=arguments.teacher_steps,
+                         teacher_before=teacher_before, teacher_after=teacher_after,
                          memory_episodes=arguments.memory,
                          adaptive_episodes=arguments.adaptive, evaluations=evaluations)
     path = session.directory / "probe.json"

@@ -10,6 +10,7 @@ import torch
 from torch import Tensor
 
 from .recurrent import SAFETY_PARAMETER_LIMIT
+from .roundtrip_environment import RoundTripEnvironment
 from .roundtrip_policy import RoundTripPolicy
 
 
@@ -33,6 +34,21 @@ class MemoryMetrics:
     without_memory: MemoryScore
     short_only: MemoryScore
     long_only: MemoryScore
+
+
+@dataclass(frozen=True)
+class TeacherMetrics:
+    turn_error: float
+    return_error: float
+    cue_missing_error: float
+    return_steps: int
+
+
+@dataclass(frozen=True)
+class TeacherTrajectory:
+    observations: np.ndarray
+    feedback: np.ndarray
+    target_turns: np.ndarray
 
 
 def _examples(rng: np.random.Generator, count: int) -> tuple[Tensor, Tensor, np.ndarray]:
@@ -150,24 +166,28 @@ def _memory_examples(rng: np.random.Generator, count: int, length: int
 
 
 def _memory_turns(model: RoundTripPolicy, observations: Tensor,
-                  active_taps: tuple[bool, ...] | None = None) -> Tensor:
+                  active_taps: tuple[bool, ...] | None = None,
+                  feedback: Tensor | None = None) -> Tensor:
     if active_taps is None:
         active_taps = (True,) * len(model.memory_lags)
     if len(active_taps) != len(model.memory_lags):
         raise ValueError("记忆位置掩码长度不匹配")
+    if feedback is not None and feedback.shape != observations.shape:
+        raise ValueError("行动与反馈序列形状不匹配")
     batch = observations.shape[1]
     history: list[Tensor] = []
     hidden = observations.new_zeros((batch, model.hidden.numel()))
     turns = []
-    for values in observations:
+    for tick, values in enumerate(observations):
         output = values @ model.motor.T + torch.tanh(hidden @ model.action_weights.T) * \
             values.new_tensor(model.correction_scale)
         turns.append(1.5 * torch.tanh(output[:, 1] / 1.5))
         taps = torch.cat(tuple(history[-lag] if enabled and len(history) >= lag else
                                values.new_zeros((batch, model.hidden.numel()))
                                for lag, enabled in zip(model.memory_lags, active_taps, strict=True)), dim=1)
+        after_action = feedback[tick] if feedback is not None else values
         hidden = torch.tanh(.5 * torch.nn.functional.layer_norm(
-            values @ model.input_weights.T + taps @ model.hidden_weights.T + model.hidden_bias,
+            after_action @ model.input_weights.T + taps @ model.hidden_weights.T + model.hidden_bias,
             (model.hidden.numel(),)))
         history.append(hidden)
         history = history[-max(model.memory_lags):]
@@ -226,3 +246,97 @@ def pretrain_scent_memory(model: RoundTripPolicy, *, seed: int = 20260929,
             checkpoint(step, evaluate_scent_memory(model))
     optimizer.zero_grad(set_to_none=True)
     return evaluate_scent_memory(model)
+
+
+def _teacher_trajectory(seed: int) -> TeacherTrajectory:
+    environment = RoundTripEnvironment(seed)
+    observations = []
+    feedback = []
+    turns = []
+    while environment.delivered < 1 and not environment.done:
+        observation = environment.observation()
+        target = environment.home if environment.carrying else environment.food
+        offset = target - environment.position
+        angle = math.atan2(float(offset[1]), float(offset[0])) - environment.heading
+        relative = math.atan2(math.sin(angle), math.cos(angle))
+        turn = float(np.clip(relative / math.radians(environment.max_turn), -.95, .95))
+        carrying = environment.carrying
+        environment.step(True, turn, not carrying, carrying)
+        observations.append(observation)
+        feedback.append(environment.observation())
+        turns.append(turn)
+    if environment.delivered != 1:
+        raise RuntimeError(f"教师轨迹未完成首次交付：{seed}")
+    return TeacherTrajectory(np.asarray(observations, np.float32),
+                             np.asarray(feedback, np.float32), np.asarray(turns, np.float32))
+
+
+def _teacher_batch(trajectories: list[TeacherTrajectory]
+                   ) -> tuple[Tensor, Tensor, Tensor, Tensor]:
+    length = max(len(item.target_turns) for item in trajectories)
+    count = len(trajectories)
+    observations = np.zeros((length, count, 17), np.float32)
+    feedback = np.zeros_like(observations)
+    targets = np.zeros((length, count), np.float32)
+    valid = np.zeros((length, count), np.bool_)
+    for column, item in enumerate(trajectories):
+        size = len(item.target_turns)
+        observations[:size, column] = item.observations
+        feedback[:size, column] = item.feedback
+        targets[:size, column] = item.target_turns
+        valid[:size, column] = True
+    return (torch.from_numpy(observations), torch.from_numpy(feedback),
+            torch.from_numpy(targets), torch.from_numpy(valid))
+
+
+def evaluate_teacher_scent(model: RoundTripPolicy, *, first_seed: int = 2000,
+                           seeds: int = 16) -> TeacherMetrics:
+    if seeds < 1:
+        raise ValueError("验收轨迹数须为正")
+    trajectories = [_teacher_trajectory(seed) for seed in range(first_seed, first_seed + seeds)]
+    observations, feedback, targets, valid = _teacher_batch(trajectories)
+    with torch.no_grad():
+        turns = torch.tanh(3. * _memory_turns(model, observations, feedback=feedback))
+        error = (turns - targets).abs()
+        returning = valid & (observations[:, :, 16] > .5)
+        missing = returning & (observations[:, :, 8] < .005)
+        return TeacherMetrics(float(error[valid].mean()), float(error[returning].mean()),
+                              float(error[missing].mean()), int(returning.sum()))
+
+
+def pretrain_teacher_scent(model: RoundTripPolicy, *, steps: int = 100,
+                           train_seed: int = 1000, train_seeds: int = 64,
+                           batch_size: int = 8, checkpoint_every: int = 25,
+                           checkpoint: Callable[[int, TeacherMetrics], None] | None = None
+                           ) -> TeacherMetrics:
+    if min(steps, train_seeds, batch_size, checkpoint_every) < 1:
+        raise ValueError("训练次数、轨迹数、批量和快照间隔须为正")
+    if model.phase != "memory":
+        raise ValueError("真实轨迹预训练只允许在记忆阶段执行")
+    trajectories = [_teacher_trajectory(seed) for seed in range(train_seed, train_seed + train_seeds)]
+    rng = np.random.default_rng(20260930)
+    parameters = (model.input_weights, model.hidden_weights, model.hidden_bias,
+                  model.action_weights)
+    masks = model.trainable_masks()[1:5]
+    optimizer = torch.optim.Adam(parameters, lr=.003)
+    for step in range(1, steps + 1):
+        indices = rng.integers(0, len(trajectories), batch_size)
+        observations, feedback, desired, valid = _teacher_batch([trajectories[index] for index in indices])
+        target_mean = torch.atanh(desired) / 3.
+        error = (_memory_turns(model, observations, feedback=feedback) - target_mean).square()
+        weights = valid * torch.where(observations[:, :, 16] > .5, 3., 1.)
+        loss = (error * weights).sum() / weights.sum()
+        optimizer.zero_grad()
+        loss.backward()
+        for parameter, mask in zip(parameters, masks, strict=True):
+            assert parameter.grad is not None
+            parameter.grad.mul_(mask)
+        torch.nn.utils.clip_grad_norm_(parameters, 1.)
+        optimizer.step()
+        with torch.no_grad():
+            for parameter in parameters:
+                parameter.clamp_(-SAFETY_PARAMETER_LIMIT, SAFETY_PARAMETER_LIMIT)
+        if checkpoint is not None and (step % checkpoint_every == 0 or step == steps):
+            checkpoint(step, evaluate_teacher_scent(model))
+    optimizer.zero_grad(set_to_none=True)
+    return evaluate_teacher_scent(model)
