@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from typing import Literal
 
 import torch
@@ -101,7 +102,7 @@ def rollout(model: PlasticDirection, episode: CueEpisode, base: torch.Tensor, *,
 
 
 def returns(rewards: torch.Tensor, gamma: float) -> torch.Tensor:
-    if rewards.ndim != 2 or not 0 <= gamma <= 1 or not bool(torch.isfinite(rewards).all()):
+    if rewards.ndim != 2 or not rewards.numel() or not 0 <= gamma <= 1 or not bool(torch.isfinite(rewards).all()):
         raise ValueError("回报输入无效")
     future = torch.zeros_like(rewards[0])
     result = []
@@ -113,7 +114,8 @@ def returns(rewards: torch.Tensor, gamma: float) -> torch.Tensor:
 
 def outer_loss(trace: CourseTrace, baseline: torch.Tensor, *, gamma: float = .97,
                write_cost: float = .002) -> tuple[torch.Tensor, torch.Tensor]:
-    if baseline.shape != (len(trace.rewards),) or not bool(torch.isfinite(baseline).all()) or write_cost < 0:
+    if (baseline.shape != (len(trace.rewards),) or not bool(torch.isfinite(baseline).all())
+            or not math.isfinite(write_cost) or write_cost < 0):
         raise ValueError("外层历史回报基线或写入成本无效")
     utility = trace.rewards - write_cost * trace.accepted.to(torch.float32)
     credit = returns(utility, gamma)
