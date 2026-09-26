@@ -5,7 +5,7 @@ import pytest
 from mathhackson.training.comparison.qualification import QualificationPlan
 from mathhackson.training.comparison.run import Frame, WorldRecord
 from mathhackson.training.foraging.colony import ColonyConfig
-from scripts.analyses.foundation_qualification import audit_world
+from mathhackson.training.comparison.auditing import audit_world
 
 
 def sample(tmp_path):
@@ -21,11 +21,19 @@ def sample(tmp_path):
 
 def test_foundation_audit_reconstructs_delivery_and_radius(tmp_path):
     plan, row = sample(tmp_path)
-    assert audit_world(tmp_path, row, plan) == 2
+    assert audit_world(tmp_path, row, plan.environment) == 2
 
 
 @pytest.mark.parametrize("field,value", [("deliveries", 0), ("mean_max_radius", 2.), ("steps", 3), ("updates", [1])])
 def test_foundation_audit_rejects_inconsistent_world(tmp_path, field, value):
     plan, row = sample(tmp_path)
     with pytest.raises(ValueError):
-        audit_world(tmp_path, row.model_copy(update={field: value}), plan)
+        audit_world(tmp_path, row.model_copy(update={field: value}), plan.environment)
+
+
+def test_training_audit_requires_explicit_opt_in(tmp_path):
+    plan, row = sample(tmp_path)
+    row.updates = [3]
+    assert audit_world(tmp_path, row, plan.environment, frozen=False) == 2
+    with pytest.raises(ValueError):
+        audit_world(tmp_path, row, plan.environment)
