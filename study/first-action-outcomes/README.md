@@ -13,6 +13,8 @@
 
 固定原批次 `20260926T165559-3/four` 的19701、19702固定接受组，各前四不同个体首次受伤前状态；整巢种子为单位。
 
+样本登记的 `source_identity` 使用“种子/组”的逻辑身份标识，不是文件系统路径。对应真实父目录分别为 `logs/window-cadence/20260926T165559-3/four/moving-danger-19701-always/` 与 `logs/window-cadence/20260926T165559-3/four/moving-danger-19702-always/`；轨迹、更新链及快照均从这两个实际目录由既有世界解析器读取，清单逐文件核验。
+
 ## Actual Groups / Exposure / Intervention
 
 只在首步覆盖焦点方向，随后所有参数冻结；每状态16方向各32步，共4096分支世界步。
