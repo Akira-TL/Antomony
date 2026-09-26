@@ -1,0 +1,6 @@
+{
+  "input_directory": "logs/foundation-qualification/20260926T104801-2",
+  "manifest": "data/foundation-qualification/manifest.sha256",
+  "protocol": ".research/protocols/foundation-qualification.json",
+  "output": ".research/analysis/foundation-qualification/A001/outputs/summary.json"
+}

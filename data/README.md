@@ -15,7 +15,7 @@
 
 ## Relations
 
-- [基础轨迹](foundation-qualification/README.md) → [实际采样](../study/foundation-qualification/README.md)。
+- [基础轨迹](foundation-qualification/README.md) → [实际采样](../study/foundation-qualification/README.md)、[描述分析](../analysis/foundation-qualification/README.md)。
 
 - [反馈窗口数据](feedback-window/README.md) → [实际采样](../study/feedback-window/README.md)、[配对分析](../analysis/feedback-window/README.md)。
 

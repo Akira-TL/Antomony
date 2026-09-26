@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [三组基础能力](foundation-qualification/README.md) - 首次描述计划，不作等效声明。
+
 - [反馈时间范围比较](feedback-window/README.md) - 已完成；64步没有通过开发条件，保留16步，不追加窗口搜索。
 
 - [恢复参照后果描述](restoration-control/README.md) - 已完成；同向扰动有可修正偏差，现有候选很少取得相应改善。
@@ -12,6 +14,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [基础能力分析](foundation-qualification/README.md) → [冻结设计](../designs/foundation-qualification.md)、[原始数据](../data/foundation-qualification/README.md)。
 
 - [反馈范围分析](feedback-window/README.md) → [冻结设计](../designs/feedback-window.md)、[配对数据](../data/feedback-window/README.md)。
 

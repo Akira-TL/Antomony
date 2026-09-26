@@ -16,7 +16,7 @@
 
 ## Relations
 
-- [三组基础检查](foundation-qualification.md) → [实际采样](../study/foundation-qualification/README.md)。
+- [三组基础检查](foundation-qualification.md) → [实际采样](../study/foundation-qualification/README.md)、[描述分析](../analysis/foundation-qualification/README.md)。
 
 - [反馈时间范围](feedback-window.md) → [实际采样](../study/feedback-window/README.md)、[本次分析](../analysis/feedback-window/README.md)、[恢复诊断](../analysis/restoration-control/README.md)。后者作为课程及候选问题的开发依据。
 
