@@ -24,6 +24,7 @@
 - [如何完整保留第 2570 回合的动作能力与输入语义？](issues/01-frozen-interface.md) — 保存点包含实际参与动作的循环记忆；距离与低层反馈的兼容需要另作决定。
 - [混合信号中的可辨别差异由什么承载？](issues/08-signal-features.md) — 用户选择稳定但无类别标签的多维混合响应。
 - [没有可用信号时，持续随机探索方向由谁产生？](issues/03-exploration-ownership.md) — 方向层训练时采样方向，根据奖励学习探索。
+- [离巢浓度扣费是训练奖励，还是环境中的实际能量消耗？](issues/09-exploration-cost.md) — 用户更新为低浓度探索、找到食物和携食返回三类正向得分。
 
 ## Not yet specified
 
