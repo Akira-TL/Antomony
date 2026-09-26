@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [四步候选动作输入学习](action-update-learning/README.md) - planned；同一基础数据比较两种输入，固定终点。
+
 - [四步候选动作影响](candidate-steering/README.md) - completed，重建65536次动作；152次含受伤写入中70次即时朝向投影恶化，23次与目标方向变化相反。
 
 - [四步与十六步窗口](window-cadence/README.md) - completed，四步比十六步少失败21/23次，但相对不更新多2/少50次，未通过两参照门槛。
@@ -38,6 +40,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [动作输入学习](action-update-learning/README.md) → [设计](../designs/action-update-learning.md)、[数据](../data/action-update-learning/README.md)。
 
 - [候选动作影响](candidate-steering/README.md) → [窗口原始数据](../data/window-cadence/README.md)。
 

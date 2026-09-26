@@ -1,0 +1,6 @@
+{
+  "input_directory": "logs/action-update-learning/20260926T173720-2",
+  "manifest": "data/action-update-learning/manifest.sha256",
+  "protocol": ".research/protocols/action-update-learning.json",
+  "output_directory": ".research/analysis/action-update-learning/A001/outputs"
+}
