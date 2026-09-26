@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [近似规模MLP基础资格](matched-foundation.md) - 固定训练预算及48世界评价，待登记冻结。
+- [近似规模MLP基础资格](matched-foundation.md) - 已冻结；固定训练预算及48世界评价。
 
 - [保留基础能力后的接受学习](memory-update-learning.md) - 已冻结；无危险课程，8训练与4留出种子，不使用未校准价值输出。
 

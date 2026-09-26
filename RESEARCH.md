@@ -10,7 +10,7 @@
 
 ## Current Loop
 
-DESIGN
+STUDY
 
 ## Active Uncertainty
 
@@ -25,6 +25,8 @@ DESIGN
 已可见结果仅作开发背景，见[初始试跑](docs/engineering/novel-adaptation-results.md)、[扩大幅度](docs/engineering/wider-update-results.md)、[方向修正](docs/engineering/novel-direction-adaptation-results.md)。不倒填为预先登记的分析，不把同巢蚂蚁、时间步或继承参数的多代当独立重复。
 
 ## Active Work
+
+[近似规模MLP基础资格](designs/matched-foundation.md)已冻结并登记：八个独立17宽模型各2400轮信号课程、每200轮保存，再在新种子17101至17108比较新MLP、原MLP与规则的48世界基础表现。总参数1732与自学习候选1697接近，但不代表有效训练容量或能力等效。正在进入固定运行；不在本批结果上追加训练、挑中途参数或修改门槛。
 
 [保留基础能力后的接受学习](analysis/memory-update-learning/README.md)已完成固定训练及留出评价：八个独立模型各200步、72份快照；训练196条中仅12条正向，留出105条中7条正向。四种子总体所选奖励差0.000426，但仅1/4种子优于全跳过和全接受，没有所选焦点交付改善，未通过开发条件。停止本课程，不延长训练或同批调阈值。下一步转向完整连续对照的协议和执行入口，补齐近似参数规模的普通MLP并核验基础资格，再覆盖减速、周期与危险来源；此接受模型只能作为已知未通过开发条件的待评价候选，不能以局部结果宣称自训练成立。
 
