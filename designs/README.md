@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [复杂来源连续更新对照](continuous-adaptation.md) - 固定80世界预算，待登记；主要比较同初始化的三种更新方式。
+
 - [近似规模MLP基础资格](matched-foundation.md) - 已冻结；固定训练预算及48世界评价。
 
 - [保留基础能力后的接受学习](memory-update-learning.md) - 已冻结；无危险课程，8训练与4留出种子，不使用未校准价值输出。
@@ -21,6 +23,8 @@
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
 
 ## Relations
+
+- [连续对照](continuous-adaptation.md) → [基础资格](../analysis/matched-foundation/README.md)、[固定接受模型](../data/memory-acceptance-models/README.md)。
 
 - [近似规模基础资格](matched-foundation.md) → [实际实施](../study/matched-foundation/README.md)、[模型与轨迹](../data/matched-foundation/README.md)、[资格分析](../analysis/matched-foundation/README.md)。
 
