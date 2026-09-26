@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [固定个体接受模型](memory-acceptance-models/README.md) - 原分析参数的完整固定副本，来源课程未通过采用条件。
+
 - [近似规模模型基础数据](matched-foundation/README.md) - 253文件，含104参数快照与48世界轨迹。
 
 - [新基础接受配对数据](memory-update-learning/README.md) - 301条记录、2738文件和1344组快照。
@@ -20,6 +22,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [固定接受模型](memory-acceptance-models/README.md) → [来源分析](../analysis/memory-update-learning/README.md)、[来源采样](../study/memory-update-learning/README.md)。
 
 - [近似规模基础数据](matched-foundation/README.md) → [实际实施](../study/matched-foundation/README.md)、[资格分析](../analysis/matched-foundation/README.md)。
 

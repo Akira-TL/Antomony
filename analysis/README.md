@@ -21,6 +21,8 @@
 
 ## Relations
 
+- [基础接受分析](memory-update-learning/README.md) → [供连续部署的固定模型](../data/memory-acceptance-models/README.md)。
+
 - [近似规模基础分析](matched-foundation/README.md) → [冻结设计](../designs/matched-foundation.md)、[原始数据](../data/matched-foundation/README.md)。
 
 - [新基础接受学习](memory-update-learning/README.md) → [冻结设计](../designs/memory-update-learning.md)、[配对数据](../data/memory-update-learning/README.md)。

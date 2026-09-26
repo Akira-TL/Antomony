@@ -23,7 +23,7 @@
 
 - [近似规模基础采样](matched-foundation/README.md) → [冻结设计](../designs/matched-foundation.md)、[模型与轨迹](../data/matched-foundation/README.md)。
 
-- [新基础接受采样](memory-update-learning/README.md) → [冻结设计](../designs/memory-update-learning.md)、[原始数据](../data/memory-update-learning/README.md)。
+- [新基础接受采样](memory-update-learning/README.md) → [冻结设计](../designs/memory-update-learning.md)、[原始数据](../data/memory-update-learning/README.md)、[下游固定接受模型](../data/memory-acceptance-models/README.md)。
 
 - [探索课程](exploration-course/README.md) → [冻结设计](../designs/exploration-course.md)、[原始数据](../data/exploration-course/README.md)。
 
