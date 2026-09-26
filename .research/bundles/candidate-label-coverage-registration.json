@@ -1,0 +1,19 @@
+{
+  "slug": "candidate-label-coverage",
+  "title": "既有基础候选的交付与奖励覆盖",
+  "analysis_mode": "exploratory",
+  "status": "planned",
+  "target_uncertainty": "固定候选集合是否本就缺少使旧交付判据成立的选择机会；本次已浏览标签后追查。",
+  "estimand": "既有196训练和105留出候选的焦点交付与奖励差覆盖，以及固定配对集合的二元选择最大交付改善。",
+  "unit_of_inference": "整巢种子；候选、个体与同种子初始化条件相关。",
+  "primary_analysis": "完整来源核验后逐条计算接受减跳过，按种子、世界及个体列正负零，枚举数学交付上界；不拟合、不作独立重复推断。",
+  "analysis_path": "analysis/candidate-label-coverage/README.md",
+  "code_path": "scripts/analyses/candidate_label_coverage.py",
+  "dataset_slugs": ["memory-update-learning"],
+  "artifacts": [
+    {"path": ".research/analysis/candidate-label-coverage/A001/config.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "scripts/analyses/candidate-label-coverage.sh", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/comparison/candidate_label_coverage.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "tests/training/test_candidate_label_coverage.py", "role": "other", "timing_role": "pre_result_support"}
+  ]
+}

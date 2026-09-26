@@ -43,6 +43,8 @@
 
 ## Relations
 
+- [新基础接受数据](memory-update-learning/README.md) → [候选交付与奖励覆盖追查](../analysis/candidate-label-coverage/README.md)。
+
 - [首步方向数据](first-action-outcomes/README.md) → [实施](../study/first-action-outcomes/README.md)、[分析](../analysis/first-action-outcomes/README.md)。
 - [窗口父轨迹](window-cadence/README.md) → [首步方向诊断](../analysis/first-action-outcomes/README.md)。
 

@@ -1,0 +1,11 @@
+{
+  "input_directory": "logs/memory-update-learning/20260926T113733-2",
+  "manifest": "data/memory-update-learning/manifest.sha256",
+  "protocol": ".research/protocols/memory-update-learning.json",
+  "identities": [
+    {"path": "data/memory-update-learning/manifest.sha256", "sha256": "a0af93f2ec42a23090cbe5d3ee25433ba0dc2548f2989bf1de43f58cb9fd8c65"},
+    {"path": ".research/protocols/memory-update-learning.json", "sha256": "da7e9349ba0cee1cc06be3efb1d732c107045993bcebcd9261a6e5cb35b56b57"},
+    {"path": "logs/memory-update-learning/20260926T113733-2/execution.json", "sha256": "53ef3943858cc1f05c8b1c47b865336164bd18503edc1d52cf718b774bd94291"}
+  ],
+  "output": ".research/analysis/candidate-label-coverage/A001/outputs/summary.json"
+}
