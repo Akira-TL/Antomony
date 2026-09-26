@@ -1,4 +1,4 @@
-Status: claimed
+Status: resolved
 Category: enhancement
 Blocked by: 36
 
@@ -8,4 +8,8 @@ Blocked by: 36
 
 ## Progress
 
-设计冻结 `f45dfe2`，登记并提交 `e78a3f7` 后，完成24世界正式采样。301条记录（训练196、留出105），1344组快照，运行目录 `logs/memory-update-learning/20260926T113733-2/`。下一步先固定分析及登记，尚未拟合接受模型或计算留出收益。
+设计冻结 `f45dfe2`，登记并提交 `e78a3f7` 后，完成24世界正式采样。301条记录（训练196、留出105），1344组快照，运行目录 `logs/memory-update-learning/20260926T113733-2/`。
+
+## Answer
+
+分析及登记提交 `7a10ca4` 后首次拟合。八个接受模型各200步，共72份检查点。仅1/4留出种子优于两参照，所选焦点交付均未改善，拒绝有效接受学习的解释。停止本课程，不延长训练或调阈值。见 `analysis/memory-update-learning/README.md`；完整复杂环境比较尚未完成。

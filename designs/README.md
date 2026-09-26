@@ -20,7 +20,7 @@
 
 ## Relations
 
-- [新基础接受课程](memory-update-learning.md) → [实际采样](../study/memory-update-learning/README.md)、[原始数据](../data/memory-update-learning/README.md)。
+- [新基础接受课程](memory-update-learning.md) → [实际采样](../study/memory-update-learning/README.md)、[原始数据](../data/memory-update-learning/README.md)、[接受学习结果](../analysis/memory-update-learning/README.md)。
 
 - [探索课程](exploration-course.md) → [实际实施](../study/exploration-course/README.md)、[配对评价](../analysis/exploration-course/README.md)。
 

@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [新基础接受学习](memory-update-learning/README.md) - 待执行；固定训练200步后评价四个留出种子。
+- [新基础接受学习](memory-update-learning/README.md) - 已完成；仅1/4种子优于两参照，没有所选焦点交付改善，未通过。
 
 - [无线索课程最终评价](exploration-course/README.md) - 已完成；返回退步，未采用最终模型，不续训。
 
