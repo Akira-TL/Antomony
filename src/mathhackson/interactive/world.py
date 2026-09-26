@@ -6,11 +6,13 @@ import math
 
 import numpy as np
 
+from mathhackson.colony.geometry import Wall
 from mathhackson.training.direction.policy import DirectionAction
 from mathhackson.training.foraging.colony import ColonyConfig, ColonyInteraction
 from mathhackson.training.foraging.disturbance import DisturbanceConfig
 from mathhackson.training.foraging.revival import RevivingColony
 from mathhackson.training.foraging.signals import SignalSource
+from .signals import BarrierSignals
 
 
 @dataclass
@@ -27,6 +29,9 @@ class EditableColony(RevivingColony):
         self.foods = [Food(0, float(self.food[0]), float(self.food[1]), self.stock)]
         self.food_origins: list[int | None] = [None] * len(self.ants)
         self.supplied_stock = self.stock
+        signals = BarrierSignals(config.trail_profile)
+        signals.trails.values[:] = self.signals.trails.values
+        self.signals = signals
 
     @property
     def done(self) -> bool:
@@ -69,6 +74,8 @@ class EditableColony(RevivingColony):
             return "食物不能覆盖巢穴"
         if any(np.linalg.norm(position - (f.x, f.y)) < .8 for f in self.foods):
             return "食物位置重叠"
+        if any(wall.overlaps(position, .4) for wall in self.walls):
+            return "食物不能覆盖墙体"
         if len(self.foods) >= 64:
             return "食物源已达到64个上限"
         return None
@@ -82,6 +89,40 @@ class EditableColony(RevivingColony):
         self.stock += stock
         self.supplied_stock += stock
         return food
+
+    def wall_placement_error(self, wall: Wall) -> str | None:
+        if (not all(math.isfinite(v) for v in (wall.x, wall.y, wall.hx, wall.hy, wall.angle))
+                or not .2 <= wall.hx <= 4. or not .2 <= wall.hy <= 4.):
+            return "墙体尺寸或位置无效"
+        if np.any(np.abs((wall.x, wall.y)) + wall.extent > self.signals.trails.half):
+            return "墙体超出场地"
+        if wall.overlaps(self.home, 1.):
+            return "墙体不能覆盖巢穴"
+        if any(wall.overlaps(np.asarray([f.x, f.y]), .4) for f in self.foods):
+            return "墙体不能覆盖食物"
+        if any(wall.intersects(other) for other in self.walls):
+            return "墙体位置重叠"
+        if any(not ant.exhausted and wall.overlaps(ant.position, .18) for ant in self.ants):
+            return "墙体覆盖活动个体"
+        if len(self.walls) >= 32:
+            return "墙体已达到32个上限"
+        return None
+
+    def add_wall(self, x: float, y: float, hx: float, hy: float, angle: float = 0.) -> Wall:
+        wall = Wall(max((w.id for w in self.walls), default=-1) + 1, x, y, hx, hy, angle)
+        error = self.wall_placement_error(wall)
+        if error:
+            raise ValueError(error)
+        self.walls.append(wall)
+        self.signals.trails.set_walls(self.walls)
+        return wall
+
+    def remove_wall(self, identifier: int) -> None:
+        found = next((wall for wall in self.walls if wall.id == identifier), None)
+        if found is None:
+            raise ValueError("墙体不存在")
+        self.walls.remove(found)
+        self.signals.trails.set_walls(self.walls)
 
     def step(self, actions: list[DirectionAction]) -> list[ColonyInteraction]:
         events = super().step(actions)

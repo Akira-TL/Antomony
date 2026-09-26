@@ -7,7 +7,7 @@ import math
 import numpy as np
 from pydantic import Field
 
-from mathhackson.colony.geometry import move_discs, unit
+from mathhackson.colony.geometry import Wall, move_discs, unit
 from mathhackson.training.direction.environment import MAX_TURN, STEP_DISTANCE, wrap_angle
 from mathhackson.training.direction.policy import DirectionAction
 from .environment import ForagingConfig, LocalObservation
@@ -64,6 +64,7 @@ class ColonyEnvironment:
         self.extra_sources: tuple[SignalSource, ...] = ()
         self.stock = self.config.stock
         self.steps = 0
+        self.walls: list[Wall] = []
         # 原八只布局不变；更大群体围巢排布，避免碰撞分离凭空制造位移。
         radius = .5 if self.config.ants <= 8 else .19 / math.sin(math.pi / self.config.ants)
         self.ants = [Forager(radius * unit(2. * math.pi * i / self.config.ants),
@@ -119,7 +120,7 @@ class ColonyEnvironment:
             ant, action = self.ants[i], actions[i]
             ant.heading = wrap_angle(ant.heading + MAX_TURN * action.turn)
             displacement.append(unit(ant.heading) * (STEP_DISTANCE * self.movement_scale(i) if action.move else 0.))
-        moved, contacts = move_discs(positions, np.stack(displacement), .18, [], self.signals.trails.half)
+        moved, contacts = move_discs(positions, np.stack(displacement), .18, self.walls, self.signals.trails.half)
         for row, i in enumerate(active):
             ant, action = self.ants[i], actions[i]
             traveled = float(np.linalg.norm(moved[row] - ant.position))
