@@ -36,12 +36,15 @@ class LocalObservation:
     contact: bool
     previous_move: bool
     previous_turn: float
+    budgets: tuple[float, float] | None = None
 
     def vector(self) -> np.ndarray:
         # 固定压缩保留绝对浓度，不对各点单独做单位长度归一化。
         compressed = np.log1p(self.receptors) / math.log(9.)
-        return np.concatenate((compressed.ravel(), np.asarray([
-            self.carrying, self.contact, self.previous_move, self.previous_turn], dtype=np.float32))).astype(np.float32)
+        own = [self.carrying, self.contact, self.previous_move, self.previous_turn]
+        if self.budgets is not None:
+            own.extend(self.budgets)
+        return np.concatenate((compressed.ravel(), np.asarray(own, dtype=np.float32))).astype(np.float32)
 
 
 @dataclass(frozen=True)
