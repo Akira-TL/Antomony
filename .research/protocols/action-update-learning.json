@@ -1,0 +1,29 @@
+{
+  "train_seeds": [19801, 19802, 19803, 19804],
+  "held_seeds": [19811, 19812],
+  "initial_norms": [0.0, 0.75],
+  "training_steps": 200,
+  "checkpoint_every": 25,
+  "learning_rate": 0.01,
+  "weight_decay": 0.01,
+  "decision_profile": "actions",
+  "probe": {
+    "seeds": [19801, 19802, 19803, 19804, 19811, 19812],
+    "conditions": ["benign"],
+    "pairs_per_world": 32,
+    "branch_horizon": 64,
+    "candidate_kind": "trust",
+    "environment": {"ants": 8, "horizon": 512, "trail_profile": "bounded-local-v2", "nest_signal_strength": 1.0},
+    "adaptation": {"window": 4, "learning_rate": 1.0, "maximum_step_norm": 4.0, "maximum_residual_norm": 4.0,
+                   "maximum_mean_kl": 0.02, "maximum_state_kl": 0.08, "damping": 0.01, "backtracks": 12,
+                   "feedback_mode": "observed-window", "feedback_trigger": "window"},
+    "sample_interval": 16,
+    "include_action_features": true,
+    "disturbance": {"center_fraction": 1.0, "response": [0, 0, 0, 1, 0, 0, 0, 0], "injury_per_step": 0.0},
+    "initial_residual_pattern": "coherent-fourth",
+    "policy_kind": "mlp-memory",
+    "policy_episode": 0,
+    "policy_directory": "logs/memory-check/20260926T112254-2",
+    "motor_path": "logs/direction-motor/20260926T053106-2/seed-41/update-001200.npz"
+  }
+}
