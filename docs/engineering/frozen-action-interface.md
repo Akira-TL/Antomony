@@ -2,6 +2,8 @@
 
 ## 范围与依据
 
+**当前决策更新**：以下为旧检查点的事实核对，不是新模型规格。用户得知距离与目标进展输入后，已否定完整冻结适配和四连接提取方案，要求改为方向输入的基础模型并重训。文末局部目标方案已撤下，保留仅供追溯；后续以[动作接口决定](../../.scratch/ant-signal-learning/issues/10-action-boundary.md)为准。
+
 本次只检查源代码、检查点及其已有记录，不启动仿真、训练或用户报告的失败复现。目标是明确新信号层、方向层接入前必须保留的条件，不评价模型的泛化或自修改效果。
 
 原始依据为[检查点说明](../../checkpoints/recurrent/foundation-episode-002570.json)、`checkpoints/recurrent/foundation-episode-002570.npz` 及 `logs/recurrent-training/67c6d8af3fad/episode-002570.json`。本机核对 SHA-256 为 `48a98f424328ddd1af71202b753bae555d0984cd9392921f9f07ea3f817f74b3`，与保存说明一致。

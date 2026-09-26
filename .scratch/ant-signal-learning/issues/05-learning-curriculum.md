@@ -1,6 +1,6 @@
 Type: grilling
 Status: ready-for-human
-Blocked by: 01, 02, 03, 04, 09, 10, 11, 12, 13
+Blocked by: 01, 02, 03, 04, 09, 10, 11, 12, 13, 14
 
 # 信号层按什么课程学习，方向监督和记忆分别承担什么？
 
