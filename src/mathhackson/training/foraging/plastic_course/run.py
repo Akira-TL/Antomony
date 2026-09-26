@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 from pathlib import Path
 import subprocess
@@ -51,6 +52,7 @@ class Protocol(BaseModel):
     max_step: float = Field(default=.25, gt=0, le=2.)
     max_fast: float = Field(default=2., gt=0, le=4.)
     direction_mode: DirectionMode = "unit"
+    evaluate_initial: bool = False
     checkpoint_interval: Literal[25] = 25
     time_limit_seconds: int = Field(default=900, ge=30, le=900)
 
@@ -196,7 +198,10 @@ def train(model: PlasticDirection, base: MemoryPolicy, initialization: Initializ
 
 
 def evaluate(model: PlasticDirection, base: MemoryPolicy, initialization: Initialization,
-             plan: Protocol, output: Path, deadline: float) -> None:
+             plan: Protocol, output: Path, deadline: float, *, structure_update: int | None = None) -> None:
+    structure_update = plan.updates if structure_update is None else structure_update
+    if type(structure_update) is not int or structure_update < 0:
+        raise ValueError("评价结构版本必须为非负整数")
     model.eval().requires_grad_(False)
     for condition in CONDITIONS:
         for batch in range(plan.evaluation_batches):
@@ -214,7 +219,7 @@ def evaluate(model: PlasticDirection, base: MemoryPolicy, initialization: Initia
                 if mode == "learned":
                     learned = trace
                 name = f"{condition}-{seed}-{mode}"
-                save_trace(output / f"{name}.npz", episode, directions, trace, structure_update=plan.updates)
+                save_trace(output / f"{name}.npz", episode, directions, trace, structure_update=structure_update)
                 row = EvaluationRow(initialization=initialization.seed, condition=condition,
                     batch_seed=seed, mode=mode, mean_after_feedback=trace.rewards[4:].mean(dim=0).tolist(),
                     mean_last_quarter=trace.rewards[-plan.course.steps // 4:].mean(dim=0).tolist(),
@@ -263,6 +268,13 @@ def main() -> None:
             original = {key: value.clone() for key, value in base.state_dict().items()}
             model = PlasticDirection(motor, seed=initialization.seed, max_step=plan.max_step,
                 max_fast=plan.max_fast, direction_mode=plan.direction_mode)
+            if plan.evaluate_initial:
+                initial = copy.deepcopy(model)
+                initial_directory = arguments.output / "untrained" / f"seed-{initialization.seed}"
+                initial_directory.mkdir(parents=True)
+                save_checkpoint(initial_directory / "step-0000.npz", initial, update=0, seed=initialization.seed)
+                evaluate(initial, base, initialization, plan, initial_directory,
+                    start + plan.time_limit_seconds, structure_update=0)
             train(model, base, initialization, plan, directory, start + plan.time_limit_seconds)
             evaluate(model, base, initialization, plan, directory, start + plan.time_limit_seconds)
             if not all(torch.equal(value, original[key]) for key, value in base.state_dict().items()):
