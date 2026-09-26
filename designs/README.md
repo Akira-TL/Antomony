@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [无危险基础更新学习](basic-update-learning.md) - 待冻结；固定训练与留出种子，不接触危险机制。
+- [无危险基础更新学习](basic-update-learning.md) - 已冻结；固定训练与留出种子，不接触危险机制。
 - [行动概率约束候选诊断](trust-candidate-value.md) - 已冻结；最多64点，检验后续实际差异，不训练接受网络。
 - [候选更新短期价值诊断](candidate-update-value.md) - 已冻结；采样72点，结论边界见描述分析，不作优势检验。
 - [蚁群自主参数更新与未见环境适应性对照](ant-self-training-adaptation.md) - `draft`；当前主线，接受决策、对照能力与确认环境尚未齐备。
