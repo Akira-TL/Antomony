@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [连续复杂来源对照](continuous-adaptation/README.md) - planned；完整重建后按固定条件比较。
+- [连续复杂来源对照](continuous-adaptation/README.md) - completed；更新优于跳过，但学习接受不如固定接受，未通过采用条件。
 
 - [近似规模模型基础资格](matched-foundation/README.md) - 已完成；三组通过最低要求，探索与返回仍不同。
 
