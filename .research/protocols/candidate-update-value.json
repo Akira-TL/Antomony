@@ -1,0 +1,11 @@
+{
+  "seeds": [9501, 9502],
+  "conditions": ["benign", "persistent"],
+  "pairs_per_world": 32,
+  "branch_horizon": 64,
+  "environment": {"ants": 8, "horizon": 512},
+  "adaptation": {"window": 16, "learning_rate": 0.02, "maximum_step_norm": 0.05, "maximum_residual_norm": 1},
+  "disturbance": {},
+  "policy_directory": "logs/colony-reward/20260926T070617-2",
+  "motor_path": "logs/direction-motor/20260926T053106-2/seed-41/update-001200.npz"
+}
