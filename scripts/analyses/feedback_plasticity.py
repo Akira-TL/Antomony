@@ -7,9 +7,13 @@ from pathlib import Path
 
 import numpy as np
 from pydantic import BaseModel
+import torch
 
+from mathhackson.training.comparison.auditing import verify_manifest
+from mathhackson.training.direction.checkpoint import load_motor
 from mathhackson.training.foraging.feedback_cues import CONDITIONS
 from mathhackson.training.foraging.plastic_course.assessment import SeedAssessment, assess
+from mathhackson.training.foraging.plastic_course.checkpoint import load_checkpoint
 from mathhackson.training.foraging.plastic_course.run import Completion, EvaluationRow, Protocol, verified
 
 
@@ -19,13 +23,66 @@ class FileIdentity(BaseModel):
     sha256: str
 
 
+class SnapshotAudit(BaseModel):
+    initialization: int
+    snapshots: int
+    parameter_change_norm: float
+    memory_change_norm: float
+
+
 class Summary(BaseModel):
     source: str
+    manifest_sha256: str
     source_files: list[FileIdentity]
+    snapshots: list[SnapshotAudit]
     evaluation_frames: int
     initialization_results: list[SeedAssessment]
     all_passed: bool
     boundary: str = "两个外层初始化的合成方向课程可行性；不是真实搬运、生存或复杂环境优势"
+
+
+def freeze_inputs(directory: Path, manifest: Path) -> None:
+    if manifest.resolve().is_relative_to(directory.resolve()):
+        raise ValueError("输入清单必须位于原始目录之外")
+    files = sorted(path for path in directory.rglob("*") if path.is_file())
+    if not files:
+        raise ValueError("原始目录为空")
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    with manifest.open("x", encoding="utf-8") as stream:
+        for path in files:
+            stream.write(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path}\n")
+
+
+def audit_snapshots(directory: Path, plan: Protocol) -> list[SnapshotAudit]:
+    motor, _ = load_motor(verified(plan.motor))
+    result = []
+    for initialization in plan.initializations:
+        source = directory / f"seed-{initialization.seed}"
+        updates = sorted({0, plan.updates, *range(plan.checkpoint_interval, plan.updates + 1, plan.checkpoint_interval)})
+        if set(source.glob("step-*.npz")) != {source / f"step-{update:04d}.npz" for update in updates}:
+            raise ValueError("结构保存点缺失或多出未定义版本")
+        first = None
+        model = None
+        for update in updates:
+            path = source / f"step-{update:04d}.npz"
+            model = load_checkpoint(path)
+            with np.load(path, allow_pickle=False) as archive:
+                if int(archive["update"]) != update or int(archive["seed"]) != initialization.seed:
+                    raise ValueError("结构保存点身份不匹配")
+            if model.max_step != plan.max_step or model.max_fast != plan.max_fast or model.feature_width != 45:
+                raise ValueError("模型架构约束不同于协议")
+            if not all(torch.equal(value, motor.state_dict()[key]) for key, value in model.motor.state_dict().items()):
+                raise ValueError("保存点中的动作底座被改变")
+            if first is None:
+                first = model
+        assert first is not None and model is not None
+        change = [value - first.state_dict()[key] for key, value in model.state_dict().items() if not key.startswith("motor.")]
+        memory = [value - first.state_dict()[key] for key, value in model.state_dict().items()
+            if key in ("recent_weights", "sparse_weights")]
+        result.append(SnapshotAudit(initialization=initialization.seed, snapshots=len(updates),
+            parameter_change_norm=float(torch.cat([value.flatten() for value in change]).norm()),
+            memory_change_norm=float(torch.cat([value.flatten() for value in memory]).norm())))
+    return result
 
 
 def audited_rows(directory: Path, plan: Protocol) -> list[EvaluationRow]:
@@ -95,7 +152,18 @@ def main() -> None:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path)
+    parser.add_argument("--freeze-inputs", action="store_true")
     args = parser.parse_args()
+    if args.freeze_inputs:
+        if args.manifest:
+            parser.error("建立清单与核验清单须分开执行")
+        freeze_inputs(args.input, args.output)
+        print(f"已固定文件清单：{args.output}，尚未计算效果结果", flush=True)
+        return
+    if args.manifest is None:
+        parser.error("汇总前必须提供已独立固定的输入清单")
+    verify_manifest(args.input, args.manifest)
     completion = Completion.model_validate_json((args.input / "completion.json").read_text())
     if not completion.complete or completion.initializations_completed != 2:
         raise ValueError("训练或评价未完整完成；保留失败，不给完整效果判断")
@@ -106,11 +174,13 @@ def main() -> None:
     verified(plan.motor)
     for initialization in plan.initializations:
         verified(initialization.foundation)
+    snapshots = audit_snapshots(args.input, plan)
     rows = audited_rows(args.input, plan)
     assessments = [assess(rows, initialization=item.seed, steps=plan.course.steps) for item in plan.initializations]
     files = [FileIdentity(path=str(path.relative_to(args.input)), bytes=path.stat().st_size,
         sha256=hashlib.sha256(path.read_bytes()).hexdigest()) for path in sorted(args.input.rglob("*")) if path.is_file()]
-    summary = Summary(source=str(args.input), source_files=files,
+    summary = Summary(source=str(args.input), manifest_sha256=hashlib.sha256(args.manifest.read_bytes()).hexdigest(),
+        source_files=files, snapshots=snapshots,
         evaluation_frames=len(rows) * plan.course.batch * plan.course.steps,
         initialization_results=assessments, all_passed=all(item.passed for item in assessments))
     args.output.parent.mkdir(parents=True, exist_ok=True)
