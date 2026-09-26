@@ -12,7 +12,8 @@ def test_two_trip_course_picks_up_delivers_and_keeps_two_fields_separate():
     while not world.carrying:
         world.step(True, 0., True, False)
     assert world.pickups == 1
-    assert world.observation()[0] < 0.
+    assert world.observation()[0] == 0.
+    assert world.observation()[8] > 0.
     assert world.field.values[0].max() > 0
     assert world.field.values[1].max() == 0
     world.heading = math.pi
@@ -22,7 +23,8 @@ def test_two_trip_course_picks_up_delivers_and_keeps_two_fields_separate():
     assert world.delivered == 1
     assert not world.carrying
     world.heading = 0.
-    assert world.observation()[0] > 0.
+    assert world.observation()[0] == 0.
+    assert world.observation()[11] > 0.
     assert world.steps < world.horizon
     while not world.carrying:
         world.step(True, 0., True, False)
@@ -56,16 +58,21 @@ def test_private_goal_progress_and_reward_never_enter_observation():
     assert observation[7] == 0.
 
 
-def test_inactive_pheromone_channel_is_hidden_from_each_return_leg():
+def test_both_pheromone_channels_remain_visible_on_each_leg():
     world = RoundTripEnvironment(4)
     world.position = np.asarray([1., 0.], np.float32)
+    world.food = np.asarray([5., 0.], np.float32)
     world.field.deposit(world.position, 0, 2.)
     world.field.deposit(world.position, 1, 2.)
     world.carrying = True
-    assert np.array_equal(world.observation()[11:14], np.zeros(3))
+    carrying = world.observation()
     world.carrying = False
     world.delivered = 1
-    assert np.array_equal(world.observation()[8:11], np.zeros(3))
+    searching = world.observation()
+    assert carrying[8] > 0. and carrying[11] > 0.
+    assert np.array_equal(carrying[8:14], searching[8:14])
+    assert np.array_equal(carrying[:3], np.zeros(3))
+    assert np.array_equal(searching[:3], np.zeros(3))
 
 
 def test_delivery_uses_nest_area_not_an_exact_point():
@@ -77,13 +84,14 @@ def test_delivery_uses_nest_area_not_an_exact_point():
     assert world.delivered == 1
 
 
-def test_second_departure_uses_food_scent_outside_visibility():
+def test_second_departure_exposes_food_scent_without_routing_it_as_target():
     world = RoundTripEnvironment(5)
     world.food = np.asarray([4., 0.], np.float32)
     world.delivered = 1
     assert world.observation()[0] == 0.
     world.field.deposit(np.asarray([.5, 0.], np.float32), 1, 1.)
-    assert world.observation()[0] > 0.
+    assert world.observation()[0] == 0.
+    assert world.observation()[12] > 0.
     assert world.observation()[16] == 0.
 
 

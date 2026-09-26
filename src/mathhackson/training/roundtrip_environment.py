@@ -29,24 +29,18 @@ class RoundTripEnvironment:
         self.move = self.contact = self.carrying = False
         self.turn = self.reward = self.progress = 0.
 
-    def _local_scent(self, channel: int) -> tuple[float, float, float, np.ndarray]:
+    def _local_scent(self, channel: int) -> tuple[float, float, float]:
         strength = min(1., self.field.sample(self.position, channel) / 4.)
         gradient = self.field.gradient(self.position, channel)
         facing = unit(self.heading)
         left = np.asarray([-facing[1], facing[0]], np.float32)
         forward = float(np.clip(gradient @ facing, -1., 1.))
         lateral = float(np.clip(gradient @ left, -1., 1.))
-        length = float(np.linalg.norm(gradient))
-        direction = gradient / length if length >= .005 else np.zeros(2, np.float32)
-        return strength, forward, lateral, direction
+        return strength, forward, lateral
 
     def observation(self) -> np.ndarray:
-        home_strength, home_forward, home_left, home_direction = self._local_scent(0)
-        food_strength, food_forward, food_left, food_direction = self._local_scent(1)
-        if self.carrying:
-            food_strength = food_forward = food_left = 0.
-        elif self.delivered:
-            home_strength = home_forward = home_left = 0.
+        home_strength, home_forward, home_left = self._local_scent(0)
+        food_strength, food_forward, food_left = self._local_scent(1)
         facing = unit(self.heading)
         left = np.asarray([-facing[1], facing[0]], np.float32)
         visible_food = not self.carrying and (
@@ -57,8 +51,7 @@ class RoundTripEnvironment:
             target = (float(direction @ facing), float(direction @ left),
                       min(1., float(np.linalg.norm(offset)) / 8.))
         else:
-            direction = home_direction if self.carrying else food_direction
-            target = (float(direction @ facing), float(direction @ left), 0.)
+            target = (0., 0., 0.)
         return np.asarray([
             *target, float(self.move), self.turn, 0.,
             float(self.contact), 0.,
