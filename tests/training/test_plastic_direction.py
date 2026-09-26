@@ -236,3 +236,52 @@ def test_nonboundary_and_frozen_feedback_do_not_advance_gate_random_stream() -> 
     model.feedback(torch.ones(1), step.state, terminal=True, frozen=True,
                    sampled_gate=True, generators=(generator,))
     assert torch.equal(generator.get_state(), initial_random)
+
+
+def test_ablation_acceptance_override_changes_only_selected_batch_rows() -> None:
+    model = fixed_outputs(gate=-10.)
+    step = model.infer(torch.tensor([[.6, .8], [.6, .8]]), torch.ones(2, 45), model.initial_state(2))
+    override = torch.tensor([True, False])
+    result = model.feedback(torch.ones(2), step.state, terminal=True, accepted_override=override)
+    assert torch.equal(result.accepted, override)
+    assert bool(result.state.fast[0].any())
+    assert torch.equal(result.state.fast[1], step.state.fast[1])
+    assert result.gate_logp is None
+    override.fill_(False)
+    assert bool(result.accepted[0])
+
+
+@pytest.mark.parametrize("terminal,frozen,sampled_gate", [(False, False, False), (True, True, False), (True, False, True)])
+def test_acceptance_override_rejects_invalid_timing_and_sampling(terminal: bool, frozen: bool, sampled_gate: bool) -> None:
+    model = fixed_outputs()
+    step = model.infer(torch.tensor([[.6, .8]]), torch.ones(1, 45), model.initial_state())
+    stream = torch.Generator().manual_seed(9)
+    original_random = stream.get_state().clone()
+    with pytest.raises(ValueError, match="接受覆盖"):
+        model.feedback(torch.ones(1), step.state, terminal=terminal, frozen=frozen, sampled_gate=sampled_gate,
+                       generators=(stream,), accepted_override=torch.ones(1, dtype=torch.bool))
+    assert torch.equal(stream.get_state(), original_random)
+    assert not bool(step.state.fast.any())
+
+
+@pytest.mark.parametrize("override", [torch.ones(1), torch.tensor(True), torch.ones(2, dtype=torch.bool)])
+def test_acceptance_override_requires_one_boolean_per_individual(override: torch.Tensor) -> None:
+    model = fixed_outputs()
+    step = model.infer(torch.tensor([[.6, .8]]), torch.ones(1, 45), model.initial_state())
+    with pytest.raises(ValueError, match="CPU bool"):
+        model.feedback(torch.ones(1), step.state, terminal=True, accepted_override=override)
+
+
+def test_acceptance_override_at_fourth_feedback_keeps_random_stream_untouched() -> None:
+    model = fixed_outputs(gate=-10.)
+    state = model.initial_state()
+    for _ in range(3):
+        state = advance(model, state).state
+    step = model.infer(torch.tensor([[.6, .8]]), torch.ones(1, 45), state)
+    stream = torch.Generator().manual_seed(7)
+    original_random = stream.get_state().clone()
+    result = model.feedback(torch.ones(1), step.state, accepted_override=torch.ones(1, dtype=torch.bool),
+                            generators=(stream,))
+    assert result.boundary and bool(result.accepted.all()) and result.gate_logp is None
+    assert bool(result.state.fast.any())
+    assert torch.equal(stream.get_state(), original_random)

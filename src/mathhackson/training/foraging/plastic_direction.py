@@ -152,12 +152,20 @@ class PlasticDirection(nn.Module):
     def feedback(self, reward: torch.Tensor, state: PlasticState, *, terminal: bool = False,
                  frozen: bool = False, sampled_gate: bool = False,
                  generators: tuple[torch.Generator, ...] | None = None,
-                 executed_direction: torch.Tensor | None = None) -> FeedbackStep:
+                 executed_direction: torch.Tensor | None = None,
+                 accepted_override: torch.Tensor | None = None) -> FeedbackStep:
         batch = self._validate(state)
         pending = state.pending
         if pending is None:
             raise ValueError("反馈之前必须先推理并执行行动")
         _tensor(reward, (batch,), "当前反馈")
+        boundary = len(state.rewards) + 1 == 4 or terminal
+        if accepted_override is not None:
+            if not boundary or frozen or sampled_gate:
+                raise ValueError("接受覆盖仅用于未冻结的更新边界，且不能同时采样接受")
+            if (not isinstance(accepted_override, torch.Tensor) or accepted_override.shape != (batch,)
+                    or accepted_override.dtype != torch.bool or accepted_override.device.type != "cpu"):
+                raise ValueError("接受覆盖须为逐个体的CPU bool张量")
         chosen = pending.chosen
         if executed_direction is not None:
             _tensor(executed_direction, (batch, 2), "已执行方向")
@@ -182,17 +190,19 @@ class PlasticDirection(nn.Module):
         _tensor(output, (batch, 2), "调制输出")
         modulation, logits = torch.tanh(output[:, 0]), output[:, 1]
         gate = Bernoulli(logits=logits)
-        boundary = len(rewards) == 4 or terminal
         accepted = torch.zeros(batch, dtype=torch.bool)
         fast, gate_logp = state.fast, None
         write_norm = torch.zeros(batch)
         if boundary and not frozen:
-            if sampled_gate:
+            if accepted_override is not None:
+                accepted = accepted_override.detach().clone()
+            elif sampled_gate:
                 streams = self._generators(generators, batch)
                 accepted = torch.stack([torch.bernoulli(gate.probs[i].detach(), generator=streams[i]) for i in range(batch)]).bool()
             else:
                 accepted = gate.probs >= .5
-            gate_logp = gate.log_prob(accepted.to(torch.float32))
+            if accepted_override is None:
+                gate_logp = gate.log_prob(accepted.to(torch.float32))
             delta = _limit(self.max_step * modulation[:, None, None] * eligibility, self.max_step)
             proposal = _limit(state.fast + delta, self.max_fast)
             fast = torch.where(accepted[:, None, None], proposal, state.fast)
