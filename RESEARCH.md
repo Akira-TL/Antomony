@@ -26,7 +26,7 @@ INTERPRETATION
 
 ## Active Work
 
-优先把已完成对照的真实轨迹、固定间隔参数和接受/跳过记录接入只读验收控制页面，让用户能检查搬运、死亡、写入时刻和参数变化。复用现有渲染能力，不重建宣传页面，不把旧8771/8772模型显示成此次研究模型。原始数据、失败条件和负差值全部可见。
+[只读验收控制页](docs/engineering/continuous-acceptance.md)已接入固定对照的真实轨迹、参数及接受/跳过记录，入口为本机8774。用户可以检查搬运、死亡、写入时刻、冻结参数及负差值；不读取旧8771/8772会话，不启动新训练。全场信息素快照未保存，不能伪造对应的场回放。
 
 科学上停止当前接受课程及本批次调参。现有证据不能把问题归为“完全没有可用更新”；固定接受已经更好。若继续探索，下一条路线应专门改变接受决策的训练信号或可泛化输入，并另定有限预算、新评价种子与停止条件，而不是重复扩大参数或训练轮数。该新路线尚未冻结、未执行。
 
@@ -54,6 +54,7 @@ INTERPRETATION
 - [研究结构](research-tree/README.md)
 - [连续对照结果](analysis/continuous-adaptation/README.md)
 - [连续原始数据](data/continuous-adaptation/README.md)
+- [只读验收入口](docs/engineering/continuous-acceptance.md)
 - [固定接受模型](data/memory-acceptance-models/README.md)
 - [全部分析](analysis/README.md)
 

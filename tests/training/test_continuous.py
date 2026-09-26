@@ -152,3 +152,34 @@ def test_fixed_windows_keep_terminal_counts_without_fabricated_actions(plan, tmp
     trace[0].ants[0].reward += 1.
     with pytest.raises(ValueError, match="汇总"):
         window_scores(result, trace)
+
+
+def test_acceptance_reads_exact_parameters_without_constructing_networks(plan, tmp_path, monkeypatch):
+    from fastapi import HTTPException
+    from mathhackson.training.comparison.continuous import run
+    from mathhackson.training.comparison import acceptance
+    directory = tmp_path / "run"
+    run(plan, directory, protocol_sha256="test")
+    tape = acceptance.TapeStore(directory)
+    monkeypatch.setattr(acceptance, "store", lambda: tape)
+    def forbidden(*args, **kwargs):
+        raise AssertionError("只读验收创建或调用神经模型")
+    monkeypatch.setattr(torch.nn.Module, "__init__", forbidden)
+    monkeypatch.setattr(torch.nn.Module, "__call__", forbidden)
+    header = acceptance.header("reference", 18999, "learned")
+    assert len(header.initial_positions) == 2
+    response = acceptance.trace("reference", 18999, "learned")
+    with gzip.open(response.path, "rt") as stream:
+        assert len(stream.readlines()) == 20
+    weights = acceptance.weights("reference", 18999, "learned", 0)
+    assert sum(len(g.points[0].values) for g in weights) == 1697
+    assert weights[0].name == "direction.offset" and not weights[0].frozen
+    assert all(g.frozen for g in weights[1:])
+    assert all(g.frozen for g in acceptance.weights("reference", 18999, "skip", 0))
+    assert acceptance.weights("reference", 18999, "rules", 0) == []
+    with pytest.raises(HTTPException) as invalid_ant:
+        acceptance.weights("reference", 18999, "rules", 2)
+    assert invalid_ant.value.status_code == 404
+    with pytest.raises(HTTPException) as invalid_world:
+        acceptance.trace("reference", 2, "learned")
+    assert invalid_world.value.status_code == 404
