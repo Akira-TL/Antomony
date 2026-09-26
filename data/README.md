@@ -7,5 +7,5 @@
 
 ## Relations
 
-- [概率约束数据](trust-candidate-value/README.md) → [实际采样](../study/trust-candidate-value/README.md)。
+- [概率约束数据](trust-candidate-value/README.md) → [实际采样](../study/trust-candidate-value/README.md)、[描述分析](../analysis/trust-candidate-value/README.md)。
 - [本数据](candidate-update-value/README.md) → [实际采样](../study/candidate-update-value/README.md)、[描述分析](../analysis/candidate-update-value/README.md)。
