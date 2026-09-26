@@ -13,7 +13,7 @@ from mathhackson.training.foraging.adaptation import AdaptationProposal
 from mathhackson.training.foraging.environment import LocalObservation
 from mathhackson.training.foraging.memory import MemoryPolicy
 from mathhackson.training.foraging.trust_candidate import CandidateDiagnostics, TrustConfig, TrustDirectionLearner
-from mathhackson.training.foraging.update_decision import IndividualUpdateController, UpdateChoice, UpdateDecision, decision_features
+from mathhackson.training.foraging.update_decision import IndividualUpdateController, UpdateChoice, UpdateDecision
 
 Mode = Literal["learned", "skip", "always"]
 
@@ -60,8 +60,7 @@ class OnlineForager:
             return None
         proposal = self.agent.propose(observation)
         diagnostics = self.agent.diagnostics
-        hidden = self.agent.history[-1].detach().numpy() if self.agent.history else np.zeros(8, dtype=np.float32)
-        features = decision_features(observation.vector(), hidden, proposal, diagnostics)
+        features = self.controller.features(self.agent, observation)
         before = self.agent.weights().tolist()
         if self.mode == "learned":
             choice = self.controller.resolve(self.agent, observation, continuing_after_death=continuing_after_death)

@@ -4,17 +4,22 @@ from __future__ import annotations
 import copy
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import torch
 from torch import nn
 
 from .adaptation import AdaptationProposal
+from .action_features import ACTION_FEATURE_WIDTH, action_effect_features
 from .environment import LocalObservation
 from .trust_candidate import CandidateDiagnostics, TrustDirectionLearner
 
 INPUT_WIDTH = 140
 INPUT_VERSION = "local-update-decision-v1"
+ACTION_INPUT_WIDTH = INPUT_WIDTH + ACTION_FEATURE_WIDTH
+ACTION_INPUT_VERSION = "local-update-decision-actions-v1"
+DecisionProfile = Literal["parameters", "actions"]
 
 
 def decision_features(observation: np.ndarray, hidden: np.ndarray,
@@ -35,30 +40,35 @@ def decision_features(observation: np.ndarray, hidden: np.ndarray,
 
 
 class UpdateDecision(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self, profile: DecisionProfile = "parameters") -> None:
         super().__init__()
+        if profile not in ("parameters", "actions"):
+            raise ValueError("未知接受决策输入配置")
+        self.profile = profile
+        self.input_width = ACTION_INPUT_WIDTH if profile == "actions" else INPUT_WIDTH
         with torch.random.fork_rng(devices=[]):
-            self.value = nn.Linear(INPUT_WIDTH, 1)
+            self.value = nn.Linear(self.input_width, 1)
         nn.init.zeros_(self.value.weight)
         nn.init.zeros_(self.value.bias)
         self.updates = 0
 
     def forward(self, features: torch.Tensor) -> torch.Tensor:
-        if features.ndim not in (1, 2) or features.shape[-1] != INPUT_WIDTH or not bool(torch.isfinite(features).all()):
+        if features.ndim not in (1, 2) or features.shape[-1] != self.input_width or not bool(torch.isfinite(features).all()):
             raise ValueError("接受决策输入维度错误或包含非有限值")
         return self.value(features).squeeze(-1)
 
     def save(self, path: Path) -> None:
         with path.open("xb") as stream:
-            np.savez(stream, version=INPUT_VERSION, updates=self.updates,
+            np.savez(stream, version=ACTION_INPUT_VERSION if self.profile == "actions" else INPUT_VERSION, updates=self.updates,
                      **{key: value.detach().cpu().numpy() for key, value in self.state_dict().items()})
 
     @classmethod
     def load(cls, path: Path) -> UpdateDecision:
-        model = cls()
         with np.load(path, allow_pickle=False) as data:
-            if str(data["version"]) != INPUT_VERSION or data["updates"].shape != () or int(data["updates"]) < 0:
+            version = str(data["version"])
+            if version not in (INPUT_VERSION, ACTION_INPUT_VERSION) or data["updates"].shape != () or int(data["updates"]) < 0:
                 raise ValueError("更新决策检查点不兼容")
+            model = cls("actions" if version == ACTION_INPUT_VERSION else "parameters")
             weights = {}
             for key, target in model.state_dict().items():
                 value = data[key]
@@ -103,12 +113,21 @@ class IndividualUpdateController:
     def __init__(self, model: UpdateDecision) -> None:
         self.model = copy.deepcopy(model).eval().requires_grad_(False)
 
-    def resolve(self, agent: TrustDirectionLearner, observation: LocalObservation, *, continuing_after_death: bool = False) -> UpdateChoice:
+    def features(self, agent: TrustDirectionLearner, observation: LocalObservation) -> np.ndarray:
         proposal = agent.proposal
         if proposal is None or agent.awaiting_feedback:
             raise ValueError("接受决策只处理已取得反馈的当前候选")
         hidden = agent.history[-1].detach().numpy() if agent.history else np.zeros(8, dtype=np.float32)
         features = decision_features(observation.vector(), hidden, proposal, agent.diagnostics)
+        if self.model.profile == "actions":
+            features = np.concatenate((features, action_effect_features(agent, observation)))
+        return features
+
+    def resolve(self, agent: TrustDirectionLearner, observation: LocalObservation, *, continuing_after_death: bool = False) -> UpdateChoice:
+        proposal = agent.proposal
+        if proposal is None or agent.awaiting_feedback:
+            raise ValueError("接受决策只处理已取得反馈的当前候选")
+        features = self.features(agent, observation)
         with torch.inference_mode():
             prediction = float(self.model(torch.from_numpy(features)))
         if not np.isfinite(prediction):
