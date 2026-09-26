@@ -80,10 +80,14 @@ class DisturbedColony(ColonyEnvironment):
         tick = self.steps
         active = [not ant.exhausted for ant in self.ants]
         events = super().step(actions)
+        self.apply_disturbance(events, active, tick)
+        self.refresh_source()
+        return events
+
+    def apply_disturbance(self, events: list[ColonyInteraction], active: list[bool], tick: int) -> None:
         hazard = self.disturbance
         if not hazard.active_at(tick):
-            self.refresh_source()
-            return events
+            return
         for i, ant in enumerate(self.ants):
             if not active[i] or ant.exhausted or float(np.linalg.norm(ant.position - self.source_position)) >= hazard.contact_radius:
                 continue
@@ -94,5 +98,3 @@ class DisturbedColony(ColonyEnvironment):
             ant.exhausted = killed
             events[i] = replace(events[i], exhausted=killed,
                                 reward=events[i].reward - injury - hazard.death_cost * float(killed))
-        self.refresh_source()
-        return events

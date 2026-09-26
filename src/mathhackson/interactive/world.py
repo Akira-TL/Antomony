@@ -1,7 +1,7 @@
 """交互世界的资源库存；复用训练环境的动作、反馈及复活语义。"""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import math
 
 import numpy as np
@@ -13,6 +13,7 @@ from mathhackson.training.foraging.disturbance import DisturbanceConfig
 from mathhackson.training.foraging.revival import RevivingColony
 from mathhackson.training.foraging.signals import SignalSource
 from .signals import BarrierSignals
+from .hazards import Trap
 
 
 @dataclass
@@ -32,6 +33,7 @@ class EditableColony(RevivingColony):
         signals = BarrierSignals(config.trail_profile)
         signals.trails.values[:] = self.signals.trails.values
         self.signals = signals
+        self.traps: list[Trap] = []
 
     @property
     def done(self) -> bool:
@@ -41,6 +43,28 @@ class EditableColony(RevivingColony):
     def food_sources(self) -> tuple[SignalSource, ...]:
         return tuple(SignalSource(food.x, food.y, self.config.food_radius, self.config.food_strength,
                                   (1., 0., 0., 0., 0., 0., 0., 0.)) for food in self.foods if food.stock)
+
+    def sources(self) -> tuple[SignalSource, ...]:
+        return super().sources() + tuple(trap.source(self.steps) for trap in self.traps)
+
+    def movement_scale(self, index: int) -> float:
+        factors = [trap.speed_multiplier for trap in self.traps if trap.active(self.steps)
+                   and np.linalg.norm(self.ants[index].position - trap.position(self.steps)) < trap.radius]
+        return min(factors, default=1.)
+
+    def apply_disturbance(self, events: list[ColonyInteraction], active: list[bool], tick: int) -> None:
+        for i, ant in enumerate(self.ants):
+            if not active[i] or ant.exhausted:
+                continue
+            injury = sum(trap.injury for trap in self.traps if trap.active(tick)
+                         and np.linalg.norm(ant.position - trap.position(tick)) < trap.radius)
+            if not injury:
+                continue
+            self.injuries[i] += injury
+            killed = float(self.injuries[i]) >= 1.
+            self.killed[i] = ant.exhausted = killed
+            events[i] = replace(events[i], exhausted=killed,
+                                reward=events[i].reward - injury - 2. * float(killed))
 
     def take_food(self, index: int) -> bool:
         ant = self.ants[index]
@@ -102,6 +126,8 @@ class EditableColony(RevivingColony):
             return "墙体不能覆盖食物"
         if any(wall.intersects(other) for other in self.walls):
             return "墙体位置重叠"
+        if any(wall.overlaps(np.asarray([t.x, t.y]), t.radius + t.motion_amplitude) for t in self.traps):
+            return "墙体覆盖作用区或其移动范围"
         if any(not ant.exhausted and wall.overlaps(ant.position, .18) for ant in self.ants):
             return "墙体覆盖活动个体"
         if len(self.walls) >= 32:
@@ -116,6 +142,36 @@ class EditableColony(RevivingColony):
         self.walls.append(wall)
         self.signals.trails.set_walls(self.walls)
         return wall
+
+    def trap_placement_error(self, trap: Trap) -> str | None:
+        center = np.asarray([trap.x, trap.y])
+        extent = np.asarray([trap.radius, trap.radius + trap.motion_amplitude])
+        if np.any(np.abs(center) + extent > self.signals.trails.half):
+            return "作用区或移动范围超出场地"
+        if np.linalg.norm(center - self.home) < 1. + trap.radius + trap.motion_amplitude:
+            return "作用区不能覆盖巢穴"
+        if any(w.overlaps(center, trap.radius + trap.motion_amplitude) for w in self.walls):
+            return "作用区不能覆盖墙体"
+        if any(np.linalg.norm(center - (other.x, other.y)) < trap.radius + other.radius
+               + trap.motion_amplitude + other.motion_amplitude for other in self.traps):
+            return "作用区或移动范围重叠"
+        if len(self.traps) >= 32:
+            return "作用区已达到32个上限"
+        return None
+
+    def add_trap(self, trap: Trap) -> None:
+        if trap.id != max((t.id for t in self.traps), default=-1) + 1 or trap.born_at != self.steps:
+            raise ValueError("来源编号或放置时点已过期")
+        error = self.trap_placement_error(trap)
+        if error:
+            raise ValueError(error)
+        self.traps.append(trap)
+
+    def remove_trap(self, identifier: int) -> None:
+        found = next((trap for trap in self.traps if trap.id == identifier), None)
+        if found is None:
+            raise ValueError("作用区不存在")
+        self.traps.remove(found)
 
     def remove_wall(self, identifier: int) -> None:
         found = next((wall for wall in self.walls if wall.id == identifier), None)
