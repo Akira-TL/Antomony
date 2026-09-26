@@ -27,6 +27,8 @@ class ForagingConfig(BaseModel):
     exploration_reward: float = Field(default=.005, ge=0.)
     explore_with_food_signal: bool = False
     signal_threshold: float = Field(default=.001, gt=0.)
+    nest_signal_radius: float = Field(default=1.5, gt=0.)
+    nest_signal_strength: float = Field(default=0., ge=0.)
 
 
 @dataclass(frozen=True)
@@ -76,7 +78,10 @@ class ForagingEnvironment:
     def sources(self) -> tuple[SignalSource, ...]:
         food = (SignalSource(float(self.food[0]), float(self.food[1]), self.config.food_radius,
                              self.config.food_strength, (1., 0., 0., 0., 0., 0., 0., 0.)),) if self.stock else ()
-        return food + self.extra_sources
+        nest = (SignalSource(float(self.home[0]), float(self.home[1]), self.config.nest_signal_radius,
+                             self.config.nest_signal_strength, (0., 1., 0., 0., 0., 0., 0., 0.)),
+                ) if self.config.nest_signal_strength else ()
+        return food + nest + self.extra_sources
 
     def observation(self) -> LocalObservation:
         points = receptor_points(self.position, self.heading)
