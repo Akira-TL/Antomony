@@ -47,7 +47,7 @@ export class LiveWorld {
   }
   render(frame:Frame,world:World,selected:number,showField:boolean):void{
     this.world=world;
-    if(this.run!==frame.run_id)this.following=false;
+    if(this.run!==frame.run_id)this.fit();
     if(this.following&&selected>=0){const ant=world.ants[selected],target=new THREE.Vector3(ant.x,0,ant.y);
       this.scene.camera.position.add(target.clone().sub(this.scene.controls.target));this.scene.controls.target.copy(target);this.scene.controls.update();}
     const ids=world.ants.filter(a=>!a.pending).map(a=>a.id);

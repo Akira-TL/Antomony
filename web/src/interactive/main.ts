@@ -121,7 +121,10 @@ async function refreshParameters(reset=false):Promise<void>{
   }catch(e){toast(e instanceof Error?e.message:'参数读取失败');}
 }
 function renderParameters(reset=false):void{
-  if(!parameterData||!view)return;
+  if(!view)return;
+  if(!parameterData||parameterData.group!==selectedGroup||parameterData.individual!==selectedAnt||parameterData.run_id!==view.run_id){
+    charts.set(null,view.tick,true);$('frozen').textContent='';$('parameter-empty').hidden=false;$('parameter-empty').textContent='加载参数中';return;
+  }
   const module=parameterData.modules.find(m=>m.key===$<HTMLSelectElement>('module').value)??null;
   const available=module?.points.some(p=>p.tick<=view!.tick);
   $('parameter-empty').hidden=!!available;
