@@ -12,7 +12,7 @@
 
 ## Relations
 
-- [恢复参照](restoration-control.md) → [实际采样](../study/restoration-control/README.md)、[前次基础训练结果](../analysis/basic-update-learning/README.md)。后者作为新诊断动机，不重用旧留出调参。
+- [恢复参照](restoration-control.md) → [实际采样](../study/restoration-control/README.md)、[本次分析](../analysis/restoration-control/README.md)、[前次基础训练结果](../analysis/basic-update-learning/README.md)。后者作为新诊断动机，不重用旧留出调参。
 
 - [基础更新学习](basic-update-learning.md) → [实际采样](../study/basic-update-learning/README.md)、[本次分析](../analysis/basic-update-learning/README.md)、[既有候选诊断](../analysis/trust-candidate-value/README.md)。后者仅作为开发动机，不将其危险数据用于训练。
 - [概率约束诊断](trust-candidate-value.md) → [实际采样](../study/trust-candidate-value/README.md)、[描述分析](../analysis/trust-candidate-value/README.md)。

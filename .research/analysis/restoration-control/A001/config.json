@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/restoration-control/20260926T100314-2",
+  "manifest": "data/restoration-control/manifest.sha256",
+  "output": ".research/analysis/restoration-control/A001/outputs/summary.json"
+}

@@ -11,7 +11,7 @@
 
 ## Relations
 
-- [恢复参照数据](restoration-control/README.md) → [实际采样](../study/restoration-control/README.md)。
+- [恢复参照数据](restoration-control/README.md) → [实际采样](../study/restoration-control/README.md)、[后果分析](../analysis/restoration-control/README.md)。
 
 - [基础更新数据](basic-update-learning/README.md) → [实际采样](../study/basic-update-learning/README.md)、[训练与留出分析](../analysis/basic-update-learning/README.md)。
 
