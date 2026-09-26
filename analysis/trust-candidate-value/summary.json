@@ -1,0 +1,199 @@
+{
+  "hashes_verified": 346,
+  "unchanged_parent_snapshots": 168,
+  "paired_candidates": 58,
+  "worlds": [
+    {
+      "condition": "benign",
+      "seed": 9801,
+      "pairs": 16,
+      "changed_parameters": 16,
+      "reward": {
+        "positive": 0,
+        "negative": 2,
+        "tied": 14,
+        "mean": -0.3125,
+        "minimum": -4.0,
+        "maximum": 0.0
+      },
+      "focal_deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "tied": 15,
+        "mean": -0.0625,
+        "minimum": -1.0,
+        "maximum": 0.0
+      },
+      "colony_deliveries": {
+        "positive": 0,
+        "negative": 3,
+        "tied": 13,
+        "mean": -0.1875,
+        "minimum": -1.0,
+        "maximum": 0.0
+      },
+      "focal_injury": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 16,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "focal_death": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 16,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "mean_kl": 0.007747205413068059,
+      "maximum_state_kl": 0.06422285735607147
+    },
+    {
+      "condition": "benign",
+      "seed": 9802,
+      "pairs": 16,
+      "changed_parameters": 16,
+      "reward": {
+        "positive": 1,
+        "negative": 1,
+        "tied": 14,
+        "mean": 0.0,
+        "minimum": -1.0,
+        "maximum": 1.0
+      },
+      "focal_deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 16,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "colony_deliveries": {
+        "positive": 1,
+        "negative": 1,
+        "tied": 14,
+        "mean": 0.0625,
+        "minimum": -1.0,
+        "maximum": 2.0
+      },
+      "focal_injury": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 16,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "focal_death": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 16,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "mean_kl": 0.008231464506025077,
+      "maximum_state_kl": 0.07933136075735092
+    },
+    {
+      "condition": "persistent",
+      "seed": 9801,
+      "pairs": 13,
+      "changed_parameters": 13,
+      "reward": {
+        "positive": 3,
+        "negative": 1,
+        "tied": 9,
+        "mean": 1.453846153846154,
+        "minimum": -0.2,
+        "maximum": 6.5
+      },
+      "focal_deliveries": {
+        "positive": 3,
+        "negative": 0,
+        "tied": 10,
+        "mean": 0.23076923076923078,
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "colony_deliveries": {
+        "positive": 3,
+        "negative": 0,
+        "tied": 10,
+        "mean": 0.23076923076923078,
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "focal_injury": {
+        "positive": 1,
+        "negative": 3,
+        "tied": 9,
+        "mean": -0.06923078573667087,
+        "minimum": -0.5000001192092896,
+        "maximum": 0.20000004768371582
+      },
+      "focal_death": {
+        "positive": 0,
+        "negative": 3,
+        "tied": 10,
+        "mean": -0.23076923076923078,
+        "minimum": -1.0,
+        "maximum": 0.0
+      },
+      "mean_kl": 0.007367871531571906,
+      "maximum_state_kl": 0.07915689796209335
+    },
+    {
+      "condition": "persistent",
+      "seed": 9802,
+      "pairs": 13,
+      "changed_parameters": 13,
+      "reward": {
+        "positive": 8,
+        "negative": 0,
+        "tied": 5,
+        "mean": 2.0692307692307694,
+        "minimum": 0.0,
+        "maximum": 6.5
+      },
+      "focal_deliveries": {
+        "positive": 3,
+        "negative": 0,
+        "tied": 10,
+        "mean": 0.23076923076923078,
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "colony_deliveries": {
+        "positive": 3,
+        "negative": 0,
+        "tied": 10,
+        "mean": 0.23076923076923078,
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "focal_injury": {
+        "positive": 0,
+        "negative": 8,
+        "tied": 5,
+        "mean": -0.2230769762626061,
+        "minimum": -0.5000001192092896,
+        "maximum": 0.0
+      },
+      "focal_death": {
+        "positive": 0,
+        "negative": 6,
+        "tied": 7,
+        "mean": -0.46153846153846156,
+        "minimum": -1.0,
+        "maximum": 0.0
+      },
+      "mean_kl": 0.006681051420925472,
+      "maximum_state_kl": 0.06964398175477982
+    }
+  ]
+}

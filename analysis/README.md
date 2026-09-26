@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [行动概率约束候选后果描述](trust-candidate-value/README.md) - 已拟定，等待结果前登记后执行。
+- [行动概率约束候选后果描述](trust-candidate-value/README.md) - 已完成探索描述，58对中12对奖励提高、4对降低；接受决策仍未训练。
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
