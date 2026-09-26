@@ -123,6 +123,7 @@ class Frame(BaseModel):
     checkpoint_tick: int
     groups: list[WorldView]
     notices: list[Notice]
+    error: str | None = None
 
 
 class ParameterPoint(BaseModel):
