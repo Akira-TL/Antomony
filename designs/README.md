@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [无线索探索课程](exploration-course.md) - 待冻结登记；32回合、固定最终模型，不挑中间点。
+
 - [三组基础能力检查](foundation-qualification.md) - 已冻结；修正规则后固定48世界，不训练。
 
 - [反馈时间范围比较](feedback-window.md) - 已冻结；同状态只比较16与64步一次。
