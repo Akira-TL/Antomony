@@ -30,14 +30,22 @@
 
 协议 `.research/protocols/continuous-adaptation.json`，入口 `scripts/training/continuous-adaptation.sh`。25个源参数文件及其SHA-256在 `execution.json`，含动作1、基础8、接受8、近似规模MLP8。接受参数来自[登记的固定副本](../../data/memory-acceptance-models/README.md)，MLP来自[基础数据](../../data/matched-foundation/README.md)。
 
-## Batch / Timing / Execution
+## Batch / Run / Time
 
 开始 `2026-09-26T12:36:56.318399+00:00`，结束 `2026-09-26T12:43:57.902353+00:00`，约421.584秒。单进程本机运行，退出码0；恢复上下文后继续读取同一进程结果，没有重启实验。
 
-## Deviations / Failures / Missing Events
+## Failures / Missing Events
 
-未发现执行中断或协议偏离；80份世界记录齐全。死亡、耗尽与提前结束是观测结果，不作为失效运行删除。轨迹一致性、提案写入链及冻结参数仍须分析审计，不能仅凭退出码断言全部有效。
+未发现执行中断；80份世界记录齐全。死亡、耗尽与提前结束是观测结果，不作为失效运行删除。轨迹一致性、提案写入链及冻结参数仍须分析审计，不能仅凭退出码断言全部有效。
 
-## Outputs and Handoff
+## Deviations
+
+未发现执行协议偏离；不将后续数据核验自动等同于不存在任何实现错误。
+
+## Outputs
 
 原始目录 `logs/continuous-adaptation/20260926T123655-2/`，6634文件，约206 MB。完整清单由数据对象固定。后续按冻结设计核对参考条件、干预前一致性、真实写入及配对行为差异；主动追逐、死亡继承和已训练记忆不在本批证据范围。
+
+## Record Boundary / Corrections
+
+2026-09-26在分析执行期间将原实施记录的合并章节拆为规范章节，并补充目录关系；没有更改来源、执行事实、原始数据或冻结设计。该记录只确认实施，效果判断由另行登记的分析承担。

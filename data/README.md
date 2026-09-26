@@ -25,7 +25,7 @@
 
 ## Relations
 
-- [连续数据](continuous-adaptation/README.md) → [实际实施](../study/continuous-adaptation/README.md)、[固定接受来源](memory-acceptance-models/README.md)、[MLP来源](matched-foundation/README.md)。
+- [连续数据](continuous-adaptation/README.md) → [实际实施](../study/continuous-adaptation/README.md)、[固定接受来源](memory-acceptance-models/README.md)、[MLP来源](matched-foundation/README.md)、[连续分析](../analysis/continuous-adaptation/README.md)。
 
 - [固定接受模型](memory-acceptance-models/README.md) → [来源分析](../analysis/memory-update-learning/README.md)、[来源采样](../study/memory-update-learning/README.md)。
 
