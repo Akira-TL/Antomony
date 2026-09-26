@@ -84,6 +84,17 @@ def test_audit_accepts_complete_paired_synthetic_records(records: AuditFixture) 
     assert all(row.nonzero_writes == ([0] if row.mode == "off" else [2]) for row in rows)
 
 
+def test_audit_distinguishes_initial_from_final_structure(records: AuditFixture) -> None:
+    for path in records.directory.rglob("*.npz"):
+        with np.load(path, allow_pickle=False) as original:
+            arrays = {name: original[name] for name in original.files}
+        arrays["structure_update"] = np.asarray(0)
+        np.savez_compressed(path, **arrays)
+    assert len(audited_rows(records.directory, records.plan, structure_update=0)) == 24
+    with pytest.raises(ValueError, match="模型终点不符"):
+        audited_rows(records.directory, records.plan)
+
+
 def test_audit_rejects_tampered_reported_acceptance_count(records: AuditFixture) -> None:
     path = records.trace_path().parent / "evaluations.jsonl"
     rows = [EvaluationRow.model_validate_json(line) for line in path.read_text().splitlines()]
