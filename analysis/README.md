@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [负反馈提前判断](feedback-trigger/README.md) - planned，核对触发时序及固定失败差。
+- [负反馈提前判断](feedback-trigger/README.md) - completed；写入明显增加但相对固定窗口失败+1/+3，停止采用。
 
 - [受伤与写入时序](survival-timing/README.md) - completed；26次危险死亡中21次此前已有受伤后写入，延迟不是唯一解释。
 
