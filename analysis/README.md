@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [可塑方向基础课程配对评价](feedback-plasticity-course/README.md) - 计划已准备；固定两初始化、三条件、四参照和全部判据，尚未读取评价值或执行汇总。
+- [可塑方向基础课程配对评价](feedback-plasticity-course/README.md) - 分析24已登记为计划状态；固定两初始化、三条件、四组和全部判据，尚未读取评价值或执行汇总。
 
 - [基础候选交付与奖励覆盖](candidate-label-coverage/README.md) - 已完成；301候选无交付正例，固定集合二元选择上界0；已浏览标签后的探索，不拟合或修改旧判据。
 

@@ -13,7 +13,7 @@
 
 ## Inputs and Data Freeze
 
-原始数据集21已登记，版本`20260926T204123-2`，129项固定清单逐项散列通过；当前准备登记分析计划，尚未运行效果汇总。清单路径`data/feedback-plasticity-course/inputs.sha256`，SHA-256为`a3d0030d1edb0316e495e0c9fdc70c5741bad4ff9fc210b2b22bcb37becca417`。唯一协议`.research/protocols/feedback-plasticity-course.json`固定1701/1702、各150训练轮和每条件64评价回合。实施完成记录声明两个初始化完整执行、内部125.325716546秒；已经核对冻结提交、实际执行提交、协议原字节、3份源模型散列及完整输入清单。正式逐帧审计仍待执行，不把输入身份核验当作效果证据。900秒预算内未完成时不能补点，也不产生完整通过结论。
+原始数据集21已登记，版本`20260926T204123-2`，129项固定清单逐项散列通过；分析24已登记为`planned`，尚未运行效果汇总。清单路径`data/feedback-plasticity-course/inputs.sha256`，SHA-256为`a3d0030d1edb0316e495e0c9fdc70c5741bad4ff9fc210b2b22bcb37becca417`。唯一协议`.research/protocols/feedback-plasticity-course.json`固定1701/1702、各150训练轮和每条件64评价回合。实施完成记录声明两个初始化完整执行、内部125.325716546秒；已经核对冻结提交、实际执行提交、协议原字节、3份源模型散列及完整输入清单。正式逐帧审计仍待执行，不把输入身份核验当作效果证据。900秒预算内未完成时不能补点，也不产生完整通过结论。
 
 ## Unit of Inference
 
