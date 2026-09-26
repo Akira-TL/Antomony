@@ -1,4 +1,4 @@
-Status: claimed
+Status: resolved
 Category: enhancement
 Blocked by: 05
 
@@ -7,3 +7,7 @@ Blocked by: 05
 固定已有模型，新增相同接受总次数的随机时刻对照。运行前配置见 `docs/engineering/direction-gate-control-probe.md`。
 
 完成条件：参考结果与原帧核对、学习轨迹精确复现、450 条对照全部保留、次数匹配单独核验、解释不越过开发诊断范围。
+
+## 结果
+
+450 条对照完成，所有配对的接受次数及实际写入次数均相同，原输入哈希不变，第一条参考逐帧精确复现。四个条件平均方向误差较低，持续负向偏转较高；未达到普遍优势。详见 `docs/engineering/direction-gate-control-results.md`。下一步回到局部信号与往返课程，不继续扩大方向诊断的调参预算。
