@@ -3,7 +3,7 @@ import pytest
 import torch
 
 from mathhackson.training.direction.policy import DirectionMotor
-from mathhackson.training.foraging.adaptation import AdaptationConfig, NovelSignalLearner
+from mathhackson.training.foraging.adaptation import AdaptationConfig, NovelDirectionLearner, NovelSignalLearner
 from mathhackson.training.foraging.environment import LocalObservation
 from mathhackson.training.foraging.policy import ForagingPolicy
 
@@ -103,3 +103,22 @@ def test_repeated_accepted_updates_keep_total_residual_bounded():
         assert np.linalg.norm(agent.weights() - before) <= .02 + 1e-6
         assert np.linalg.norm(agent.parameter.fast) <= .03 + 1e-6
         assert len(agent.parameter.recent) <= 2
+
+
+def test_direction_adapter_starts_neutral_and_updates_no_foundation_weights(tmp_path):
+    model, motor = ForagingPolicy(71).with_budgets(), DirectionMotor(41)
+    agent = NovelDirectionLearner(model, motor, 14, AdaptationConfig(window=4))
+    tensor = torch.from_numpy(observation().vector())
+    torch.testing.assert_close(agent.predict(tensor, ())[0], model(tensor)[0], rtol=0., atol=0.)
+    initial = {key: value.detach().clone() for key, value in model.state_dict().items()}
+    item = proposal(agent)
+    assert len(item.delta) == 45 and agent.resolve(item, accept=(True,))
+    assert not torch.allclose(agent.predict(tensor, ())[0], model(tensor)[0])
+    plain = torch.from_numpy(observation(False).vector())
+    torch.testing.assert_close(agent.predict(plain, ())[0], model(plain)[0], rtol=0., atol=0.)
+    assert all(value.equal(agent.policy.state_dict()[key]) for key, value in initial.items())
+    path = tmp_path / "direction.npz"
+    agent.save(path)
+    loaded = NovelDirectionLearner.load(path, motor, 14, AdaptationConfig(window=4))
+    torch.testing.assert_close(loaded.predict(tensor, ())[0], agent.predict(tensor, ())[0], rtol=0., atol=0.)
+    assert np.array_equal(loaded.weights(), agent.weights())

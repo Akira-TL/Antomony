@@ -16,7 +16,7 @@ import torch
 from direction_adaptation import FOUNDATION
 from mathhackson.training.direction.checkpoint import load_motor
 from mathhackson.training.direction.policy import DirectionAction
-from mathhackson.training.foraging.adaptation import AdaptationConfig, AdaptationProposal, NovelSignalLearner
+from mathhackson.training.foraging.adaptation import AdaptationConfig, AdaptationProposal, NovelDirectionLearner, NovelSignalLearner
 from mathhackson.training.foraging.colony import ColonyConfig
 from mathhackson.training.foraging.disturbance import DisturbanceConfig, DisturbedColony
 from mathhackson.training.foraging.policy import ForagingPolicy
@@ -33,7 +33,7 @@ class Artifact(BaseModel):
 class ProbeConfig(BaseModel):
     source_commit: str
     sources: list[Artifact]
-    profile: Literal["initial", "wider"] = "initial"
+    profile: Literal["initial", "wider", "direction"] = "initial"
     seeds: tuple[int, ...] = (9401, 9402)
     generations: int = 3
     modes: tuple[Mode, ...] = ("skip", "accept")
@@ -126,7 +126,7 @@ def run(agents: list[NovelSignalLearner], config: ProbeConfig, seed: int, condit
                     if agent.ready:
                         item = agent.propose(env.observation(i))
                         accepted = mode == "accept"
-                        changed = agent.resolve(item, accept=(accepted, accepted))
+                        changed = agent.resolve(item, accept=(accepted,) * len(agent.adaptive_parameters()))
                         proposal = record(item, accepted, changed)
                 frames.append(FrameAnt(index=i, active=active[i], observation=observed[i].vector().tolist(),
                                        hidden=agent.history[-1].detach().tolist() if agent.history else [],
@@ -156,7 +156,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--smoke", action="store_true")
-    parser.add_argument("--profile", choices=("initial", "wider"), default="initial")
+    parser.add_argument("--profile", choices=("initial", "wider", "direction"), default="initial")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(1)
@@ -179,7 +179,8 @@ def main() -> None:
             for mode in config.modes:
                 directory = args.output / f"{condition}-{seed}-{mode}"
                 directory.mkdir()
-                agents = [NovelSignalLearner(ForagingPolicy.load(paths[i]), motor, seed * 8 + i, config.adaptation)
+                learner_type = NovelDirectionLearner if config.profile == "direction" else NovelSignalLearner
+                agents = [learner_type(ForagingPolicy.load(paths[i]), motor, seed * 8 + i, config.adaptation)
                           for i in range(config.environment.ants)]
                 base = [{key: value.detach().clone() for key, value in agent.policy.state_dict().items()
                          if not key.startswith(("novel_signal.", "novel_strength."))} for agent in agents]

@@ -122,6 +122,8 @@ def main() -> None:
     args.output.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(1)
     config = ProbeConfig.model_validate_json((args.input / "config.json").read_text())
+    if config.profile == "direction":
+        raise ValueError("本审计只重建80维信号模块，不适用于45维方向修正")
     paths = sorted(path for path in args.input.rglob("*") if path.is_file())
     audit = AuditConfig(source_commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
                         input_directory=str(args.input),
