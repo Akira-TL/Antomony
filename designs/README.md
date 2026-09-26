@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [保留基础能力后的接受学习](memory-update-learning.md) - 待冻结；无危险课程，8训练与4留出种子，不使用未校准价值输出。
+
 - [无线索探索课程](exploration-course.md) - 已冻结；32回合、固定最终模型，不挑中间点。
 
 - [三组基础能力检查](foundation-qualification.md) - 已冻结；修正规则后固定48世界，不训练。
