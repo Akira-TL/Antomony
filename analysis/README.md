@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [连续复杂来源对照](continuous-adaptation/README.md) - planned；完整重建后按固定条件比较。
+
 - [近似规模模型基础资格](matched-foundation/README.md) - 已完成；三组通过最低要求，探索与返回仍不同。
 
 - [新基础接受学习](memory-update-learning/README.md) - 已完成；仅1/4种子优于两参照，没有所选焦点交付改善，未通过。
@@ -20,6 +22,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [连续对照分析](continuous-adaptation/README.md) → [冻结设计](../designs/continuous-adaptation.md)、[连续数据](../data/continuous-adaptation/README.md)。
 
 - [基础接受分析](memory-update-learning/README.md) → [供连续部署的固定模型](../data/memory-acceptance-models/README.md)。
 

@@ -112,3 +112,43 @@ def test_death_finishes_pending_windows_without_writing(plan, tmp_path):
 def test_invalid_continuous_plan_rejected(plan, changes):
     with pytest.raises(ValidationError):
         ContinuousPlan.model_validate({**plan.model_dump(), **changes})
+
+
+def test_reconstruction_compares_full_trace_proposals_and_parameters(plan, tmp_path):
+    import numpy as np
+    from mathhackson.training.comparison.continuous_audit import compare_world, window_scores
+    original, rebuilt = tmp_path / "original", tmp_path / "rebuilt"
+    first = run_world(plan, 18999, plan.conditions[0], "learned", original)
+    second = run_world(plan, 18999, plan.conditions[0], "learned", rebuilt)
+    parameters, proposals = compare_world(original, rebuilt, first, second)
+    assert parameters == 18 and proposals == 10
+    windows = window_scores(first, frames(original))
+    assert windows[0].active_individual_steps == 40
+    assert windows[1].active_individual_steps == windows[2].active_individual_steps == 0
+    path = rebuilt / "updates.jsonl"
+    contents = path.read_text()
+    path.write_text(contents.replace('"accepted":false', '"accepted":true', 1))
+    with pytest.raises(ValueError, match="提案"):
+        compare_world(original, rebuilt, first, second)
+    path.write_text(contents)
+    snapshot = rebuilt / "tick-0020-ant-00.residual.npz"
+    with np.load(snapshot, allow_pickle=False) as saved:
+        values = {key: saved[key].copy() for key in saved.files}
+    values["fast"][0] += .01
+    np.savez(snapshot, **values)
+    with pytest.raises(ValueError, match="参数快照"):
+        compare_world(original, rebuilt, first, second)
+
+
+def test_fixed_windows_keep_terminal_counts_without_fabricated_actions(plan, tmp_path):
+    from mathhackson.training.comparison.continuous_audit import window_scores
+    condition = Condition(name="moving-danger", disturbance=DisturbanceConfig(contact_radius=20., injury_per_step=1.))
+    original = tmp_path / "dead"
+    result = run_world(plan, 18999, condition, "always", original)
+    trace = frames(original)
+    windows = window_scores(result, trace)
+    assert windows[0].deaths == windows[0].exhausted == 2
+    assert all(w.deaths == w.exhausted == w.active_individual_steps == w.writes == 0 for w in windows[1:])
+    trace[0].ants[0].reward += 1.
+    with pytest.raises(ValueError, match="汇总"):
+        window_scores(result, trace)

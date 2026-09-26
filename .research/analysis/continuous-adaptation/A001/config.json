@@ -1,0 +1,7 @@
+{
+  "input_directory": "logs/continuous-adaptation/20260926T123655-2",
+  "manifest": "data/continuous-adaptation/manifest.sha256",
+  "protocol": ".research/protocols/continuous-adaptation.json",
+  "work_directory": "logs/analysis/continuous-reconstruction",
+  "output": ".research/analysis/continuous-adaptation/A001/outputs/summary.json"
+}
