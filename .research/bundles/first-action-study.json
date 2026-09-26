@@ -3,8 +3,17 @@
   "title": "首次受伤前单次方向选择的32步后果",
   "design_slug": "first-action-outcomes",
   "study_type": "本地模拟单步干预",
-  "status": "in_progress",
+  "status": "completed",
+  "completed_at": "2026-09-26T19:48:40.417033+00:00",
   "started_at": "2026-09-26T19:47:40+00:00",
   "provenance_path": "study/first-action-outcomes/README.md",
-  "artifacts": [{"location": ".research/analysis/first-action-outcomes/A001/config.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"}]
+  "samples": [
+    {"sample_key": "19701", "source_identity": "20260926T165559-3/four/moving-danger-19701/always", "experimental_unit_identity": "整巢19701", "sample_type": "四个首次受伤前状态", "status": "collected"},
+    {"sample_key": "19702", "source_identity": "20260926T165559-3/four/moving-danger-19702/always", "experimental_unit_identity": "整巢19702", "sample_type": "四个首次受伤前状态", "status": "collected"}
+  ],
+  "artifacts": [
+    {"location": ".research/analysis/first-action-outcomes/A001/config.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"},
+    {"location": "logs/first-action-outcomes/A001/execution.json", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "原始执行信息由数据清单固定，规范实施记录另入Git。"},
+    {"location": "logs/analysis/first-action-outcomes-sample-A001.log", "role": "execution_log", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "完整原始日志保留本地，时间和来源另在规范记录中登记。"}
+  ]
 }

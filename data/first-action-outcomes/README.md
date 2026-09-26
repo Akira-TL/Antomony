@@ -7,7 +7,7 @@
 
 ## Dataset Identity
 
-`first-action-outcomes`，待真实生成后登记，当前不是已接收数据。
+`first-action-outcomes`，版本A001；已接收8点128分支，209份文件。
 
 ## Research Purpose
 
@@ -23,11 +23,11 @@
 
 ## Data Layers and Artifacts
 
-计划原始目录 `logs/first-action-outcomes/A001`；生成后以 `manifest.sha256` 固定，不覆盖原记录。
+原始目录 `logs/first-action-outcomes/A001`，由[完整清单](manifest.sha256)固定，不覆盖原记录。设计提交1ea3656，执行cd8ba63，源身份在原执行记录和本次配置中固定。
 
 ## Metadata / Missingness / Exclusions
 
-最多8点，不足不补；超时和重建失败保留部分文件，不作完整结果。
+实际8点均完整；无补样、缺失、排除或重跑。初始场和推理状态不是完整物理世界快照。
 
 ## QC and Anomalies
 
@@ -39,4 +39,4 @@
 
 ## Freeze / Access / Ethics
 
-本地模拟，无受试者。原始大文件忽略保存；未生成文件不提前登记为存在。
+本地模拟，无受试者。原始大文件忽略保存；完整清单与登记先于结果汇总提交，原件不改写。

@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [首步方向数据](first-action-outcomes/README.md) - 待真实生成后登记，不提前假称已接收。
+- [首步方向数据](first-action-outcomes/README.md) - 209文件、8状态128分支，完整清单固定。
 
 - [后到反馈归因数据](credit-history/README.md) - 四世界、54个共同状态，完整清单固定。
 

@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [首步方向分支](first-action-outcomes/README.md) - 实施准备，最多128分支。
+- [首步方向分支](first-action-outcomes/README.md) - 8状态128分支完成，未训练。
 
 - [后到反馈归因采样](credit-history/README.md) - completed；四世界108条配对记录。
 

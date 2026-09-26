@@ -10,7 +10,7 @@
   "primary_analysis": "逐点16方向完整描述；负失败和实际反馈报告当前分布加权值及20%混合放宽上界，不求旋转分布最优。",
   "analysis_path": "analysis/first-action-outcomes/README.md",
   "code_path": "scripts/analyses/first_action_outcomes.py",
-  "dataset_slugs": ["window-cadence"],
+  "dataset_slugs": ["window-cadence", "first-action-outcomes"],
   "artifacts": [
     {"path": "scripts/analyses/first-action-outcomes.sh", "role": "other", "timing_role": "pre_result_support"},
     {"path": ".research/analysis/first-action-outcomes/A001/config.json", "role": "other", "timing_role": "pre_result_support"},

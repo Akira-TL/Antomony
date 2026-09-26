@@ -1,0 +1,15 @@
+{
+  "slug": "first-action-outcomes",
+  "title": "首次受伤前首步方向分支数据",
+  "version": "A001",
+  "source": "冻结设计1ea3656，执行cd8ba63；只从既有20260926T165559-3/four固定接受两世界重建并替换一次方向。",
+  "status": "active",
+  "study_slug": "first-action-outcomes",
+  "received_at": "2026-09-26T19:48:40.417033+00:00",
+  "unit_of_inference": "整巢种子19701和19702；个体、时点与方向分支相关。",
+  "provenance_path": "data/first-action-outcomes/README.md",
+  "artifacts": [
+    {"location": "data/first-action-outcomes/manifest.sha256", "role": "manifest", "storage_kind": "local", "git_tracking": "required"},
+    {"location": "/home/Akira/Projects/MathHackson/logs/first-action-outcomes/A001", "role": "raw", "storage_kind": "external", "git_tracking": "not_required", "tracking_reason": "209份完整原始文件含轨迹及初始状态，仅本地忽略保存，全部散列固定。"}
+  ]
+}
