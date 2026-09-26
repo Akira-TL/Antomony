@@ -27,7 +27,7 @@
 
 ## Relations
 
-- [返巢奖励配对数据](return-reward-ablation/README.md) → [实际实施](../study/return-reward-ablation/README.md)。
+- [返巢奖励配对数据](return-reward-ablation/README.md) → [实际实施](../study/return-reward-ablation/README.md)、[配对分析](../analysis/return-reward-ablation/README.md)。
 
 - [连续数据](continuous-adaptation/README.md) → [实际实施](../study/continuous-adaptation/README.md)、[固定接受来源](memory-acceptance-models/README.md)、[MLP来源](matched-foundation/README.md)、[连续分析](../analysis/continuous-adaptation/README.md)。
 

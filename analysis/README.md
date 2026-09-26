@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [返巢奖励配对后果](return-reward-ablation/README.md) - 已登记计划；核对单变量奖励及完整行为差异。
+
 - [连续复杂来源对照](continuous-adaptation/README.md) - completed；更新优于跳过，但学习接受不如固定接受，未通过采用条件。
 
 - [近似规模模型基础资格](matched-foundation/README.md) - 已完成；三组通过最低要求，探索与返回仍不同。
@@ -22,6 +24,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [返巢奖励配对后果](return-reward-ablation/README.md) → [冻结设计](../designs/return-reward-ablation.md)、[输入数据](../data/return-reward-ablation/README.md)。
 
 - [连续对照分析](continuous-adaptation/README.md) → [冻结设计](../designs/continuous-adaptation.md)、[连续数据](../data/continuous-adaptation/README.md)。
 
