@@ -9,7 +9,7 @@ import subprocess
 from typing import Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 import torch
 
 from mathhackson.training.direction.checkpoint import load_motor
@@ -19,6 +19,7 @@ from .candidate_value import CandidateValue, evaluate_candidate
 from .colony import ColonyConfig
 from .disturbance import DisturbanceConfig, DisturbedColony
 from .policy import ForagingPolicy
+from .trust_candidate import CandidateDiagnostics, TrustConfig, TrustDirectionLearner
 
 
 class ProbePlan(BaseModel):
@@ -28,10 +29,17 @@ class ProbePlan(BaseModel):
     pairs_per_world: int = Field(ge=1, le=32)
     branch_horizon: int = Field(ge=1, le=64)
     environment: ColonyConfig
-    adaptation: AdaptationConfig
+    candidate_kind: Literal["gradient", "trust"] = "gradient"
+    adaptation: AdaptationConfig | TrustConfig
     disturbance: DisturbanceConfig
     policy_directory: str
     motor_path: str
+
+    @model_validator(mode="after")
+    def check_candidate_configuration(self) -> ProbePlan:
+        if (self.candidate_kind == "trust") != isinstance(self.adaptation, TrustConfig):
+            raise ValueError("候选类型与参数配置不一致")
+        return self
 
 
 class SourceArtifact(BaseModel):
@@ -57,6 +65,7 @@ class CandidateRecord(BaseModel):
     hidden: list[float]
     proposal: AdaptationProposal
     result: CandidateValue
+    diagnostics: CandidateDiagnostics | None = None
 
 
 class WorldRecord(BaseModel):
@@ -72,7 +81,8 @@ class WorldRecord(BaseModel):
 
 def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> WorldRecord:
     motor, _ = load_motor(Path(plan.motor_path))
-    agents = [NovelDirectionLearner(ForagingPolicy.load(Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz"),
+    learner = TrustDirectionLearner if plan.candidate_kind == "trust" else NovelDirectionLearner
+    agents = [learner(ForagingPolicy.load(Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz"),
                                     motor, seed * 8 + i, plan.adaptation) for i in range(plan.environment.ants)]
     disturbance = plan.disturbance if condition == "persistent" else plan.disturbance.model_copy(update={"injury_per_step": 0.})
     env = DisturbedColony(seed, plan.environment, disturbance)
@@ -103,7 +113,8 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
                 result = evaluate_candidate(env, agents, focal, horizon=plan.branch_horizon)
                 record = CandidateRecord(condition=condition, seed=seed, tick=env.steps, focal=focal,
                                          observation=env.observation(focal).vector().tolist(),
-                                         hidden=agent.history[-1].detach().tolist(), proposal=agent.proposal, result=result)
+                                         hidden=agent.history[-1].detach().tolist(), proposal=agent.proposal, result=result,
+                                         diagnostics=agent.diagnostics if isinstance(agent, TrustDirectionLearner) else None)
                 output.write(record.model_dump_json() + "\n")
                 output.flush()
                 pairs += 1
@@ -138,7 +149,7 @@ def main() -> None:
     plan = ProbePlan.model_validate_json(args.plan.read_text())
     if args.smoke:
         plan = plan.model_copy(update={"seeds": (9599,), "pairs_per_world": 1, "branch_horizon": 3,
-                                       "environment": ColonyConfig(ants=2, horizon=20)})
+                                       "environment": plan.environment.model_copy(update={"ants": 2, "horizon": 20})})
     torch.set_num_threads(1)
     paths = [Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz" for i in range(plan.environment.ants)]
     sources = [SourceArtifact(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest())

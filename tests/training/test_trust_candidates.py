@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 import torch
+from pathlib import Path
 
 from mathhackson.training.direction.policy import DirectionMotor
 from mathhackson.training.foraging.environment import LocalObservation
@@ -102,3 +103,14 @@ def test_branch_accepts_only_clone_and_preserves_parent_random_state():
     assert not agent.weights().any() and agent.proposal is item
     accepted.act(observation())
     assert agent.random.get_state().equal(before)
+
+
+def test_probe_preserves_old_plan_and_serializes_new_constraints():
+    from mathhackson.training.foraging.candidate_probe import ProbePlan
+    old = ProbePlan.model_validate_json(Path(".research/protocols/candidate-update-value.json").read_text())
+    new = ProbePlan.model_validate_json(Path(".research/protocols/trust-candidate-value.json").read_text())
+    assert old.candidate_kind == "gradient" and not isinstance(old.adaptation, TrustConfig)
+    assert new.candidate_kind == "trust" and isinstance(new.adaptation, TrustConfig)
+    assert ProbePlan.model_validate_json(new.model_dump_json()) == new
+    with pytest.raises(ValueError):
+        ProbePlan.model_validate(new.model_dump() | {"candidate_kind": "gradient"})
