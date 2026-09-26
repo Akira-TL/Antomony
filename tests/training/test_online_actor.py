@@ -80,3 +80,19 @@ def test_freeze_check_detects_base_mutation():
         agent.agent.policy.base.middle.bias.add_(1.)
     with pytest.raises(AssertionError):
         agent.check_frozen()
+
+
+@pytest.mark.parametrize("mode", ["always", "learned"])
+def test_live_freeze_consumes_feedback_without_discarding_previous_learning(mode):
+    agent = actor(mode)
+    assert window(agent).changed
+    before = agent.agent.weights().copy()
+    for tick in range(4):
+        agent.act(observation())
+        record = agent.feedback(-1., observation(), terminal=False, tick=tick + 5,
+                                individual=0, accept_updates=False)
+    assert record.eligible and not record.accepted and not record.changed
+    assert agent.agent.writes == 1 and agent.agent.decisions == 2
+    np.testing.assert_array_equal(before, agent.agent.weights())
+    agent.check_frozen()
+    assert window(agent).changed

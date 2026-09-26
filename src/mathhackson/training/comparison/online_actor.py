@@ -52,7 +52,8 @@ class OnlineForager:
         return self.agent.act(observation).action
 
     def feedback(self, reward: float, observation: LocalObservation, *, terminal: bool,
-                 tick: int, individual: int, continuing_after_death: bool = False) -> UpdateRecord | None:
+                 tick: int, individual: int, continuing_after_death: bool = False,
+                 accept_updates: bool = True) -> UpdateRecord | None:
         if continuing_after_death and not terminal:
             raise ValueError("复活延续必须对应已经结束的一次生命")
         self.agent.feedback(reward, terminal=terminal)
@@ -62,12 +63,12 @@ class OnlineForager:
         diagnostics = self.agent.diagnostics
         features = self.controller.features(self.agent, observation)
         before = self.agent.weights().tolist()
-        if self.mode == "learned":
+        if self.mode == "learned" and accept_updates:
             choice = self.controller.resolve(self.agent, observation, continuing_after_death=continuing_after_death)
             prediction = choice.predicted_reward_difference
         else:
             eligible = (not terminal or continuing_after_death) and bool(np.any(proposal.delta))
-            accepted = self.mode == "always" and eligible
+            accepted = self.mode == "always" and eligible and accept_updates
             changed = self.agent.resolve(proposal, accept=(accepted,))
             choice = UpdateChoice(0., accepted, changed, eligible)
             prediction = None
