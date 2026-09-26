@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [负反馈提前判断](feedback-trigger/README.md) - completed，16世界约64秒。
+
 - [生存反馈连续采样](survival-feedback/README.md) - completed，两个种子16世界。
 
 - [历史基线连续采样](historical-baseline/README.md) - 两配置共20世界完成。
@@ -30,6 +32,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [负反馈提前判断](feedback-trigger/README.md) → [设计](../designs/feedback-trigger.md)、[数据](../data/feedback-trigger/README.md)。
 
 - [生存反馈](survival-feedback/README.md) → [设计](../designs/survival-feedback.md)、[数据](../data/survival-feedback/README.md)。
 

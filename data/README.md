@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [负反馈提前判断](feedback-trigger/README.md) - 16世界原始轨迹与参数，完整清单固定。
+
 - [生存反馈轨迹](survival-feedback/README.md) - 16世界原始轨迹及参数，完整清单冻结。
 
 - [历史基线连续数据](historical-baseline/README.md) - 20世界，原始轨迹与基线快照已冻结。
@@ -32,6 +34,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [负反馈提前判断](feedback-trigger/README.md) → [实施](../study/feedback-trigger/README.md)、[分析](../analysis/feedback-trigger/README.md)。
 
 - [生存反馈](survival-feedback/README.md) → [实施](../study/survival-feedback/README.md)、[配对分析](../analysis/survival-feedback/README.md)、[时序诊断](../analysis/survival-timing/README.md)。
 
