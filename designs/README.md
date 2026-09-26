@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [基础扰动恢复参照](restoration-control.md) - 待冻结；区分改善机会不足与候选未找到改善。
+
 - [无危险基础更新学习](basic-update-learning.md) - 已冻结；固定训练与留出种子，不接触危险机制。
 - [行动概率约束候选诊断](trust-candidate-value.md) - 已冻结；最多64点，检验后续实际差异，不训练接受网络。
 - [候选更新短期价值诊断](candidate-update-value.md) - 已冻结；采样72点，结论边界见描述分析，不作优势检验。
@@ -9,6 +11,8 @@
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
 
 ## Relations
+
+- [恢复参照](restoration-control.md) → [前次基础训练结果](../analysis/basic-update-learning/README.md)，作为新诊断动机，不重用旧留出调参。
 
 - [基础更新学习](basic-update-learning.md) → [实际采样](../study/basic-update-learning/README.md)、[本次分析](../analysis/basic-update-learning/README.md)、[既有候选诊断](../analysis/trust-candidate-value/README.md)。后者仅作为开发动机，不将其危险数据用于训练。
 - [概率约束诊断](trust-candidate-value.md) → [实际采样](../study/trust-candidate-value/README.md)、[描述分析](../analysis/trust-candidate-value/README.md)。
