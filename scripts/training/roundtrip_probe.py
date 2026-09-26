@@ -4,12 +4,15 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import numpy as np
 from pydantic import BaseModel
 
 from mathhackson.training.recurrent import WriteMode
 from mathhackson.training.roundtrip_environment import RoundTripEnvironment
 from mathhackson.training.roundtrip_policy import RoundTripPolicy
 from mathhackson.training.roundtrip_session import RoundTripSession
+from mathhackson.training.roundtrip_session import ROUNDTRIP_GROUP_IDS
+from mathhackson.training.scent_curriculum import ScentMetrics, pretrain_scent_reader
 from mathhackson.training.schemas import RoundTripCommand
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -28,6 +31,10 @@ class Evaluation(BaseModel):
 
 class ProbeReport(BaseModel):
     session: str
+    source_checkpoint: str | None = None
+    scent_steps: int
+    scent_turn_error: float | None = None
+    scent_conflict_accuracy: float | None = None
     memory_episodes: int
     adaptive_episodes: int
     evaluations: list[Evaluation]
@@ -76,14 +83,37 @@ def main() -> None:
     parser.add_argument("--memory", type=int, default=50)
     parser.add_argument("--adaptive", type=int, default=50)
     parser.add_argument("--seeds", type=int, default=40)
+    parser.add_argument("--scent-steps", type=int, default=0)
+    parser.add_argument("--checkpoint", type=Path)
     arguments = parser.parse_args()
-    if min(arguments.memory, arguments.adaptive) < 0 or arguments.seeds < 1:
-        parser.error("回合数不能为负，验收场景数至少为 1")
+    if min(arguments.memory, arguments.adaptive, arguments.scent_steps) < 0 or arguments.seeds < 1:
+        parser.error("训练次数不能为负，验收场景数至少为 1")
     session = RoundTripSession(ROOT / "logs" / "roundtrip-probe", FOUNDATION, seed=91)
-    evaluations = [evaluate(session.model, "初始，无写入", arguments.seeds, "off")]
-    evaluations.append(evaluate(session.model, "初始，禁用释放", arguments.seeds, "off", False))
+    if arguments.checkpoint is not None:
+        session.model.load_roundtrip_checkpoint(arguments.checkpoint)
+        evaluations = [evaluate(session.model, "载入检查点，无写入", arguments.seeds, "off")]
+    else:
+        evaluations = [evaluate(session.model, "初始，无写入", arguments.seeds, "off")]
+        evaluations.append(evaluate(session.model, "初始，禁用释放", arguments.seeds, "off", False))
+    scent_metrics = None
+    if arguments.scent_steps:
+        def save_scent_checkpoint(step: int, metrics: ScentMetrics) -> None:
+            np.savez_compressed(
+                session.directory / f"scent-step-{step:06d}.npz",
+                model_version="roundtrip-v1", stage="scent", step=step,
+                curriculum_seed=20260926, batch_size=256,
+                turn_error=metrics.turn_error,
+                conflict_accuracy=metrics.conflict_accuracy,
+                **{identity: parameter.detach().numpy() for identity, parameter in
+                   zip(ROUNDTRIP_GROUP_IDS, session.model.parameters, strict=True)},
+            )
+
+        scent_metrics = pretrain_scent_reader(session.model, steps=arguments.scent_steps,
+                                              checkpoint=save_scent_checkpoint)
+        evaluations.append(evaluate(session.model, "局部气味预训练，无写入", arguments.seeds, "off"))
     train(session, arguments.memory)
-    evaluations.append(evaluate(session.model, "基础循迹，无写入", arguments.seeds, "off"))
+    if arguments.memory:
+        evaluations.append(evaluate(session.model, "基础循迹，无写入", arguments.seeds, "off"))
     if arguments.adaptive:
         session.command(RoundTripCommand(action="phase", phase="adaptive"))
         train(session, arguments.adaptive)
@@ -91,7 +121,12 @@ def main() -> None:
                            ("learned", "条件训练后，模型判断"),
                            ("always", "条件训练后，始终写入")):
             evaluations.append(evaluate(session.model, name, arguments.seeds, mode))
-    report = ProbeReport(session=session.id, memory_episodes=arguments.memory,
+    report = ProbeReport(session=session.id,
+                         source_checkpoint=str(arguments.checkpoint) if arguments.checkpoint else None,
+                         scent_steps=arguments.scent_steps,
+                         scent_turn_error=scent_metrics.turn_error if scent_metrics else None,
+                         scent_conflict_accuracy=scent_metrics.conflict_accuracy if scent_metrics else None,
+                         memory_episodes=arguments.memory,
                          adaptive_episodes=arguments.adaptive, evaluations=evaluations)
     path = session.directory / "probe.json"
     path.write_text(report.model_dump_json(indent=2), encoding="utf-8")

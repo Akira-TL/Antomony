@@ -44,6 +44,8 @@ class Write:
 
 
 class RecurrentPolicy:
+    correction_scale = (.4, .12)
+
     def __init__(self, seed: int, input_width: int = INPUT_WIDTH) -> None:
         self.rng = np.random.default_rng(seed)
         self.input_width = input_width
@@ -99,7 +101,7 @@ class RecurrentPolicy:
             output = self.motor @ torch.from_numpy(observation.astype(np.float32))
             if self.phase != "motor":
                 correction = torch.tanh(self.action_weights @ self.hidden)
-                output = output + correction * torch.tensor([.4, .12])
+                output = output + correction * torch.tensor(self.correction_scale)
                 if self.write_mode != "off":
                     output = output + torch.stack((self.fast[0],
                                                    self.fast[1] * float(observation[1]) + self.fast[2]))

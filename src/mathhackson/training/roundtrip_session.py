@@ -9,13 +9,13 @@ import numpy as np
 import torch
 
 from .recurrent import Action, Write
-from .recurrent_session import GROUP_IDS, GROUP_LABELS
+from .recurrent_session import GROUP_LABELS
 from .roundtrip_environment import RoundTripEnvironment
-from .roundtrip_policy import RoundTripPolicy
+from .roundtrip_policy import ROUNDTRIP_NAMES, RoundTripPolicy
 from .schemas import (RecurrentParameterGroup, RoundTripCommand, RoundTripEpisode,
                       RoundTripState)
 
-ROUNDTRIP_GROUP_IDS = (*GROUP_IDS, "release_weights", "release_write_weights")
+ROUNDTRIP_GROUP_IDS = ROUNDTRIP_NAMES
 ROUNDTRIP_GROUP_LABELS = (*GROUP_LABELS, "双通道释放", "释放临时修正")
 
 

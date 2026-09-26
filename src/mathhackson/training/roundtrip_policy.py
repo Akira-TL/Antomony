@@ -10,11 +10,14 @@ from .recurrent import Action, HIDDEN_WIDTH, MODEL_VERSION, RecurrentPolicy, Wri
 
 FOUNDATION_NAMES = ("motor", "input_weights", "hidden_weights", "hidden_bias",
                     "action_weights", "gate_weights", "write_weights")
+ROUNDTRIP_NAMES = (*FOUNDATION_NAMES, "release_weights", "release_write_weights")
 RELEASE_FAST_LIMIT = .2
 RELEASE_FAST_STEP = .012
 
 
 class RoundTripPolicy(RecurrentPolicy):
+    correction_scale = (.4, .7)
+
     def __init__(self, seed: int, foundation: Path) -> None:
         super().__init__(seed, input_width=17)
         self.release_weights = torch.nn.Parameter(torch.zeros(2, 4))
@@ -48,6 +51,21 @@ class RoundTripPolicy(RecurrentPolicy):
             self.input_weights[:, 16].zero_()
             for parameter, value in zip(self.parameters[2:7], values[2:], strict=True):
                 parameter.copy_(torch.from_numpy(value))
+
+    def load_roundtrip_checkpoint(self, path: Path) -> None:
+        with np.load(path, allow_pickle=False) as archive:
+            if "model_version" not in archive or str(archive["model_version"]) != "roundtrip-v1":
+                raise ValueError("往返检查点版本不兼容")
+            if any(name not in archive for name in ROUNDTRIP_NAMES):
+                raise ValueError("往返检查点缺少参数")
+            values = [np.asarray(archive[name], np.float32).copy() for name in ROUNDTRIP_NAMES]
+        if any(value.shape != tuple(parameter.shape) or not np.isfinite(value).all()
+               for value, parameter in zip(values, self.parameters, strict=True)):
+            raise ValueError("往返检查点参数形状或数值无效")
+        with torch.no_grad():
+            for parameter, value in zip(self.parameters, values, strict=True):
+                parameter.copy_(torch.from_numpy(value))
+        self.reset_state()
 
     def reset_state(self) -> None:
         super().reset_state()
