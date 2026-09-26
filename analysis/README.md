@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [四步与十六步窗口](window-cadence/README.md) - planned，按冻结的失败次数差判据核对。
+
 - [负反馈提前判断](feedback-trigger/README.md) - completed；写入明显增加但相对固定窗口失败+1/+3，停止采用。
 
 - [受伤与写入时序](survival-timing/README.md) - completed；26次危险死亡中21次此前已有受伤后写入，延迟不是唯一解释。
@@ -34,6 +36,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [窗口比较](window-cadence/README.md) → [设计](../designs/window-cadence.md)、[数据](../data/window-cadence/README.md)。
 
 - [负反馈提前判断](feedback-trigger/README.md) → [设计](../designs/feedback-trigger.md)、[数据](../data/feedback-trigger/README.md)。
 
