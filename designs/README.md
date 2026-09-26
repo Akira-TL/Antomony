@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [历史奖励基线对照](historical-baseline.md) - 固定两个新种子20世界，只比较0与0.1，不搜索更多速率。
+
 - [伤害后的单次候选诊断](injury-candidate.md) - 已冻结；最多32对，分支支持复活但不继续更新。
 
 - [空载返巢奖励配对诊断](return-reward-ablation.md) - 已冻结并登记；固定两个新种子、20世界，只改变返巢奖励。
