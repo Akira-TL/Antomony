@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [四步候选动作输入学习](action-update-learning/README.md) - planned；同一基础数据比较两种输入，固定终点。
+- [四步候选动作输入学习](action-update-learning/README.md) - completed；训练及留出均无正收益候选，两输入0/2通过，停止本课程。
 
 - [四步候选动作影响](candidate-steering/README.md) - completed，重建65536次动作；152次含受伤写入中70次即时朝向投影恶化，23次与目标方向变化相反。
 
