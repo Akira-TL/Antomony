@@ -52,6 +52,7 @@ class Ant(VGroup):
         self.tint = color
         self.unit = scale
         self.legs = VGroup(*(VMobject().set_stroke(color, 2.7) for _ in range(6)))
+        self.knees = VGroup(*(Circle(radius=.023).set_fill(color,1).set_stroke(WHITE,.6,.4) for _ in range(6)))
         abdomen = Ellipse(width=0.64, height=0.43).move_to([-0.49, 0, 0])
         waist = Ellipse(width=0.15, height=0.13).move_to([-0.13, 0, 0])
         thorax = Ellipse(width=0.40, height=0.27).move_to([0.10, 0, 0])
@@ -77,7 +78,7 @@ class Ant(VGroup):
         ))
         self.antennae = VGroup(*(VMobject().set_stroke(color, 1.8) for _ in range(2)))
         self.shadow = Ellipse(width=1.38, height=0.82).set_fill("#000000", 0.24).set_stroke(width=0)
-        self.add(self.shadow, self.legs, self.shell, self.shade, self.shine, self.eyes, self.mandibles, self.antennae)
+        self.add(self.shadow, self.legs, self.knees, self.shell, self.shade, self.shine, self.eyes, self.mandibles, self.antennae)
         self.rigid = [m for group in (self.shell, self.shade, self.shine, self.eyes, self.mandibles) for m in group]
         self.base_points = tuple(m.get_points().copy() for m in self.rigid)
         self.shadow_base = self.shadow.get_points().copy()
@@ -98,10 +99,11 @@ class Ant(VGroup):
                 swing = math.sin(angle)
                 lift = max(0., math.cos(angle))
                 anchor = np.array([base_x, .10*side, 0.])
-                knee = np.array([base_x + (j-1)*.12 + .10*swing, (.34-.018*lift)*side, 0.])
-                foot = np.array([base_x + (j-1)*.27 + .22*swing, (.65-.10*lift)*side, 0.])
+                knee = np.array([base_x + (j-1)*.18 + .07*swing, (.34-.018*lift)*side, 0.])
+                foot = np.array([base_x - .26 + (j-1)*.26 + .22*swing, (.63-.10*lift)*side, 0.])
                 pts = np.array([anchor,knee,foot]) @ rotation * scale + center
                 self.legs[3*side_idx+j].set_points_as_corners(pts)
+                self.knees[3*side_idx+j].set_width(.046*scale).move_to(pts[1])
         for j, side in enumerate((-1,1)):
             wiggle = .045*math.sin(.63*phase+j)
             pts = np.array([[.59,.09*side,0],[.83,(.25+wiggle)*side,0],[1.0,(.37+wiggle)*side,0]])
@@ -156,7 +158,8 @@ class Arena(VGroup):
             size=.38+abs(pose.push)*.18
             end=start+np.array([0,math.copysign(size,pose.push or 1),0])
             arrow.put_start_and_end_on(start,end)
-            arrow.set_opacity(.50 if abs(pose.push)>.1 else 0.)
+            clear_of_ant=np.linalg.norm(start[:2]-self.point(pose.x,pose.y)[:2])>1.05*self.ant.unit
+            arrow.set_opacity(.50 if abs(pose.push)>.1 and clear_of_ant else 0.)
         return self
 
     def follow(self, clock: Callable[[], float]) -> "Arena":
