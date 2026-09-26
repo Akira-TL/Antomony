@@ -1,0 +1,6 @@
+{
+  "input_directory": "logs/matched-foundation/20260926T121232-2",
+  "manifest": "data/matched-foundation/manifest.sha256",
+  "protocol": ".research/protocols/matched-foundation.json",
+  "output": ".research/analysis/matched-foundation/A001/outputs/summary.json"
+}

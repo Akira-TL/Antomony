@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [近似规模模型基础资格](matched-foundation/README.md) - 待执行；固定终点参数、48世界配对描述。
+
 - [新基础接受学习](memory-update-learning/README.md) - 已完成；仅1/4种子优于两参照，没有所选焦点交付改善，未通过。
 
 - [无线索课程最终评价](exploration-course/README.md) - 已完成；返回退步，未采用最终模型，不续训。
@@ -18,6 +20,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [近似规模基础分析](matched-foundation/README.md) → [冻结设计](../designs/matched-foundation.md)、[原始数据](../data/matched-foundation/README.md)。
 
 - [新基础接受学习](memory-update-learning/README.md) → [冻结设计](../designs/memory-update-learning.md)、[配对数据](../data/memory-update-learning/README.md)。
 
