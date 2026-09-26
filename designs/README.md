@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [基础扰动恢复参照](restoration-control.md) - 待冻结；区分改善机会不足与候选未找到改善。
+- [基础扰动恢复参照](restoration-control.md) - 已冻结；区分改善机会不足与候选未找到改善。
 
 - [无危险基础更新学习](basic-update-learning.md) - 已冻结；固定训练与留出种子，不接触危险机制。
 - [行动概率约束候选诊断](trust-candidate-value.md) - 已冻结；最多64点，检验后续实际差异，不训练接受网络。
