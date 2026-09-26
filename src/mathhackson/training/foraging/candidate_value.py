@@ -51,6 +51,8 @@ class EvaluationActor:
         self.agent.assign_weights(source.weights())
         self.agent.random.set_state(source.random.get_state().clone())
         self.agent.history = deque((h.detach().clone() for h in source.history), maxlen=16)
+        self.agent.return_baseline = source.return_baseline
+        self.agent.baseline_windows = source.baseline_windows
         self.changed = False
         if reset_fast:
             self.changed = bool(np.any(self.agent.parameter.fast))

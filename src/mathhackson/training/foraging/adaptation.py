@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 import torch
 
 from mathhackson.fast_residual import FastResidualParameter
@@ -29,6 +29,13 @@ class AdaptationConfig(BaseModel):
     maximum_residual_norm: float = Field(default=1., gt=0.)
     recent_capacity: int = Field(default=8, ge=0)
     feedback_mode: Literal["critic", "observed-window"] = "critic"
+    historical_baseline_rate: float = Field(default=0., ge=0., le=1.)
+
+    @model_validator(mode="after")
+    def validate_baseline(self) -> AdaptationConfig:
+        if self.historical_baseline_rate and self.feedback_mode != "observed-window":
+            raise ValueError("历史奖励基线仅适用于已发生窗口反馈")
+        return self
 
 
 @dataclass(frozen=True)
@@ -67,6 +74,8 @@ class NovelSignalLearner:
         self.proposal: AdaptationProposal | None = None
         self.decisions = self.writes = 0
         self.terminal = False
+        self.return_baseline = 0.
+        self.baseline_windows = 0
 
     def weights(self) -> np.ndarray:
         return torch.cat([p.detach().flatten() for p in self.adaptive_parameters()]).numpy().copy()
@@ -134,7 +143,8 @@ class NovelSignalLearner:
         if not self.ready:
             raise ValueError("必须先取得完整窗口或终止反馈")
         if self.config.feedback_mode == "observed-window":
-            return discounted_returns(self.rewards, 0., self.config.gamma)
+            returns = discounted_returns(self.rewards, 0., self.config.gamma)
+            return returns - self.return_baseline if self.config.historical_baseline_rate else returns
         with torch.no_grad():
             bootstrap = 0. if self.terminal else float(self.predict(torch.from_numpy(next_observation.vector()), tuple(self.history))[2])
         returns = discounted_returns(self.rewards, bootstrap, self.config.gamma)
@@ -161,6 +171,12 @@ class NovelSignalLearner:
             self.assign_weights(self.parameter.effective)
             self.writes += 1
         self.decisions += 1
+        if self.config.historical_baseline_rate and self.rewards:
+            # 当前提案完成之后才更新，避免本次行动影响其自身的基线。
+            sample = float(discounted_returns(self.rewards, 0., self.config.gamma).mean())
+            rate = self.config.historical_baseline_rate
+            self.return_baseline = (1. - rate) * self.return_baseline + rate * sample
+            self.baseline_windows += 1
         self.history = deque((value.detach() for value in self.history), maxlen=16)
         self.log_probabilities.clear()
         self.values.clear()
@@ -181,7 +197,8 @@ class NovelSignalLearner:
         with path.with_suffix(".residual.npz").open("xb") as stream:
             np.savez(stream, adapter_kind=self.adapter_kind, stable=self.parameter.stable, fast=self.parameter.fast,
                      recent=np.asarray(self.parameter.recent, dtype=np.float32).reshape(-1, self.parameter.stable.size),
-                     decisions=self.decisions, writes=self.writes, config_json=self.config.model_dump_json())
+                     decisions=self.decisions, writes=self.writes, config_json=self.config.model_dump_json(),
+                     return_baseline=self.return_baseline, baseline_windows=self.baseline_windows)
 
 
 class NovelDirectionLearner(NovelSignalLearner):
@@ -225,5 +242,14 @@ class NovelDirectionLearner(NovelSignalLearner):
             agent.parameter.fast = fast
             agent.parameter.recent = [row.copy() for row in data["recent"]]
             agent.decisions, agent.writes = int(data["decisions"]), int(data["writes"])
+            if agent.config.historical_baseline_rate:
+                if "return_baseline" not in data or "baseline_windows" not in data:
+                    raise ValueError("启用历史基线的检查点缺少状态")
+                baseline, windows = data["return_baseline"], data["baseline_windows"]
+                if (baseline.shape != () or baseline.dtype.kind not in "fiu" or not np.isfinite(baseline)
+                        or windows.shape != () or windows.dtype.kind not in "iu" or int(windows) < 0):
+                    raise ValueError("历史基线状态非有限或窗口计数无效")
+                agent.return_baseline = float(baseline)
+                agent.baseline_windows = int(windows)
         agent.assign_weights(agent.parameter.effective)
         return agent
