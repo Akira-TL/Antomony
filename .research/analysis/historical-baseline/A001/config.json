@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/historical-baseline/20260926T151701-2",
+  "manifest": "data/historical-baseline/manifest.sha256",
+  "output": ".research/analysis/historical-baseline/A001/outputs/summary.json"
+}

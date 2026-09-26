@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [历史基线配对后果](historical-baseline/README.md) - 分析规则固定，待正式计算。
+
 - [伤害候选与接受判断](injury-candidate/README.md) - 已完成；两世界未一致出现有益候选被拒绝，候选质量及接受判断均有不足。
 
 - [返巢奖励配对后果](return-reward-ablation/README.md) - 已完成；取消奖励未通过采用条件，保留当前默认值。
@@ -26,6 +28,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [历史基线分析](historical-baseline/README.md) → [设计](../designs/historical-baseline.md)、[数据](../data/historical-baseline/README.md)。
 
 - [伤害候选分析](injury-candidate/README.md) → [设计](../designs/injury-candidate.md)、[数据](../data/injury-candidate/README.md)。
 

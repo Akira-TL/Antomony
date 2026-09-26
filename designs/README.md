@@ -30,6 +30,8 @@
 
 ## Relations
 
+- [历史基线设计](historical-baseline.md) → [实施](../study/historical-baseline/README.md)、[分析](../analysis/historical-baseline/README.md)。
+
 - [伤害候选诊断](injury-candidate.md) → [实际实施](../study/injury-candidate/README.md)、[配对分析](../analysis/injury-candidate/README.md)。
 
 - [返巢奖励诊断](return-reward-ablation.md) → [实际实施](../study/return-reward-ablation/README.md)、[配对分析](../analysis/return-reward-ablation/README.md)。

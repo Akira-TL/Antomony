@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [历史基线连续采样](historical-baseline/README.md) - 两配置共20世界完成。
+
 - [伤害候选分支](injury-candidate/README.md) - 已完成两个世界32对。
 
 - [空载返巢奖励配对诊断](return-reward-ablation/README.md) - 已完成20世界；单变量奖励、两个新种子。
@@ -26,6 +28,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [历史基线采样](historical-baseline/README.md) → [设计](../designs/historical-baseline.md)、[数据](../data/historical-baseline/README.md)。
 
 - [伤害候选分支](injury-candidate/README.md) → [冻结设计](../designs/injury-candidate.md)、[数据](../data/injury-candidate/README.md)。
 

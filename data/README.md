@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [历史基线连续数据](historical-baseline/README.md) - 20世界，原始轨迹与基线快照已冻结。
+
 - [伤害候选轨迹](injury-candidate/README.md) - 32对、64分支，完整清单固定。
 
 - [返巢奖励配对数据](return-reward-ablation/README.md) - 已完成20世界并固定清单，完整性与配对核对通过。
@@ -28,6 +30,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [历史基线数据](historical-baseline/README.md) → [实施](../study/historical-baseline/README.md)、[分析](../analysis/historical-baseline/README.md)。
 
 - [伤害候选轨迹](injury-candidate/README.md) → [实际实施](../study/injury-candidate/README.md)、[分析](../analysis/injury-candidate/README.md)。
 
