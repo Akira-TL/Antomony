@@ -44,6 +44,9 @@ INTERPRETATION
 
 ## Open Threads
 
+- [辅助奖励的势函数边界](docs/research/reward-shaping-boundaries.md)：已核验Ng1999与Grzes2017全文、反例及终止条件。该方法只能保持已明确原任务的排序，不能纠正原任务权重，也不自动解决16步窗口的长期反馈。死亡复活、世界时限与更新边界必须分开；不以全局目标距离作为额外奖励答案。当前未接入训练，先做独立算术检查，再待目标取舍明确后冻结新方案。
+- [奖励工程边界](docs/engineering/reward-objective-boundaries.md)：当前有界场重复释放不累加，原地159步仍有恒定正探索分；合法动作三趟空载往返483步获得6分返巢奖励。人工路径与反馈测试不是模型已学会这些策略的证据。
+
 - [近似规模MLP资格](analysis/matched-foundation/README.md)：三组均交付128/128并通过最低门槛，返回及探索范围仍不同。采用固定2400轮终点，不延长训练。
 - [保留基础后的接受课程](analysis/memory-update-learning/README.md)：无危险训练及留出完成，仅1/4种子通过、没有焦点交付改善。当前连续对照没有推翻该失败。
 - [无线索探索补课](analysis/exploration-course/README.md)：半径略增但返回和耗尽恶化，停止采用；[基础资格](analysis/foundation-qualification/README.md)及[初始接受学习](analysis/basic-update-learning/README.md)的失败均保留。
@@ -69,6 +72,7 @@ INTERPRETATION
 - [只读验收入口](docs/engineering/continuous-acceptance.md)
 - [固定接受模型](data/memory-acceptance-models/README.md)
 - [全部分析](analysis/README.md)
+- [文献依据](literature/README.md)
 
 ## References
 

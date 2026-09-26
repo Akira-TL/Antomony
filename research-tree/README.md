@@ -13,6 +13,7 @@ flowchart TD
     N10["取消返巢奖励未通过采用条件<br/>analysis · resolved"]
     N12["伤害候选质量与接受判断均有不足<br/>analysis · resolved"]
     N14["历史基线未通过且奖励与交付排序相反<br/>analysis · resolved"]
+    N15["势函数辅助奖励在有限回合和更新截断中何时保留原任务<br/>question · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -34,6 +35,7 @@ flowchart TD
     N11 --> N12
     N5 --> N13
     N13 --> N14
+    N5 --> N15
 ```
 
 ## Node Index
@@ -54,3 +56,4 @@ flowchart TD
 | N12 | analysis | resolved | 伤害候选质量与接受判断均有不足 | [打开](../analysis/injury-candidate/README.md) |
 | N13 | design | resolved | 历史奖励基线的单变量连续对照 | [打开](../designs/historical-baseline.md) |
 | N14 | analysis | resolved | 历史基线未通过且奖励与交付排序相反 | [打开](../analysis/historical-baseline/README.md) |
+| N15 | question | resolved | 势函数辅助奖励在有限回合和更新截断中何时保留原任务 | [打开](../docs/research/reward-shaping-boundaries.md) |
