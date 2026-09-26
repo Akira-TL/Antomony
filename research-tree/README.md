@@ -14,6 +14,7 @@ flowchart TD
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
         N7["陌生信号候选更新的同状态价值诊断<br/>design · resolved"]
+        N9["空载返巢奖励是否干扰危险适应<br/>design · active"]
     end
     N1 --> N2
     N2 --> N3
@@ -22,6 +23,7 @@ flowchart TD
     N5 --> N6
     N5 --> N7
     N7 --> N8
+    N5 --> N9
 ```
 
 ## Node Index
@@ -36,3 +38,4 @@ flowchart TD
 | N6 | design | active | 蚁群自训练适应性对照草案 | [打开](../designs/ant-self-training-adaptation.md) |
 | N7 | design | resolved | 陌生信号候选更新的同状态价值诊断 | [打开](../designs/candidate-update-value.md) |
 | N8 | analysis | resolved | 候选短期价值描述：危险分支未显示后果差异 | [打开](../analysis/candidate-update-value/README.md) |
+| N9 | design | active | 空载返巢奖励是否干扰危险适应 | [打开](../designs/return-reward-ablation.md) |
