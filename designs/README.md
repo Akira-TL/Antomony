@@ -40,6 +40,8 @@
 
 ## Relations
 
+- [后到反馈归因](credit-history.md) → [实施](../study/credit-history/README.md)、[分析](../analysis/credit-history/README.md)。
+
 - [动作输入课程](action-update-learning.md) → [实施](../study/action-update-learning/README.md)、[分析](../analysis/action-update-learning/README.md)。
 
 - [四步与十六步窗口](window-cadence.md) → [实施](../study/window-cadence/README.md)、[分析](../analysis/window-cadence/README.md)。
