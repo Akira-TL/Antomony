@@ -37,6 +37,8 @@ class ProbePlan(BaseModel):
     initial_residual_norm: float = Field(default=0., ge=0., allow_inf_nan=False)
     initial_residual_pattern: Literal["isotropic", "coherent-fourth"] = "isotropic"
     restoration_control: bool = False
+    sample_interval: int | None = Field(default=None, ge=1)
+    include_zero_candidates: bool = False
 
     @model_validator(mode="after")
     def check_candidate_configuration(self) -> ProbePlan:
@@ -44,6 +46,8 @@ class ProbePlan(BaseModel):
             raise ValueError("候选类型与参数配置不一致")
         if self.initial_residual_norm >= self.adaptation.maximum_residual_norm:
             raise ValueError("初始残差必须小于在线残差安全上限")
+        if self.sample_interval is not None and self.sample_interval % self.adaptation.window:
+            raise ValueError("固定采样间隔必须为反馈窗口的整数倍")
         return self
 
 
@@ -120,6 +124,7 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
     disturbance = plan.disturbance if condition == "persistent" else plan.disturbance.model_copy(update={"injury_per_step": 0.})
     env = DisturbedColony(seed, plan.environment, disturbance)
     pairs = zeros = terminals = 0
+    sample_interval = plan.sample_interval or plan.adaptation.window
     with (directory / "pairs.jsonl").open("x", encoding="utf-8") as output, gzip.open(directory / "parent.jsonl.gz", "xt") as parent:
         while not env.done:
             active = [not ant.exhausted for ant in env.ants]
@@ -137,10 +142,12 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
                         terminals += 1
                     elif not np.any(proposal.delta):
                         zeros += 1
+                        if plan.include_zero_candidates:
+                            eligible.append(i)
                     else:
                         eligible.append(i)
-            if eligible and pairs < plan.pairs_per_world and not env.done:
-                start = (env.steps // plan.adaptation.window - 1) % len(agents)
+            if eligible and env.steps % sample_interval == 0 and pairs < plan.pairs_per_world and not env.done:
+                start = (env.steps // sample_interval - 1) % len(agents)
                 focal = min(eligible, key=lambda i: (i - start) % len(agents))
                 agent = agents[focal]
                 result = evaluate_candidate(env, agents, focal, horizon=plan.branch_horizon)
@@ -192,7 +199,7 @@ def main() -> None:
     plan = ProbePlan.model_validate_json(args.plan.read_text())
     if args.smoke:
         plan = plan.model_copy(update={"seeds": (9599,), "pairs_per_world": 1, "branch_horizon": 3,
-                                       "environment": plan.environment.model_copy(update={"ants": 2, "horizon": 20})})
+                                       "environment": plan.environment.model_copy(update={"ants": 2, "horizon": max(20, (plan.sample_interval or plan.adaptation.window) + 4)})})
     torch.set_num_threads(1)
     paths = [Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz" for i in range(plan.environment.ants)]
     sources = [SourceArtifact(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest())
