@@ -10,4 +10,4 @@ Blocked by: 15
 
 ## Answer
 
-24 个世界已完成，训练模块 135 项测试通过。结果见 `docs/engineering/direction-adaptation-results.md`；危险搬回 2 对 1，死亡 39 对 38，不支持可靠收益。停止这一组局部变体，不将工程任务完成等同于自训练目标完成。
+24 个世界已完成，训练模块 135 项测试通过。结果见 `docs/engineering/novel-direction-adaptation-results.md`；危险搬回 2 对 1，死亡 39 对 38，不支持可靠收益。停止这一组局部变体，不将工程任务完成等同于自训练目标完成。
