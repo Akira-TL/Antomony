@@ -157,8 +157,12 @@ def _memory_turns(model: RoundTripPolicy, observations: Tensor,
         raise ValueError("记忆位置掩码长度不匹配")
     batch = observations.shape[1]
     history: list[Tensor] = []
+    hidden = observations.new_zeros((batch, model.hidden.numel()))
     turns = []
     for values in observations:
+        output = values @ model.motor.T + torch.tanh(hidden @ model.action_weights.T) * \
+            values.new_tensor(model.correction_scale)
+        turns.append(1.5 * torch.tanh(output[:, 1] / 1.5))
         taps = torch.cat(tuple(history[-lag] if enabled and len(history) >= lag else
                                values.new_zeros((batch, model.hidden.numel()))
                                for lag, enabled in zip(model.memory_lags, active_taps, strict=True)), dim=1)
@@ -167,9 +171,6 @@ def _memory_turns(model: RoundTripPolicy, observations: Tensor,
             (model.hidden.numel(),)))
         history.append(hidden)
         history = history[-max(model.memory_lags):]
-        output = values @ model.motor.T + torch.tanh(hidden @ model.action_weights.T) * \
-            values.new_tensor(model.correction_scale)
-        turns.append(1.5 * torch.tanh(output[:, 1] / 1.5))
     return torch.stack(turns)
 
 
@@ -210,7 +211,7 @@ def pretrain_scent_memory(model: RoundTripPolicy, *, seed: int = 20260929,
         observations, desired, queries = _memory_examples(rng, batch_size, length)
         target_mean = torch.atanh(desired) / 3.
         error = (_memory_turns(model, observations) - target_mean).square()
-        loss = error[queries].mean() + .2 * error[0].mean()
+        loss = error[queries].mean() + .2 * error[1].mean()
         optimizer.zero_grad()
         loss.backward()
         for parameter, mask in zip(parameters, masks, strict=True):

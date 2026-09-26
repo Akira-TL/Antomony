@@ -5,6 +5,7 @@ import torch
 
 from mathhackson.training.roundtrip_policy import RoundTripPolicy
 from mathhackson.training.scent_curriculum import (_memory_examples,
+                                                   _memory_turns,
                                                    evaluate_scent_memory,
                                                    evaluate_scent_reader,
                                                    pretrain_scent_memory,
@@ -41,6 +42,18 @@ def test_memory_examples_have_identical_current_inputs_with_opposite_targets():
     assert torch.all(torch.sign(targets[queries].reshape(4, 2, 16)[:, 0]) !=
                      torch.sign(targets[queries].reshape(4, 2, 16)[:, 1]))
     assert not torch.equal(observations[0, :16], observations[0, 16:])
+
+
+def test_memory_training_forward_matches_action_then_feedback_timing():
+    model = RoundTripPolicy(91, FOUNDATION)
+    observations, _, _ = _memory_examples(np.random.default_rng(4), 2, 20)
+    predicted = torch.tanh(3. * _memory_turns(model, observations[:, :1])).detach().flatten()
+    model.phase = "autonomous"
+    actual = []
+    for values in observations[:, 0].numpy():
+        actual.append(model.decide(values).turn)
+        model.observe_result(values)
+    np.testing.assert_allclose(predicted.numpy(), actual, atol=1e-6)
 
 
 def test_memory_curriculum_requires_recurrence_and_keeps_motor_frozen():
