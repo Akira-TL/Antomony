@@ -11,7 +11,7 @@ import torch
 from .recurrent import Action, Write
 from .recurrent_session import GROUP_LABELS
 from .roundtrip_environment import RoundTripEnvironment
-from .roundtrip_policy import ROUNDTRIP_NAMES, RoundTripPolicy
+from .roundtrip_policy import ROUNDTRIP_MODEL_VERSION, ROUNDTRIP_NAMES, RoundTripPolicy
 from .schemas import (RecurrentParameterGroup, RoundTripCommand, RoundTripEpisode,
                       RoundTripState)
 
@@ -54,7 +54,7 @@ class RoundTripSession:
             filename = f"episode-{self.episode:06d}.npz"
             np.savez_compressed(
                 self.directory / filename,
-                model_version="roundtrip-v1",
+                model_version=ROUNDTRIP_MODEL_VERSION,
                 **{identity: parameter.detach().numpy() for identity, parameter in
                    zip(ROUNDTRIP_GROUP_IDS, self.model.parameters, strict=True)},
                 observations=np.asarray(self.observations),

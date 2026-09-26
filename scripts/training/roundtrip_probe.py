@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from mathhackson.training.recurrent import WriteMode
 from mathhackson.training.roundtrip_environment import RoundTripEnvironment
-from mathhackson.training.roundtrip_policy import RoundTripPolicy
+from mathhackson.training.roundtrip_policy import ROUNDTRIP_MODEL_VERSION, RoundTripPolicy
 from mathhackson.training.roundtrip_session import RoundTripSession
 from mathhackson.training.roundtrip_session import ROUNDTRIP_GROUP_IDS
 from mathhackson.training.scent_curriculum import ScentMetrics, pretrain_scent_reader
@@ -128,7 +128,7 @@ def main() -> None:
         def save_scent_checkpoint(step: int, metrics: ScentMetrics) -> None:
             np.savez_compressed(
                 session.directory / f"scent-step-{step:06d}.npz",
-                model_version="roundtrip-v1", stage="scent", step=step,
+                model_version=ROUNDTRIP_MODEL_VERSION, stage="scent", step=step,
                 curriculum_seed=20260926, batch_size=256,
                 turn_error=metrics.turn_error,
                 conflict_accuracy=metrics.conflict_accuracy,

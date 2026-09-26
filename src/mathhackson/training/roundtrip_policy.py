@@ -6,17 +6,20 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from .recurrent import Action, HIDDEN_WIDTH, MODEL_VERSION, RecurrentPolicy, Write
+from .recurrent import Action, HIDDEN_WIDTH, MEMORY_LAGS, MODEL_VERSION, RecurrentPolicy, Write
 
 FOUNDATION_NAMES = ("motor", "input_weights", "hidden_weights", "hidden_bias",
                     "action_weights", "gate_weights", "write_weights")
 ROUNDTRIP_NAMES = (*FOUNDATION_NAMES, "release_weights", "release_write_weights")
+ROUNDTRIP_MEMORY_LAGS = (1, 2, 3, 4, 4, 8, 12, 16)
+ROUNDTRIP_MODEL_VERSION = "roundtrip-v2"
 RELEASE_FAST_LIMIT = .2
 RELEASE_FAST_STEP = .012
 
 
 class RoundTripPolicy(RecurrentPolicy):
     correction_scale = (.4, .7)
+    memory_lags = ROUNDTRIP_MEMORY_LAGS
 
     def __init__(self, seed: int, foundation: Path) -> None:
         super().__init__(seed, input_width=17)
@@ -49,21 +52,40 @@ class RoundTripPolicy(RecurrentPolicy):
             self.motor[:, 16].zero_()
             self.input_weights[:, :16].copy_(torch.from_numpy(values[1]))
             self.input_weights[:, 16].zero_()
-            for parameter, value in zip(self.parameters[2:7], values[2:], strict=True):
+            self._load_legacy_hidden(values[2])
+            for parameter, value in zip(self.parameters[3:7], values[3:], strict=True):
                 parameter.copy_(torch.from_numpy(value))
+
+    def _load_legacy_hidden(self, old_weights: np.ndarray) -> None:
+        self.hidden_weights.zero_()
+        for source, lag in enumerate(MEMORY_LAGS):
+            destination = self.memory_lags.index(lag)
+            start = source * HIDDEN_WIDTH
+            target = destination * HIDDEN_WIDTH
+            self.hidden_weights[:, target:target + HIDDEN_WIDTH].copy_(
+                torch.from_numpy(old_weights[:, start:start + HIDDEN_WIDTH]))
 
     def load_roundtrip_checkpoint(self, path: Path) -> None:
         with np.load(path, allow_pickle=False) as archive:
-            if "model_version" not in archive or str(archive["model_version"]) != "roundtrip-v1":
+            if "model_version" not in archive:
+                raise ValueError("往返检查点版本不兼容")
+            version = str(archive["model_version"])
+            if version not in {"roundtrip-v1", ROUNDTRIP_MODEL_VERSION}:
                 raise ValueError("往返检查点版本不兼容")
             if any(name not in archive for name in ROUNDTRIP_NAMES):
                 raise ValueError("往返检查点缺少参数")
             values = [np.asarray(archive[name], np.float32).copy() for name in ROUNDTRIP_NAMES]
-        if any(value.shape != tuple(parameter.shape) or not np.isfinite(value).all()
-               for value, parameter in zip(values, self.parameters, strict=True)):
+        expected = [tuple(parameter.shape) for parameter in self.parameters]
+        if version == "roundtrip-v1":
+            expected[2] = (HIDDEN_WIDTH, HIDDEN_WIDTH * len(MEMORY_LAGS))
+        if any(value.shape != shape or not np.isfinite(value).all()
+               for value, shape in zip(values, expected, strict=True)):
             raise ValueError("往返检查点参数形状或数值无效")
         with torch.no_grad():
-            for parameter, value in zip(self.parameters, values, strict=True):
+            for index, (parameter, value) in enumerate(zip(self.parameters, values, strict=True)):
+                if index == 2 and version == "roundtrip-v1":
+                    self._load_legacy_hidden(value)
+                    continue
                 parameter.copy_(torch.from_numpy(value))
         self.reset_state()
 
@@ -75,8 +97,13 @@ class RoundTripPolicy(RecurrentPolicy):
     def trainable_masks(self) -> list[torch.Tensor]:
         masks = [torch.zeros_like(value) for value in self.parameters]
         if self.phase in {"memory", "adaptive"}:
+            masks[1][:, 4] = 1
             masks[1][:, 8:14] = 1
             masks[1][:, 16] = 1
+            indices = torch.arange(HIDDEN_WIDTH)
+            for lag in range(len(self.memory_lags)):
+                masks[2][indices, lag * HIDDEN_WIDTH + indices] = 1
+            masks[3].fill_(1)
             masks[4].fill_(1)
             masks[7].fill_(1)
         if self.phase == "adaptive":

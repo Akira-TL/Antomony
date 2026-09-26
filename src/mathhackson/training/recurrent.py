@@ -45,6 +45,7 @@ class Write:
 
 class RecurrentPolicy:
     correction_scale = (.4, .12)
+    memory_lags = MEMORY_LAGS
 
     def __init__(self, seed: int, input_width: int = INPUT_WIDTH) -> None:
         self.rng = np.random.default_rng(seed)
@@ -56,7 +57,7 @@ class RecurrentPolicy:
         self.input_weights = torch.nn.Parameter(torch.from_numpy(
             self.rng.normal(0, .08, (HIDDEN_WIDTH, input_width)).astype(np.float32)))
         self.hidden_weights = torch.nn.Parameter(torch.from_numpy(
-            self.rng.normal(0, .08, (HIDDEN_WIDTH, HIDDEN_WIDTH * len(MEMORY_LAGS))).astype(np.float32)))
+            self.rng.normal(0, .08, (HIDDEN_WIDTH, HIDDEN_WIDTH * len(self.memory_lags))).astype(np.float32)))
         self.hidden_bias = torch.nn.Parameter(torch.zeros(HIDDEN_WIDTH))
         self.action_weights = torch.nn.Parameter(torch.zeros(2, HIDDEN_WIDTH))
         self.gate_weights = torch.nn.Parameter(torch.zeros(HIDDEN_WIDTH + 1))
@@ -130,11 +131,11 @@ class RecurrentPolicy:
         with torch.set_grad_enabled(self.phase != "autonomous"):
             values = torch.from_numpy(observation.astype(np.float32))
             taps = torch.cat(tuple(self.hidden_history[-lag] if len(self.hidden_history) >= lag
-                                   else torch.zeros_like(self.hidden) for lag in MEMORY_LAGS))
+                                   else torch.zeros_like(self.hidden) for lag in self.memory_lags))
             preactivation = self.input_weights @ values + self.hidden_weights @ taps + self.hidden_bias
             self.hidden = torch.tanh(.5 * torch.nn.functional.layer_norm(preactivation, (HIDDEN_WIDTH,)))
             self.hidden_history.append(self.hidden)
-            self.hidden_history = self.hidden_history[-max(MEMORY_LAGS):]
+            self.hidden_history = self.hidden_history[-max(self.memory_lags):]
             self.fast_delta = torch.zeros_like(self.fast)
             if terminal or self.write_mode == "off" or self.phase in {"motor", "memory"}:
                 return Write(False, False, 0., torch.zeros(()))
