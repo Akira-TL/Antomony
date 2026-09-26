@@ -3,10 +3,12 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import math
 from itertools import zip_longest
 from pathlib import Path
 from typing import Iterator, Literal
 
+import numpy as np
 from pydantic import BaseModel
 
 from .acceptance import TapeStore
@@ -80,6 +82,11 @@ def known_reward(ant: AntFrame, return_reward: float, injury: float,
             - injury - death_cost * deaths - exhaustion_cost * exhaustion)
 
 
+def compressed_response(raw: float) -> float:
+    # 提案保存原始浓度，轨迹保存LocalObservation.vector的浮点32位压缩输入。
+    return float((np.log1p(np.asarray([raw], dtype=np.float32)) / math.log(9.))[0])
+
+
 def audit_world(path: Path, world: WorldResult, plan: ContinuousPlan) -> Totals:
     count = plan.environment.ants
     condition = next(c for c in plan.conditions if c.name == world.condition)
@@ -128,7 +135,7 @@ def audit_world(path: Path, world: WorldResult, plan: ContinuousPlan) -> Totals:
                 rewards = pending_rewards[i]
                 if (not rewards or len(rewards) != record.proposal.steps
                         or abs(sum(rewards) / len(rewards) - record.proposal.mean_reward) > 1e-7
-                        or abs(pending_novel[i] - record.proposal.novel_response) > 1e-7):
+                        or abs(pending_novel[i] - compressed_response(record.proposal.novel_response)) > 1e-7):
                     raise ValueError('真实奖励窗口与提案不符')
                 if pending_returns[i]:
                     result.return_windows += 1

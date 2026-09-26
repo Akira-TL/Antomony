@@ -39,7 +39,7 @@
 
 ## Reproduction
 
-入口 `bash scripts/analyses/return-reward-ablation.sh`，配置 `.research/analysis/return-reward-ablation/A001/config.json`。结果写入独立输出目录；已有结果时拒绝覆盖。测试使用确定预期值及真实短规则轨迹，不依赖本次效应方向。
+入口 `bash scripts/analyses/return-reward-ablation.sh`，修正后的配置 `.research/analysis/return-reward-ablation/A002/config.json`。结果写入独立输出目录；已有结果时拒绝覆盖。测试使用确定预期值及真实短规则轨迹，不依赖本次效应方向。
 
 ## Result Boundary
 
@@ -47,4 +47,4 @@
 
 ## Amendments
 
-不适用：当前没有对冻结比较或判据的修订。
+首次执行A001在窗口核对时报错：分析代码把轨迹中的压缩浓度与提案原始浓度直接比较。两批机械完整性检查已通过，但没有生成配对结果文件。A002将原始浓度用实际观察编码的同一变换压缩后再比，增加四个已知浓度的编码回归测试；原始数据、比较、窗口判定及采用规则均未改变。A001失败日志保留，不能标记为成功分析。

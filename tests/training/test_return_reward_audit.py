@@ -1,11 +1,13 @@
 import gzip
 
+import numpy as np
 import pytest
 
 from mathhackson.training.comparison.continuous import AntFrame, Condition, ContinuousPlan, Frame, run_world
-from mathhackson.training.comparison.return_reward_audit import Pair, Totals, audit_world, behavior_equal, decide, known_reward
+from mathhackson.training.comparison.return_reward_audit import Pair, Totals, audit_world, behavior_equal, compressed_response, decide, known_reward
 from mathhackson.training.foraging.colony import ColonyConfig
 from mathhackson.training.foraging.disturbance import DisturbanceConfig
+from mathhackson.training.foraging.environment import LocalObservation
 
 
 def ant() -> AntFrame:
@@ -20,6 +22,14 @@ def test_delivery_does_not_double_count_return():
     assert known_reward(empty, 2., 0., 0, 0, 2., 2.) == 2.
     delivered = empty.model_copy(update={'delivered': True})
     assert known_reward(delivered, 2., 0., 0, 0, 2., 2.) == 4.
+
+
+@pytest.mark.parametrize('raw', [0., .5266456604003906, 2., 8.])
+def test_raw_proposal_concentration_matches_compressed_trace(raw):
+    receptors = np.zeros((9, 8), dtype=np.float32)
+    receptors[2, 6] = raw
+    observation = LocalObservation(receptors, False, False, False, 0.)
+    assert compressed_response(raw) == float(observation.vector()[:72].reshape(9, 8)[:, 3:].max())
 
 
 def test_death_injury_and_exhaustion_are_distinct_costs():
