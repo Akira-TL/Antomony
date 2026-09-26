@@ -9,10 +9,14 @@ import torch
 from .signals import receptor_points
 
 
-def signal_batch(rng: np.random.Generator, size: int) -> tuple[torch.Tensor, torch.Tensor]:
+def signal_batch(rng: np.random.Generator, size: int, *, budgets: bool = False) -> tuple[torch.Tensor, torch.Tensor]:
     points = receptor_points(np.zeros(2, dtype=np.float32), 0.)
     carrying = rng.random(size) < .5
     target = np.where(carrying, 1, rng.choice([0, 2], size))
+    if budgets:
+        exploration = np.where(rng.random(size) < .5, 0., rng.uniform(.25, 1., size))
+        reserve = rng.uniform(.05, 1., size)
+        target[exploration == 0.] = 1
     angles = rng.uniform(-math.pi, math.pi, (size, 3))
     axes = np.stack((np.cos(angles), np.sin(angles)), axis=-1)
     perpendicular = np.stack((-np.sin(angles), np.cos(angles)), axis=-1)
@@ -29,5 +33,7 @@ def signal_batch(rng: np.random.Generator, size: int) -> tuple[torch.Tensor, tor
     own_state = np.column_stack((carrying, rng.random(size) < .05, rng.random(size) < .8,
                                  rng.uniform(-1., 1., size))).astype(np.float32)
     inputs = np.concatenate(((np.log1p(receptors) / math.log(9.)).reshape(size, 72), own_state), axis=1)
+    if budgets:
+        inputs = np.concatenate((inputs, np.column_stack((exploration, reserve)).astype(np.float32)), axis=1)
     directions = axes[np.arange(size), target].astype(np.float32)
     return torch.from_numpy(inputs), torch.from_numpy(directions)
