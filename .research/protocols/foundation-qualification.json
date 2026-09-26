@@ -1,0 +1,7 @@
+{
+  "seeds": [14101, 14102, 14103, 14104, 14105, 14106, 14107, 14108],
+  "environment": {"trail_profile": "bounded-local-v2", "nest_signal_strength": 1.0},
+  "minimum_delivery_fraction": 0.9,
+  "minimum_returning_fraction": 0.5,
+  "minimum_exploration_radius": 4.5
+}
