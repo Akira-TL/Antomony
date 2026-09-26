@@ -1,5 +1,14 @@
 # MathHackson 视频工作流
 
+## 当前内容入口
+
+- [三分钟英文完整分镜](storyboard-v3-self-learning.md)：以局部自学习、学习更新许可、快速适应和实时响应为主线；不再从 Transformer/KV cache 讲起。
+- [英文配音稿](narration-v3.en.txt)：10段，379词，对应180秒分镜；尚未实际录音校时。
+
+当前是架构提案的分镜阶段，不扩写动画、不修改科研状态。`storyboard-v0.md` 与 `scenes/story_prototype.py` 仅保留为早期草案/工具冒烟，不作为当前内容方向。被否定的Transformer分镜仅留于忽略目录的历史副本。
+
+## 工具说明
+
 本目录用于把当前科研主线转成可解释动画。当前阶段采用 3Blue1Brown 的 ManimGL 交互式工作流，而不是先写完整视频再整段渲染。
 
 ## 为什么用 ManimGL
