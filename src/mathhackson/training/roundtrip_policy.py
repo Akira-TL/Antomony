@@ -89,8 +89,8 @@ class RoundTripPolicy(RecurrentPolicy):
     def observe_result(self, observation: np.ndarray, *, terminal: bool = False) -> Write:
         write = super().observe_result(observation, terminal=terminal)
         self.release_fast_delta = torch.zeros_like(self.release_fast)
-        if write.requested and not terminal and self.phase == "adaptive":
-            with torch.set_grad_enabled(True):
+        if write.requested and not terminal and self.phase in {"adaptive", "autonomous"}:
+            with torch.set_grad_enabled(self.phase == "adaptive"):
                 features = torch.cat((self.hidden, torch.ones(1)))
                 proposed = torch.clamp(
                     self.release_fast + torch.tanh(self.release_write_weights @ features) * RELEASE_FAST_STEP,

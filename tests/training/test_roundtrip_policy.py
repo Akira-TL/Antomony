@@ -65,3 +65,21 @@ def test_feedback_write_can_adjust_release_without_changing_slow_motor():
     assert torch.equal(model.motor, motor)
     model.reset_state()
     assert torch.count_nonzero(model.release_fast) == 0
+
+
+def test_autonomous_write_also_adjusts_release_without_building_gradients():
+    model = RoundTripPolicy(9, FOUNDATION)
+    model.phase = "autonomous"
+    model.write_mode = "always"
+    with torch.no_grad():
+        model.release_write_weights.zero_()
+        model.release_write_weights[:, -1] = 1.
+    observation = np.zeros(17, np.float32)
+    observation[15] = 1.
+    before = model.decide(observation).release_home_probability
+    write = model.observe_result(observation)
+    after = model.decide(observation).release_home_probability
+    assert write.requested and write.wrote
+    assert torch.all(model.release_fast > 0)
+    assert model.release_fast.grad_fn is None
+    assert after > before
