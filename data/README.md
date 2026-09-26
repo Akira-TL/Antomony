@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [后到反馈归因数据](credit-history/README.md) - 四世界、54个共同状态，完整清单固定。
+
 - [四步动作输入配对](action-update-learning/README.md) - 12世界39配对，训练25、留出14。
 
 - [四步与十六步窗口](window-cadence/README.md) - 16世界轨迹与参数，完整清单固定。
@@ -38,6 +40,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [后到归因数据](credit-history/README.md) → [实施](../study/credit-history/README.md)。
 
 - [动作输入数据](action-update-learning/README.md) → [实际采样](../study/action-update-learning/README.md)、[分析](../analysis/action-update-learning/README.md)。
 
