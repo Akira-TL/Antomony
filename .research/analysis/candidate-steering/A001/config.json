@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/window-cadence/20260926T165559-3",
+  "manifest": "data/window-cadence/manifest.sha256",
+  "output": ".research/analysis/candidate-steering/A001/outputs/summary.json"
+}

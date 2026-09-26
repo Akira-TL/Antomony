@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [四步候选动作影响](candidate-steering/README.md) - planned，只读重建真实方向采样与实际动作概率。
+
 - [四步与十六步窗口](window-cadence/README.md) - completed，四步比十六步少失败21/23次，但相对不更新多2/少50次，未通过两参照门槛。
 
 - [负反馈提前判断](feedback-trigger/README.md) - completed；写入明显增加但相对固定窗口失败+1/+3，停止采用。
@@ -36,6 +38,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [候选动作影响](candidate-steering/README.md) → [窗口原始数据](../data/window-cadence/README.md)。
 
 - [窗口比较](window-cadence/README.md) → [设计](../designs/window-cadence.md)、[数据](../data/window-cadence/README.md)。
 
