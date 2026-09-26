@@ -2,8 +2,8 @@
 
 ## Navigation
 
-- [Research](../../RESEARCH.md)
-- [Design](../../designs/candidate-update-value.md)
+- [研究首页](../../RESEARCH.md)
+- [研究设计](../../designs/candidate-update-value.md)
 
 ## Study Identity
 

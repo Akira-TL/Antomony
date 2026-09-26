@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [候选更新短期价值描述](candidate-update-value/README.md) - `planned`，尚未计算分布。
+- [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
 

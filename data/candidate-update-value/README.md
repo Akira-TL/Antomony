@@ -2,8 +2,8 @@
 
 ## Navigation
 
-- [Research](../../RESEARCH.md)
-- [Study](../../study/candidate-update-value/README.md)
+- [研究首页](../../RESEARCH.md)
+- [实际实施](../../study/candidate-update-value/README.md)
 
 ## Dataset Identity
 
@@ -31,7 +31,7 @@
 
 ## QC and Anomalies
 
-完整采样正常退出，源检查点未变。后续分析将校验字段、有限值、候选唯一性、32 点/世界上限、世界清单和记录数一致，以及无害死亡为零等物理条件；尚未把未执行的检查宣称通过。
+完整采样正常退出，源检查点未变。描述分析已核验清单哈希、字段、有限值、候选唯一性、32 点/世界上限、世界清单与记录数一致、合法时限及无害死亡为零，未发现异常；不作事后排除。
 
 ## Processing and Reproduction
 
