@@ -191,7 +191,7 @@ class NovelDirectionLearner(NovelSignalLearner):
     def load(cls, path: Path, motor: DirectionMotor, seed: int, config: AdaptationConfig | None = None) -> NovelDirectionLearner:
         agent = cls(ForagingPolicy.load(path), motor, seed, config)
         with np.load(path.with_suffix(".residual.npz"), allow_pickle=False) as data:
-            if str(data["adapter_kind"]) != "direction" or data["stable"].shape != (45,) or data["fast"].shape != (45,):
+            if str(data["adapter_kind"]) != cls.adapter_kind or data["stable"].shape != (45,) or data["fast"].shape != (45,):
                 raise ValueError("方向适配检查点不兼容")
             stable, fast = data["stable"].copy(), data["fast"].copy()
             if not np.isfinite(stable).all() or not np.isfinite(fast).all():
