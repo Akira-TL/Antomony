@@ -1,0 +1,13 @@
+{
+  "slug": "feedback-plasticity-course",
+  "title": "直接行动反馈驱动的可塑方向连接基础课程",
+  "question_node_slug": "ant-learned-update-adaptation",
+  "status": "frozen",
+  "freeze_commit": "9aded454553027378580f2034182d3b0ef55fba2",
+  "feasibility_status": "ready",
+  "feasibility_summary": "唯一协议、分区与判据已结果前固定；源模型散列和Protocol静态校验通过，主线52项机械测试通过并有非正式分区计时，900秒外层硬限已实现。仅具备合成方向课程的执行条件，不等于效果成立。",
+  "target_estimand": "每外层初始化、每条件的第5至96帧及末24帧平均方向奖励配对差；持续关联和短暂变化等权平均比较学得接受与全部接受及等次数随机接受。",
+  "primary_outcome": "正式评价的实际方向余弦奖励，不扣写入成本；每初始化分别按固定双窗口、条件等权收益、合并判断比例和真实非零写入门槛判定。",
+  "experimental_unit": "独立外层训练初始化1701和1702；64回合、三条件及四组在初始化内嵌套或配对，不当作独立模型重复。",
+  "artifact_path": "designs/feedback-plasticity-course.md"
+}
