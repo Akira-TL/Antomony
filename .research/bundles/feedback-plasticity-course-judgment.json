@@ -1,0 +1,6 @@
+{
+  "actor": "agent",
+  "judgment_type": "scientific_assessment",
+  "statement": "提出直接行动反馈驱动的可塑方向连接基础课程草案，有限检验有符号参数修改与接受/跳过能否从后续行动回报联合学到。当前仅进入DESIGN，未冻结、不可执行；不把具体方案或参数说成用户逐项批准。",
+  "basis": "项目依据：analysis/candidate-label-coverage/summary.json（8015a22），196训练及105留出候选均无焦点交付正例，固定配对集合二元选择的交付改善上界0；此结论只约束该集合。方法依据：Miconi等，Backpropamine: training self-modifying neural networks with differentiable neuromodulated plasticity，ICLR 2019，https://arxiv.org/pdf/2002.10585，第3.2节式3至5（2026-09-27核对），通过外层学习调制及资格迹控制回合内有效连接；论文并未直接确立本项目二元跳过能力。路线是在旧失败及标签可见后提出的探索性决定，不是新模型成功的证据。"
+}

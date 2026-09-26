@@ -1,0 +1,12 @@
+{
+  "slug": "feedback-plasticity-course-design",
+  "kind": "design",
+  "label": "行动反馈驱动的可塑连接与接受控制草案",
+  "scientific_scope": "Agent基于旧候选覆盖限制及Backpropamine方法提出的无危险基础课程；仅设计阶段，准确训练与判断配置未固定，不可执行，不代表真实蚁群收益。",
+  "workflow_status": "active",
+  "branch_priority": "primary",
+  "parent_slug": "ant-learned-update-adaptation",
+  "canonical_entity_type": "design",
+  "canonical_entity_id": "22",
+  "artifact_path": "designs/feedback-plasticity-course.md"
+}

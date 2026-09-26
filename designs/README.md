@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [直接行动反馈驱动的可塑方向连接课程](feedback-plasticity-course.md) - 草案；Agent提出，生成器已有工程实现，正式目标、种子、预算和判据待固定，不可执行。
+
 - [首步方向32步后果](first-action-outcomes.md) - 既有两世界最多8点，只改变一次方向，不训练。
 
 - [四步判断的后到反馈归因](credit-history.md) - 两新种子4世界，同状态保留零候选，仅改变动作保留范围。
@@ -41,6 +43,8 @@
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
 
 ## Relations
+
+- [可塑方向基础课程](feedback-plasticity-course.md) → [总体研究问题](ant-self-training-adaptation.md)、[旧候选覆盖依据](../analysis/candidate-label-coverage/README.md)。尚无本课程实施、数据或效果分析；方法来源见草案中的Backpropamine第3.2节。
 
 - [首步方向设计](first-action-outcomes.md) → [实施](../study/first-action-outcomes/README.md)、[分析](../analysis/first-action-outcomes/README.md)。
 

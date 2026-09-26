@@ -1,0 +1,12 @@
+{
+  "slug": "feedback-plasticity-course",
+  "title": "直接行动反馈驱动的可塑方向连接基础课程",
+  "question_node_slug": "ant-learned-update-adaptation",
+  "status": "draft",
+  "feasibility_status": "unresolved",
+  "feasibility_summary": "线索生成器已有工程实现，但外层训练目标、准确配置、分区种子、固定终点、配对控制、采用判据及来源身份尚未冻结；仅登记草案，不启动训练。",
+  "target_estimand": "新线索关联中，同一初始化的学得连接修改与接受控制相对关闭写入、始终接受和等次数随机接受，在后到反馈之后的方向选择累计回报差；精确测量窗口待固定。",
+  "primary_outcome": "每外层初始化、每关联条件的后续方向选择累计回报差，另列实际连接修改及接受/跳过；不是实际搬运或生存。",
+  "experimental_unit": "独立外层训练初始化；回合嵌套于初始化，个体在线连接、记忆和随机流隔离。",
+  "artifact_path": "designs/feedback-plasticity-course.md"
+}

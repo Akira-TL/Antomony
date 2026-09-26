@@ -1,0 +1,8 @@
+{
+  "source_slug": "feedback-plasticity-course-design",
+  "relation": "spawned_from",
+  "target_slug": "candidate-label-coverage-analysis",
+  "basis_type": "analysis",
+  "basis_ref": "analysis/candidate-label-coverage/summary.json",
+  "note": "旧固定候选没有交付正例促使Agent提出联合学习修改与接受的基础课程；这是结果后的路线选择，不是支持新方案有效的证据。"
+}
