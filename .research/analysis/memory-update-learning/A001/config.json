@@ -1,0 +1,7 @@
+{
+  "input_directory": "logs/memory-update-learning/20260926T113733-2",
+  "manifest": "data/memory-update-learning/manifest.sha256",
+  "protocol": ".research/protocols/memory-update-learning.json",
+  "output_directory": ".research/analysis/memory-update-learning/A001/outputs",
+  "minimum_passing": 3
+}

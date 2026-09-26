@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [新基础接受学习](memory-update-learning/README.md) - 待执行；固定训练200步后评价四个留出种子。
+
 - [无线索课程最终评价](exploration-course/README.md) - 已完成；返回退步，未采用最终模型，不续训。
 
 - [三组基础能力](foundation-qualification/README.md) - 已完成；三组搬运均完成，循环无线索探索未达开发门槛。
@@ -16,6 +18,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [新基础接受学习](memory-update-learning/README.md) → [冻结设计](../designs/memory-update-learning.md)、[配对数据](../data/memory-update-learning/README.md)。
 
 - [探索课程评价](exploration-course/README.md) → [冻结设计](../designs/exploration-course.md)、[原始数据](../data/exploration-course/README.md)。
 
