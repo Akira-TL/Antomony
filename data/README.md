@@ -45,7 +45,7 @@
 
 ## Relations
 
-- [可塑方向基础课程数据](feedback-plasticity-course/README.md) → [真实实施](../study/feedback-plasticity-course/README.md)。分析计划随后独立登记，不以数据存在声明效果。
+- [可塑方向基础课程数据](feedback-plasticity-course/README.md) → [真实实施](../study/feedback-plasticity-course/README.md)、[配对评价计划](../analysis/feedback-plasticity-course/README.md)。尚未汇总，不以数据存在声明效果。
 
 - [新基础接受数据](memory-update-learning/README.md) → [候选交付与奖励覆盖追查](../analysis/candidate-label-coverage/README.md)。
 

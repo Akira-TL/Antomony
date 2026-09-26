@@ -1,0 +1,46 @@
+{
+  "slug": "feedback-plasticity-course",
+  "title": "反馈驱动的可塑方向基础课程配对评价",
+  "analysis_mode": "exploratory",
+  "status": "planned",
+  "design_slug": "feedback-plasticity-course",
+  "target_uncertainty": "合成局部线索课程中，实际写入和接受时机能否在两个外层初始化分别通过固定可行性门槛。",
+  "estimand": "每外层初始化、每条件的第5至96帧及末24帧平均方向奖励配对差；持续关联和短暂变化等权平均比较学得接受与全部接受及等次数随机接受。",
+  "unit_of_inference": "外层训练初始化；64回合、三条件及四组在初始化内相关，不能当独立模型重复。",
+  "primary_analysis": "先核验完整来源和全部配对，再逐初始化报告原始奖励、各配对差、接受比例和真实写入；执行冻结Design的全部门槛，两个初始化均满足才通过。不选检查点、不重新设阈值。",
+  "analysis_path": "analysis/feedback-plasticity-course/README.md",
+  "code_path": "scripts/analyses/feedback_plasticity.py",
+  "dataset_slugs": [
+    "feedback-plasticity-course"
+  ],
+  "artifacts": [
+    {
+      "path": ".research/protocols/feedback-plasticity-course.json",
+      "role": "other",
+      "timing_role": "pre_result_support"
+    },
+    {
+      "path": "scripts/analyses/feedback-plasticity.sh",
+      "role": "other",
+      "timing_role": "pre_result_support"
+    },
+    {
+      "path": "src/mathhackson/training/foraging/plastic_course/assessment.py",
+      "role": "other",
+      "timing_role": "pre_result_support"
+    },
+    {
+      "path": ".research/analysis/feedback-plasticity-course/A001/config.json",
+      "role": "other",
+      "timing_role": "pre_result_support"
+    }
+  ],
+  "amendments": [
+    {
+      "timing": "pre_result",
+      "description": "新增当前执行说明analysis/feedback-plasticity-course/README.md，补实际数据身份、时间与导航，将英文流程名称改成中文；仅替代当前执行说明，不替代原科学设计、数值、对照、窗口、门槛、停止规则和解释边界。原稿.research/preparation/feedback-plasticity-course/analysis-plan.md保留于原路径及冻结提交9aded454553027378580f2034182d3b0ef55fba2，SHA-256为44eb1c890101c1fa638797f0b54ab685935f4c60c391421e477f26cd5c45424f。",
+      "reason": "原稿复现段落的英文流程名称未通过当前语言预检；按正式修订路径新增版本，不改写冻结文件，不伪称原稿此前合规。数据已产生但未读取评价值或执行效果汇总；原准备稿不再作为本次当前执行支持正文重复登记，历史来源由冻结设计及本修订保留。",
+      "commit_ref": null
+    }
+  ]
+}

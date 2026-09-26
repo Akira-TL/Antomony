@@ -1,0 +1,9 @@
+{
+  "input": "logs/feedback-plasticity/20260926T204123-2",
+  "plan": ".research/protocols/feedback-plasticity-course.json",
+  "manifest": "data/feedback-plasticity-course/inputs.sha256",
+  "manifest_sha256": "a3d0030d1edb0316e495e0c9fdc70c5741bad4ff9fc210b2b22bcb37becca417",
+  "output": ".research/analysis/feedback-plasticity-course/A001/outputs/summary.json",
+  "command": ["bash", "scripts/analyses/feedback-plasticity.sh", "--input", "logs/feedback-plasticity/20260926T204123-2", "--plan", ".research/protocols/feedback-plasticity-course.json", "--manifest", "data/feedback-plasticity-course/inputs.sha256", "--output", ".research/analysis/feedback-plasticity-course/A001/outputs/summary.json"],
+  "status": "prepared-not-run"
+}

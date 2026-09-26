@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [直接行动反馈驱动的可塑方向连接课程](feedback-plasticity-course.md) - 已冻结；两个初始化各150轮、900秒硬限，正式实施已启动。
+- [直接行动反馈驱动的可塑方向连接课程](feedback-plasticity-course.md) - 已冻结；两个初始化各150轮的实施已完成，固定数据已登记，尚未汇总效果。
 
 - [首步方向32步后果](first-action-outcomes.md) - 既有两世界最多8点，只改变一次方向，不训练。
 
@@ -44,7 +44,7 @@
 
 ## Relations
 
-- [可塑方向基础课程](feedback-plasticity-course.md) → [总体研究问题](ant-self-training-adaptation.md)、[旧候选覆盖依据](../analysis/candidate-label-coverage/README.md)、[真实实施](../study/feedback-plasticity-course/README.md)。尚无登记的数据或效果分析；方法来源见设计中的Backpropamine第3.2节，结果前计划由冻结提交保存。
+- [可塑方向基础课程](feedback-plasticity-course.md) → [总体研究问题](ant-self-training-adaptation.md)、[旧候选覆盖依据](../analysis/candidate-label-coverage/README.md)、[真实实施](../study/feedback-plasticity-course/README.md)、[固定数据](../data/feedback-plasticity-course/README.md)、[配对评价计划](../analysis/feedback-plasticity-course/README.md)。尚无效果结果；方法来源见设计中的Backpropamine第3.2节，结果前计划由冻结提交保存。
 
 - [首步方向设计](first-action-outcomes.md) → [实施](../study/first-action-outcomes/README.md)、[分析](../analysis/first-action-outcomes/README.md)。
 
