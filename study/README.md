@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [新基础接受课程采样](memory-update-learning/README.md) - 已完成24世界、301条配对记录。
+
 - [无线索探索课程](exploration-course/README.md) - 已完成32训练与64评价世界。
 
 - [三组基础采样](foundation-qualification/README.md) - 已完成固定48世界。
@@ -16,6 +18,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [新基础接受采样](memory-update-learning/README.md) → [冻结设计](../designs/memory-update-learning.md)、[原始数据](../data/memory-update-learning/README.md)。
 
 - [探索课程](exploration-course/README.md) → [冻结设计](../designs/exploration-course.md)、[原始数据](../data/exploration-course/README.md)。
 

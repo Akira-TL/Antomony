@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [新基础接受配对数据](memory-update-learning/README.md) - 301条记录、2738文件和1344组快照。
+
 - [探索课程数据](exploration-course/README.md) - 245文件，含72组参数快照。
 
 - [三组基础轨迹](foundation-qualification/README.md) - 48世界、52份原始文件。
@@ -16,6 +18,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [新基础接受数据](memory-update-learning/README.md) → [实际采样](../study/memory-update-learning/README.md)。
 
 - [探索课程数据](exploration-course/README.md) → [实际实施](../study/exploration-course/README.md)、[配对评价](../analysis/exploration-course/README.md)。
 
