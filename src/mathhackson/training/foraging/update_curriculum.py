@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 import torch
 
 from .candidate_probe import CandidateRecord, ProbePlan, SourceArtifact, WorldRecord, collect
-from .update_decision import UpdateDecision, decision_features, train_decision_step
+from .update_decision import DecisionProfile, UpdateDecision, decision_features, train_decision_step
 
 
 class CurriculumPlan(BaseModel):
@@ -25,6 +25,7 @@ class CurriculumPlan(BaseModel):
     checkpoint_every: int = Field(default=25, ge=1)
     learning_rate: float = Field(default=.01, gt=0.)
     weight_decay: float = Field(default=.01, ge=0.)
+    decision_profile: DecisionProfile = "parameters"
     probe: ProbePlan
 
     @model_validator(mode="after")
@@ -41,6 +42,8 @@ class CurriculumPlan(BaseModel):
             raise ValueError("基础课程禁止危险机制训练")
         if self.probe.candidate_kind != "trust" or not self.probe.environment.ants <= 8:
             raise ValueError("基础课程使用概率约束候选和至多8份独立基础模型")
+        if self.decision_profile == "actions" and not self.probe.include_action_features:
+            raise ValueError("动作输入课程必须显式采集动作特征")
         return self
 
 
@@ -121,6 +124,10 @@ def read_partition(directory: Path, plan: CurriculumPlan, partition: Literal["tr
                 if not np.isfinite(benefit):
                     raise ValueError("配对标签非有限")
                 features = decision_features(np.asarray(record.observation), np.asarray(record.hidden), record.proposal, record.diagnostics)
+                if plan.decision_profile == "actions":
+                    if record.action_effects is None:
+                        raise ValueError("动作输入课程缺少分支运行前的动作特征，不得补零迁移")
+                    features = np.concatenate((features, np.asarray(record.action_effects.values, dtype=np.float32)))
                 rows.append(LabeledDecision(key, record.focal, features, benefit, record))
             if len(seen) > plan.probe.pairs_per_world:
                 raise ValueError("采样超过冻结预算")
@@ -143,7 +150,7 @@ def fit_individual(rows: list[LabeledDecision], focal: int, plan: CurriculumPlan
     if any(row.key not in allowed for row in selected):
         raise ValueError("留出世界不能参与接受决策训练")
     output.mkdir(parents=True, exist_ok=False)
-    model = UpdateDecision()
+    model = UpdateDecision(plan.decision_profile)
     model.save(output / "step-0000.npz")
     final_loss = None
     labels = np.asarray([row.benefit for row in selected], dtype=np.float32)

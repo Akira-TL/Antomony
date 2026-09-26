@@ -1,7 +1,10 @@
 """以相同当前观察预览候选动作分布，不执行环境或消费随机数。"""
 from __future__ import annotations
 
+from typing import Annotated, Literal
+
 import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 import torch
 
 from mathhackson.training.direction.environment import MAX_TURN
@@ -10,6 +13,13 @@ from .reward import DIRECTIONS
 from .trust_candidate import TrustDirectionLearner, rotation_probabilities
 
 ACTION_FEATURE_WIDTH = 38
+
+
+class ActionFeatureRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    version: Literal["local-action-effects-v1"] = "local-action-effects-v1"
+    values: tuple[Annotated[float, Field(gt=-1., lt=1., allow_inf_nan=False)], ...] = Field(
+        min_length=ACTION_FEATURE_WIDTH, max_length=ACTION_FEATURE_WIDTH)
 
 
 def action_effect_features(agent: TrustDirectionLearner, observation: LocalObservation) -> np.ndarray:

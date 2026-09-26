@@ -15,6 +15,7 @@ import torch
 from mathhackson.training.direction.checkpoint import load_motor
 from mathhackson.training.direction.policy import DirectionAction
 from .adaptation import AdaptationConfig, AdaptationProposal, NovelDirectionLearner
+from .action_features import ActionFeatureRecord, action_effect_features
 from .candidate_value import CandidateValue, evaluate_candidate
 from .colony import ColonyConfig
 from .disturbance import DisturbanceConfig, DisturbedColony
@@ -42,6 +43,7 @@ class ProbePlan(BaseModel):
     restoration_control: bool = False
     sample_interval: int | None = Field(default=None, ge=1)
     include_zero_candidates: bool = False
+    include_action_features: bool = False
 
     @model_validator(mode="after")
     def check_candidate_configuration(self) -> ProbePlan:
@@ -53,6 +55,8 @@ class ProbePlan(BaseModel):
             raise ValueError("固定采样间隔必须为反馈窗口的整数倍")
         if self.policy_kind == "mlp-memory" and self.adaptation.feedback_mode != "observed-window":
             raise ValueError("记忆模型必须显式使用已发生窗口反馈")
+        if self.include_action_features and self.candidate_kind != "trust":
+            raise ValueError("动作特征采样只支持概率约束方向候选")
         return self
 
     def policy_path(self, index: int) -> Path:
@@ -85,6 +89,7 @@ class CandidateRecord(BaseModel):
     diagnostics: CandidateDiagnostics | None = None
     restoration: CandidateValue | None = None
     current_rotation: float | None = None
+    action_effects: ActionFeatureRecord | None = None
 
 
 class WorldRecord(BaseModel):
@@ -159,6 +164,12 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
                 start = (env.steps // sample_interval - 1) % len(agents)
                 focal = min(eligible, key=lambda i: (i - start) % len(agents))
                 agent = agents[focal]
+                action_effects = None
+                if plan.include_action_features:
+                    if not isinstance(agent, TrustDirectionLearner):
+                        raise ValueError("动作特征需要概率约束方向候选")
+                    # 特征在任何未来分支运行前固定，配对结果只能作为离线标签。
+                    action_effects = ActionFeatureRecord(values=action_effect_features(agent, env.observation(focal)))
                 result = evaluate_candidate(env, agents, focal, horizon=plan.branch_horizon)
                 restoration = None
                 rotation = None
@@ -172,8 +183,9 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
                                          observation=env.observation(focal).vector().tolist(),
                                          hidden=agent.history[-1].detach().tolist(), proposal=agent.proposal, result=result,
                                          diagnostics=agent.diagnostics if isinstance(agent, TrustDirectionLearner) else None,
-                                         restoration=restoration, current_rotation=rotation)
-                output.write(record.model_dump_json() + "\n")
+                                         restoration=restoration, current_rotation=rotation, action_effects=action_effects)
+                excluded = set() if plan.include_action_features else {"action_effects"}
+                output.write(record.model_dump_json(exclude=excluded) + "\n")
                 output.flush()
                 pairs += 1
             for agent in agents:
