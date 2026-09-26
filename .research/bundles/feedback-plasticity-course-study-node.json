@@ -1,0 +1,12 @@
+{
+  "slug": "feedback-plasticity-course-study",
+  "kind": "study",
+  "label": "可塑方向基础课程实施",
+  "scientific_scope": "1701和1702两个外层初始化的固定无危险方向反馈课程；实际执行、保存点与全部配对评价的实施身份，不把执行状态等同于效果达标。",
+  "workflow_status": "active",
+  "branch_priority": "primary",
+  "parent_slug": "feedback-plasticity-course-design",
+  "canonical_entity_type": "study",
+  "canonical_entity_id": "20",
+  "artifact_path": "study/feedback-plasticity-course/README.md"
+}

@@ -24,6 +24,7 @@ flowchart TD
     N26["四步实际写入的约束与动作响应<br/>analysis · resolved"]
     N27["首次受伤前首步方向32步后果<br/>analysis · resolved"]
     N28["既有基础301候选均缺少焦点交付改善<br/>analysis · resolved"]
+    N30["可塑方向基础课程实施<br/>study · active"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -64,6 +65,7 @@ flowchart TD
     N26 --> N27
     N5 --> N28
     N5 --> N29
+    N29 --> N30
     N29 -. spawned_from .-> N28
 ```
 
@@ -100,3 +102,4 @@ flowchart TD
 | N27 | analysis | resolved | 首次受伤前首步方向32步后果 | [打开](../analysis/first-action-outcomes/README.md) |
 | N28 | analysis | resolved | 既有基础301候选均缺少焦点交付改善 | [打开](../analysis/candidate-label-coverage/README.md) |
 | N29 | design | active | 行动反馈驱动的可塑连接与接受控制草案 | [打开](../designs/feedback-plasticity-course.md) |
+| N30 | study | active | 可塑方向基础课程实施 | [打开](../study/feedback-plasticity-course/README.md) |
