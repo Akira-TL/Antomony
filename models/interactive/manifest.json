@@ -1,0 +1,2275 @@
+{
+  "version": "interactive-model-package-v1",
+  "qualification": "工程验收初始化；未证明自训练优势或学会更新时机",
+  "audit": "逐个核验归档键、类型、维度及白名单元数据；不包含对象数组、样本或凭据字段",
+  "models": [
+    {
+      "kind": "motor",
+      "initialization": null,
+      "path": "motor/update-001200.npz",
+      "source": "logs/direction-motor/20260926T053106-2/seed-41/update-001200.npz",
+      "sha256": "ea6e831e0cf4715b4fbad6bad68263acacb1c65e4815b08c8f37bf0ce6143492",
+      "bytes": 1557,
+      "parameter_count": 82,
+      "qualification": "纯方向输入动作模型；现场冻结，不提供目标位置或距离",
+      "arrays": [
+        {
+          "name": "encoder_bias",
+          "shape": [
+            16
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder_weight",
+          "shape": [
+            16,
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "metadata",
+          "shape": [],
+          "dtype": "<U182",
+          "parameter": false
+        },
+        {
+          "name": "readout_bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "readout_weight",
+          "shape": [
+            2,
+            16
+          ],
+          "dtype": "float32",
+          "parameter": true
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 0,
+      "path": "memory/episode-0000-ant-00.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-00.npz",
+      "sha256": "9eefbfa6aeb744afc800230ae8fc22bf7c3297a3e593d7cc453689fd664a2726",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 0,
+      "path": "mlp/seed-81-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-81-signal-002400.npz",
+      "sha256": "cae044064b9f5c484b2f1b40f4022bf12c678bbc8ca399eea6d20dcaa3738acd",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 0,
+      "path": "gate/ant-00/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-00/step-0200.npz",
+      "sha256": "7bfd3bd1b07297e32d75d87b4bf12bedbf3f6fc31f38ea7c43753b8053d87dcd",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 1,
+      "path": "memory/episode-0000-ant-01.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-01.npz",
+      "sha256": "442fba44c184868c39696307f23e110ed81856e0f15ca1553768cae233174e02",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 1,
+      "path": "mlp/seed-82-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-82-signal-002400.npz",
+      "sha256": "c3040b74ab24e879903c256e8bbaecf4840d6c2abd4ebd2ffe61f4897c7171f9",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 1,
+      "path": "gate/ant-01/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-01/step-0200.npz",
+      "sha256": "48cfa72643a037347639dee85e12c64bf24813b81599f6c7e523cf85c7d47f95",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 2,
+      "path": "memory/episode-0000-ant-02.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-02.npz",
+      "sha256": "f58233b6e8801a3bf9d52f3bf846968a312f87bae30af55dbdbe72b718155170",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 2,
+      "path": "mlp/seed-83-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-83-signal-002400.npz",
+      "sha256": "bd954e453a17d60eb31bb0755903005522f0fa45b225a7a63edaf38481b4b7ff",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 2,
+      "path": "gate/ant-02/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-02/step-0200.npz",
+      "sha256": "e50f205d06b5cb7bec69d964f8a72101e4bf4abc8eb9ebfa8d7c61691ead8682",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 3,
+      "path": "memory/episode-0000-ant-03.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-03.npz",
+      "sha256": "10ed304183821d5c0ecc514171dcc1a05d3fcda67c2eb101c1aed00fd8bcf8f0",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 3,
+      "path": "mlp/seed-84-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-84-signal-002400.npz",
+      "sha256": "8d16bf116df46cbaeb0b0ea0b780575f08e576f3062271502956fcbf215a2f61",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 3,
+      "path": "gate/ant-03/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-03/step-0200.npz",
+      "sha256": "eaee4b2a9532521c9e37f0a5a2b9ab8d94f170ead7974498fa77a2e3a3ebbfd7",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 4,
+      "path": "memory/episode-0000-ant-04.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-04.npz",
+      "sha256": "a660281837069eafafae9e6af48c0b36f37debcd1b7050cb11ef7cc8bca7e26f",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 4,
+      "path": "mlp/seed-85-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-85-signal-002400.npz",
+      "sha256": "65ea321fd8ce931ce12c75ef9596e97abaa5f4f0bb5e9695c3ae1f912b71f823",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 4,
+      "path": "gate/ant-04/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-04/step-0200.npz",
+      "sha256": "8cbacc7a9c98ef7b0d558a4fa5397960d36d08a1547d42a077107d921f5e41f9",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 5,
+      "path": "memory/episode-0000-ant-05.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-05.npz",
+      "sha256": "118c5b1a37cd5221840d3d946a4463aad8ac972416ba5f0654a20d14def54c6c",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 5,
+      "path": "mlp/seed-86-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-86-signal-002400.npz",
+      "sha256": "659ab5255552d1f2182cdba3d90f5d66426363a616f679efc97fdcc8bd378cb1",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 5,
+      "path": "gate/ant-05/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-05/step-0200.npz",
+      "sha256": "498c18068a5483028d47ab0ca30c2f37861acab83203fa4bcfab31873b0d9ee8",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 6,
+      "path": "memory/episode-0000-ant-06.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-06.npz",
+      "sha256": "cf5392f8d327d1619be58debd0f63dd0f2e8b20211017a58d3586789fd78eda1",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 6,
+      "path": "mlp/seed-87-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-87-signal-002400.npz",
+      "sha256": "912cbb8bc97d00e19d91f25a2b426f1427f38cbdde8fec8ea93b8e4ca54409d5",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 6,
+      "path": "gate/ant-06/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-06/step-0200.npz",
+      "sha256": "cb9f61ed4d3428c707b605371f1261dba6ddff947d2a733eaf13dcf12103aa34",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "memory",
+      "initialization": 7,
+      "path": "memory/episode-0000-ant-07.npz",
+      "source": "logs/memory-check/20260926T112254-2/episode-0000-ant-07.npz",
+      "sha256": "6695e0aef6bb4f403b6c3bef06b2963de3db52e00677795c9a43acef2622333a",
+      "bytes": 9810,
+      "parameter_count": 1429,
+      "qualification": "14宽基础模型加零初始化记忆连接；记忆冻结，未证明记忆收益",
+      "arrays": [
+        {
+          "name": "base.direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.bias",
+          "shape": [
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.encoder.weight",
+          "shape": [
+            14,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.middle.weight",
+          "shape": [
+            8,
+            14
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "base.value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "recent_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "recent_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "sparse_lags",
+          "shape": [
+            4
+          ],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "sparse_weights",
+          "shape": [
+            4,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U19",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "mlp",
+      "initialization": 7,
+      "path": "mlp/seed-88-signal-002400.npz",
+      "source": "logs/matched-foundation/20260926T121232-2/seed-88-signal-002400.npz",
+      "sha256": "a03bfcf5dca62c5e8c9619c0aa27ed6b6f1ed0dc0afc687cc872b7e54a38679e",
+      "bytes": 9758,
+      "parameter_count": 1650,
+      "qualification": "17宽普通MLP基础模型；现场冻结，不使用循环连接",
+      "arrays": [
+        {
+          "name": "direction.bias",
+          "shape": [
+            2
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "direction.weight",
+          "shape": [
+            2,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.bias",
+          "shape": [
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "encoder.weight",
+          "shape": [
+            17,
+            86
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "hidden_width",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "middle.bias",
+          "shape": [
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "middle.weight",
+          "shape": [
+            8,
+            17
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "phase",
+          "shape": [],
+          "dtype": "<U6",
+          "parameter": false
+        },
+        {
+          "name": "update",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            8
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U12",
+          "parameter": false
+        }
+      ]
+    },
+    {
+      "kind": "gate",
+      "initialization": 7,
+      "path": "gate/ant-07/step-0200.npz",
+      "source": "logs/model-artifacts/memory-acceptance/ant-07/step-0200.npz",
+      "sha256": "6f338bbd4fdd96b798ea290cc123fc1db87f7d8d7869d03a7e90bcb537dac51b",
+      "bytes": 1690,
+      "parameter_count": 141,
+      "qualification": "旧目标200步接受模型；未通过采用条件；仅兼容当前加载和保存接口，不用于现场接受判断",
+      "arrays": [
+        {
+          "name": "updates",
+          "shape": [],
+          "dtype": "int64",
+          "parameter": false
+        },
+        {
+          "name": "value.bias",
+          "shape": [
+            1
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "value.weight",
+          "shape": [
+            1,
+            140
+          ],
+          "dtype": "float32",
+          "parameter": true
+        },
+        {
+          "name": "version",
+          "shape": [],
+          "dtype": "<U24",
+          "parameter": false
+        }
+      ]
+    }
+  ]
+}
