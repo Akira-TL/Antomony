@@ -1,0 +1,155 @@
+{
+  "verified_files": 1426,
+  "verified_snapshots": 696,
+  "fits": [
+    {
+      "focal": 0,
+      "examples": 31,
+      "positive": 2,
+      "negative": 7,
+      "zero": 22,
+      "steps": 200,
+      "final_loss": 1.310861349105835
+    },
+    {
+      "focal": 1,
+      "examples": 24,
+      "positive": 0,
+      "negative": 5,
+      "zero": 19,
+      "steps": 200,
+      "final_loss": 0.5280185341835022
+    },
+    {
+      "focal": 2,
+      "examples": 25,
+      "positive": 3,
+      "negative": 4,
+      "zero": 18,
+      "steps": 200,
+      "final_loss": 1.3094031810760498
+    },
+    {
+      "focal": 3,
+      "examples": 12,
+      "positive": 0,
+      "negative": 2,
+      "zero": 10,
+      "steps": 200,
+      "final_loss": 0.13444358110427856
+    },
+    {
+      "focal": 4,
+      "examples": 20,
+      "positive": 0,
+      "negative": 8,
+      "zero": 12,
+      "steps": 200,
+      "final_loss": 0.9639498591423035
+    },
+    {
+      "focal": 5,
+      "examples": 9,
+      "positive": 0,
+      "negative": 2,
+      "zero": 7,
+      "steps": 200,
+      "final_loss": 0.001447142451070249
+    },
+    {
+      "focal": 6,
+      "examples": 16,
+      "positive": 0,
+      "negative": 2,
+      "zero": 14,
+      "steps": 200,
+      "final_loss": 0.05188438296318054
+    },
+    {
+      "focal": 7,
+      "examples": 33,
+      "positive": 2,
+      "negative": 3,
+      "zero": 28,
+      "steps": 200,
+      "final_loss": 0.15744829177856445
+    }
+  ],
+  "worlds": [
+    {
+      "key": "initial-0-seed-11111",
+      "seed": 11111,
+      "initial_norm": 0.0,
+      "count": 11,
+      "accepted": 6,
+      "positive": 1,
+      "negative": 2,
+      "tied": 8,
+      "selected_reward": 0.0,
+      "always_reward": -0.09090909090909091,
+      "prediction_mse": 1.576676471599557,
+      "selected_focal_deliveries": 0.0,
+      "selected_colony_deliveries": 0.2727272727272727
+    },
+    {
+      "key": "initial-0-seed-11112",
+      "seed": 11112,
+      "initial_norm": 0.0,
+      "count": 16,
+      "accepted": 7,
+      "positive": 0,
+      "negative": 1,
+      "tied": 15,
+      "selected_reward": -0.3125,
+      "always_reward": -0.3125,
+      "prediction_mse": 2.611543932518398,
+      "selected_focal_deliveries": -0.0625,
+      "selected_colony_deliveries": 0.0
+    },
+    {
+      "key": "initial-1-seed-11111",
+      "seed": 11111,
+      "initial_norm": 0.75,
+      "count": 12,
+      "accepted": 7,
+      "positive": 1,
+      "negative": 2,
+      "tied": 9,
+      "selected_reward": -0.3333333333333333,
+      "always_reward": -0.3333333333333333,
+      "prediction_mse": 2.6552500447390073,
+      "selected_focal_deliveries": -0.08333333333333333,
+      "selected_colony_deliveries": 0.08333333333333333
+    },
+    {
+      "key": "initial-1-seed-11112",
+      "seed": 11112,
+      "initial_norm": 0.75,
+      "count": 16,
+      "accepted": 5,
+      "positive": 0,
+      "negative": 5,
+      "tied": 11,
+      "selected_reward": -0.625,
+      "always_reward": -1.0625,
+      "prediction_mse": 6.201649570563834,
+      "selected_focal_deliveries": -0.125,
+      "selected_colony_deliveries": -0.0625
+    }
+  ],
+  "seeds": [
+    {
+      "seed": 11111,
+      "complete": true,
+      "selected_reward": -0.16666666666666666,
+      "always_reward": -0.2121212121212121
+    },
+    {
+      "seed": 11112,
+      "complete": true,
+      "selected_reward": -0.46875,
+      "always_reward": -0.6875
+    }
+  ],
+  "development_continue": false
+}
