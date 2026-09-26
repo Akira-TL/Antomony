@@ -3,9 +3,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from typing import Annotated
 
 import numpy as np
-from pydantic import Field
+from pydantic import Field, model_validator
 import torch
 
 from mathhackson.training.direction.policy import DirectionMotor
@@ -13,7 +14,7 @@ from .adaptation import AdaptationConfig, AdaptationProposal, NovelDirectionLear
 from .environment import LocalObservation
 from .memory import MemoryPolicy
 from .policy import DirectionDecision, ForagingPolicy
-from .reward import DIRECTIONS, direction_distribution
+from .reward import DIRECTIONS, direction_distribution, discounted_returns
 
 
 class TrustConfig(AdaptationConfig):
@@ -24,6 +25,17 @@ class TrustConfig(AdaptationConfig):
     maximum_state_kl: float = Field(default=.08, gt=0.)
     damping: float = Field(default=.01, gt=0.)
     backtracks: int = Field(default=12, ge=1)
+    credit_horizon: int | None = Field(default=None, ge=1, le=64, exclude_if=lambda value: value is None)
+
+    @model_validator(mode="after")
+    def validate_credit_history(self) -> TrustConfig:
+        if self.credit_horizon is not None:
+            if self.credit_horizon < self.window:
+                raise ValueError("动作归因范围不能小于判断窗口")
+            if (self.feedback_mode != "observed-window" or self.feedback_trigger != "window"
+                    or self.historical_baseline_rate != 0.):
+                raise ValueError("保留动作仅支持已发生反馈、固定窗口与零历史基线")
+        return self
 
 
 @dataclass(frozen=True)
@@ -32,6 +44,7 @@ class CandidateDiagnostics:
     maximum_kl: float = 0.
     surrogate_gain: float = 0.
     backtracks: int = 0
+    credit_steps: Annotated[int | None, Field(ge=1, le=64, exclude_if=lambda value: value is None)] = None
 
 
 def rotation_probabilities(weights: torch.Tensor, bases: torch.Tensor, features: torch.Tensor) -> torch.Tensor:
@@ -64,21 +77,32 @@ class TrustDirectionLearner(NovelDirectionLearner):
             self.base_directions.append(self.policy(tensor, history)[0].detach().clone())
         self.novel_features.append(tensor[:72].reshape(9, 8)[:, 3:].flatten().clone())
         self.action_indices.append(int((DIRECTIONS @ torch.from_numpy(result.direction)).argmax()))
+        if self.config.credit_horizon is not None:
+            for buffer in (self.base_directions, self.novel_features, self.action_indices):
+                del buffer[:-self.config.credit_horizon]
         return result
 
     def propose(self, next_observation: LocalObservation) -> AdaptationProposal:
         if not self.ready or self.proposal is not None:
             raise ValueError("尚无完整后到反馈，或已有待定提案")
-        advantage = self.feedback_advantage(next_observation)
-        loss = -(torch.stack(self.log_probabilities) * advantage).mean()
+        bases, features = torch.stack(self.base_directions), torch.stack(self.novel_features)
+        if self.config.credit_horizon is None:
+            advantage = self.feedback_advantage(next_observation)
+            loss = -(torch.stack(self.log_probabilities) * advantage).mean()
+        else:
+            # 较早动作只接收本窗口新到奖励，已处理奖励不再次用于归因。
+            fresh = [0.] * (len(bases) - len(self.rewards)) + self.rewards
+            advantage = discounted_returns(fresh, 0., self.config.gamma)
+            probabilities = rotation_probabilities(self.offset, bases, features)
+            selected = probabilities[torch.arange(len(bases)), torch.tensor(self.action_indices)]
+            loss = -(selected.log() * advantage).mean()
         gradient = torch.autograd.grad(loss, self.offset)[0].detach()
         if not bool(torch.isfinite(gradient).all()):
             raise ValueError("非有限梯度不能形成修改")
-        bases, features = torch.stack(self.base_directions), torch.stack(self.novel_features)
         current = self.offset.detach().clone()
         old = rotation_probabilities(current, bases, features).detach()
         delta = torch.zeros_like(current)
-        self.diagnostics = CandidateDiagnostics()
+        self.diagnostics = CandidateDiagnostics(credit_steps=len(bases) if self.config.credit_horizon is not None else None)
         if bool(gradient.any()):
             jacobian = torch.autograd.functional.jacobian(
                 lambda value: rotation_probabilities(value, bases, features), current, vectorize=True).double()
@@ -109,14 +133,24 @@ class TrustDirectionLearner(NovelDirectionLearner):
             mean_kl, maximum_kl = float(divergence.mean()), float(divergence.max())
             if (0. < gain and mean_kl <= self.config.maximum_mean_kl
                     and maximum_kl <= self.config.maximum_state_kl):
-                self.diagnostics = CandidateDiagnostics(mean_kl, maximum_kl, gain, attempt)
+                self.diagnostics = CandidateDiagnostics(mean_kl, maximum_kl, gain, attempt,
+                    len(bases) if self.config.credit_horizon is not None else None)
                 return delta
-        self.diagnostics = CandidateDiagnostics(backtracks=self.config.backtracks)
+        self.diagnostics = CandidateDiagnostics(backtracks=self.config.backtracks,
+            credit_steps=len(bases) if self.config.credit_horizon is not None else None)
         return torch.zeros_like(current)
 
     def resolve(self, proposal: AdaptationProposal, *, accept: tuple[bool, ...]) -> bool:
         changed = super().resolve(proposal, accept=accept)
+        if self.config.credit_horizon is None or changed or self.terminal:
+            self._clear_credit()
+        return changed
+
+    def _clear_credit(self) -> None:
         self.base_directions.clear()
         self.novel_features.clear()
         self.action_indices.clear()
-        return changed
+
+    def restart(self, *, preserve_memory: bool = False) -> None:
+        super().restart(preserve_memory=preserve_memory)
+        self._clear_credit()

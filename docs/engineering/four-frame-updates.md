@@ -25,3 +25,5 @@ bash scripts/training/four-frame.sh --smoke
 ## 有限效果验证
 
 该配置现已随[窗口比较设计](../../designs/window-cadence.md)冻结，后续研究变化需另立配置，不能回写本文件对应协议。[配对结果](../../analysis/window-cadence/README.md)显示四步相对十六步少失败21/23次，但相对不更新多2/少50次，尚不稳定。保留四步判断入口，不把它宣称为已学会更新控制，也不自动替换8774历史结果。
+
+另有默认关闭的[后到反馈归因选项](delayed-feedback-credit.md)：判断仍每四步进行，参数未变时允许新到奖励作用于较早动作。它没有写入本页对应的冻结协议，当前也没有效果资格。

@@ -67,8 +67,9 @@ class ContinuousPlan(BaseModel):
             raise ValueError("当前模型只能使用已发生反馈")
         if not self.arms or len(set(self.arms)) != len(self.arms):
             raise ValueError("比较组须非空且唯一")
-        if (self.feedback_profile != "legacy" or self.adaptation.feedback_trigger != "window") and "learned" in self.arms:
-            raise ValueError("旧接受模型未按新目标或触发时序训练，不能用于新反馈")
+        if (self.feedback_profile != "legacy" or self.adaptation.feedback_trigger != "window"
+                or self.adaptation.credit_horizon is not None) and "learned" in self.arms:
+            raise ValueError("旧接受模型未按新目标、触发时序或归因范围训练，不能用于新反馈")
         return self
 
     def policy_path(self, index: int) -> Path:
