@@ -28,7 +28,11 @@ export class WorldView {
   setTape(tape:Tape):void{this.tape=tape;this.version++;this.lastTick=-1;this.nestRange.scale.setScalar(tape.header.nest_radius);this.focus();}
   focus():void{
     if(!this.tape)return;const [x,z]=this.tape.header.food;
-    this.scene.controls.target.set(x/2,0,z/2);this.scene.camera.position.set(x/2+1,7,z/2+5);
+    const camera=this.scene.camera,radius=Math.hypot(x,z)/2+2;
+    const vertical=THREE.MathUtils.degToRad(camera.fov)/2;
+    const angle=Math.min(vertical,Math.atan(Math.tan(vertical)*camera.aspect));
+    const offset=new THREE.Vector3(1,7,5).normalize().multiplyScalar(radius/Math.sin(angle));
+    this.scene.controls.target.set(x/2,0,z/2);camera.position.copy(this.scene.controls.target).add(offset);
     this.scene.camera.lookAt(x/2,0,z/2);this.scene.controls.update();
   }
   render(tick:number,individual:number):void{
@@ -40,7 +44,7 @@ export class WorldView {
     this.scene.selected=individual;
     this.scene.update({mode:tape.header.result.arm==='rules'?'rules':'neural',tick:actual,seconds:actual*.1,seed:this.version,
       delivered:0,field_width:96,field_height:64,pheromones:emptyField,walls:[],
-      foods:[{id:0,x:tape.header.food[0],y:tape.header.food[1],amount:48-count.pickups}],
+      foods:[{id:0,x:tape.header.food[0],y:tape.header.food[1],amount:tape.header.stock-count.pickups}],
       ants:tape.header.initial_positions.map((position,id)=>{
         const ant=frame?.ants[id],p=ant?.position??position,heading=ant?.heading??tape.header.initial_headings[id];
         return {id,x:p[0],y:p[1],heading,carrying:ant?.carrying??false,

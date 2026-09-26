@@ -1,7 +1,7 @@
 import {createElement,Play,Pause,StepForward,RotateCcw,Focus,ChevronLeft,ChevronRight} from 'lucide';
 import type {IconNode} from 'lucide';
 import {counts,jsonLines,pointAt} from './model';
-import type {Arm,Catalog,Frame,Header,Tape,Update,WeightGroup} from './model';
+import type {Arm,BatchInfo,Catalog,Frame,Header,Tape,Update,WeightGroup} from './model';
 import {WorldView} from './world';
 import './style.css';
 
@@ -10,23 +10,24 @@ const icon=(node:IconNode)=>createElement(node,{width:17,height:17,'stroke-width
 const button=(id:string,title:string,node:IconNode)=>`<button type="button" id="${id}" title="${title}" aria-label="${title}">${icon(node)}</button>`;
 const names:Record<Arm,string>={learned:'学习接受',skip:'全部跳过',always:'固定接受',mlp:'普通 MLP',rules:'纯规则'};
 const conditions:Record<string,string>={reference:'正常参照',slow:'持续减速',periodic:'周期减速','moving-danger':'移动危险'};
-$('#app').innerHTML=`<header><div><h1>连续对照验收</h1><small>MathHackson · 20260926T123655-2</small></div><strong id="outcome">读取已登记结果</strong></header>
-<div id="error" role="alert" hidden></div><div class="controls"><label>场景<select id="condition" aria-label="场景"></select></label><label>种子<select id="seed" aria-label="世界种子"></select></label><label>参照<select id="comparator" aria-label="参照组">${(['always','skip','mlp','rules'] as Arm[]).map(a=>`<option value="${a}">${names[a]}</option>`).join('')}</select></label><span id="loading" role="status">读取中</span>
+$('#app').innerHTML=`<header><div><h1>连续对照验收</h1><small id="batch-label">MathHackson</small></div><strong id="outcome">读取记录</strong></header>
+<div id="error" role="alert" hidden></div><div class="controls"><label>批次<select id="batch" aria-label="记录批次"></select></label><label>场景<select id="condition" aria-label="场景"></select></label><label>种子<select id="seed" aria-label="世界种子"></select></label><label>参照<select id="comparator" aria-label="参照组">${(['always','skip','mlp','rules'] as Arm[]).map(a=>`<option value="${a}">${names[a]}</option>`).join('')}</select></label><span id="loading" role="status">读取中</span>
 <div class="transport">${button('play','播放记录',Play)}${button('step','下一步',StepForward)}${button('reset','回到起点',RotateCcw)}${button('focus','聚焦巢食区域',Focus)}<label>速度<select id="speed" aria-label="播放速度"><option value="1">1×</option><option value="4" selected>4×</option><option value="16">16×</option></select></label></div></div>
 <div class="timeline"><output id="time">0 / 768 步</output><input id="time-slider" type="range" min="0" max="768" value="0" aria-label="记录时间步" step="1" /></div>
 <section class="scenes">${[0,1].map(i=>`<div class="world"><div class="world-head"><strong id="name-${i}"></strong><span id="end-${i}"></span></div><div class="stats" id="stats-${i}"></div><div id="scene-${i}" class="scene"></div></div>`).join('')}</section>
 <div class="comparison"><span id="difference"></span><span id="run-note">记录回放</span></div>
 <section class="inspector"><div class="inspector-head"><h2>个体参数</h2><label>组别<select id="side" aria-label="参数所属组"><option value="0">学习接受</option><option value="1">参照组</option></select></label><label>个体<select id="ant" aria-label="个体编号">${Array.from({length:8},(_,i)=>`<option value="${i}">${i+1}</option>`).join('')}</select></label><label>参数<select id="group" aria-label="参数模块"></select></label><span id="freeze" class="freeze"></span></div>
 <div class="details"><div><div id="charts" class="charts"></div><div class="pager">${button('previous','上一组参数',ChevronLeft)}<span id="page"></span>${button('next','下一组参数',ChevronRight)}</div></div><aside class="side"><h3>当前个体</h3><div id="ant-state" class="ant-state"></div><h3>中心位置接收器</h3><div id="receptors" class="receptors"></div><h3>最近更新决策</h3><div id="events" class="events"></div></aside></div></section>
-<footer>数据：80 世界 · 4 个配对种子 · 接受策略未通过采用条件 · 全场信息素快照未记录</footer><div id="tooltip" class="tooltip" role="status" hidden></div>`;
+<footer id="data-note">读取批次身份</footer><div id="tooltip" class="tooltip" role="status" hidden></div>`;
 
-let catalog:Catalog,tapes:Tape[]=[],groups:WeightGroup[]=[],tick=0,page=0,playing=false,busy=true,revision=0,weightRevision=0;
+let catalog:Catalog,batches:BatchInfo[]=[],tapes:Tape[]=[],groups:WeightGroup[]=[],tick=0,page=0,playing=false,busy=true,revision=0,weightRevision=0;
 const views=[0,1].map(i=>new WorldView($(`#scene-${i}`),id=>{select('#ant',String(id));select('#side',String(i));void loadWeights();}));
 const value=(id:string)=>$<HTMLSelectElement>(id).value;
 const select=(id:string,next:string)=>{$<HTMLSelectElement>(id).value=next;};
 const failure=(error:unknown)=>{$('#error').textContent=error instanceof Error?error.message:String(error);$('#error').hidden=false;};
 const url=(arm:Arm)=>`/api/acceptance/${value('#condition')}/${value('#seed')}/${arm}`;
-async function response(path:string):Promise<Response>{const result=await fetch(path,{signal:AbortSignal.timeout(20000)});if(!result.ok)throw new Error(`读取失败 ${result.status}`);return result;}
+async function response(path:string):Promise<Response>{const query=new URLSearchParams({batch:value('#batch')||'registered'});const result=await fetch(`${path}?${query}`,{signal:AbortSignal.timeout(20000)});if(!result.ok)throw new Error(`读取失败 ${result.status}`);return result;}
+const horizon=()=>catalog?.execution.plan.environment.horizon??768;
 function setPlaying(next:boolean):void{playing=next;$('#play').innerHTML=icon(next?Pause:Play);$('#play').title=next?'暂停记录':'播放记录';$('#play').setAttribute('aria-label',$('#play').title);if(!busy)$('#loading').textContent=next?'播放中':'已暂停';}
 function controls():void{document.querySelectorAll<HTMLButtonElement|HTMLSelectElement|HTMLInputElement>('.controls button,.controls select,.timeline input').forEach(e=>e.disabled=busy);}
 
@@ -43,6 +44,7 @@ async function loadWorlds():Promise<void>{
     const next=await Promise.all([loadTape('learned'),loadTape(value('#comparator') as Arm)]);
     if(current!==revision)return;tapes=next;tick=0;
     tapes.forEach((tape,i)=>{views[i].setTape(tape);$(`#name-${i}`).textContent=names[tape.header.result.arm];});
+    const distance=Math.hypot(...tapes[0].header.food);$('#batch-label').textContent=`MathHackson · ${batches.find(b=>b.id===value('#batch'))?.label} · 巢食距离 ${distance.toFixed(2)}`;
     $('#side').children[1].textContent=names[tapes[1].header.result.arm];
     await loadWeights();render();$('#loading').textContent='已暂停';
   }catch(error){if(current===revision){tapes=[];failure(error);$('#loading').textContent='读取失败';}}
@@ -75,7 +77,7 @@ function renderCharts():void{
   document.querySelectorAll<HTMLCanvasElement>('.weight canvas').forEach(canvas=>{
     canvas.addEventListener('pointermove',event=>{
       const current=selectedGroup();if(!current)return;
-      const rect=canvas.getBoundingClientRect(),at=Math.round(Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width))*768);
+      const rect=canvas.getBoundingClientRect(),at=Math.round(Math.max(0,Math.min(1,(event.clientX-rect.left)/rect.width))*horizon());
       const parameter=Number(canvas.dataset.index),point=pointAt(current.points,at);
       $('#tooltip').textContent=`参数 [${parameter}] · 第 ${at} 步后\n${point.values[parameter].toPrecision(9)}\n${current.frozen?'冻结参数':`最近记录：第 ${point.tick} 步`}`;
       $('#tooltip').style.left=`${Math.min(window.innerWidth-270,event.clientX+12)}px`;$('#tooltip').style.top=`${Math.max(8,event.clientY-78)}px`;$('#tooltip').hidden=false;
@@ -90,13 +92,13 @@ function drawCharts():void{
     const y=(v:number)=>90-(v-low+padding)/(high-low+2*padding)*80;
     const ctx=canvas.getContext('2d')!;ctx.clearRect(0,0,360,100);ctx.strokeStyle=group.frozen?'#9facb6':'#65cfbb';ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(0,y(values[0]));let last=values[0];
-    for(const point of group.points){const x=point.tick/768*360;ctx.lineTo(x,y(last));last=point.values[index];ctx.lineTo(x,y(last));}
-    ctx.lineTo(360,y(last));ctx.stroke();ctx.strokeStyle='#d8b169';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tick/768*360,0);ctx.lineTo(tick/768*360,100);ctx.stroke();
+    for(const point of group.points){const x=point.tick/horizon()*360;ctx.lineTo(x,y(last));last=point.values[index];ctx.lineTo(x,y(last));}
+    ctx.lineTo(360,y(last));ctx.stroke();ctx.strokeStyle='#d8b169';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tick/horizon()*360,0);ctx.lineTo(tick/horizon()*360,100);ctx.stroke();
   });
 }
 function render():void{
   if(tapes.length!==2)return;const individual=Number(value('#ant')),side=Number(value('#side'));
-  $('#time').textContent=`${tick} / 768 步`;$<HTMLInputElement>('#time-slider').value=String(tick);
+  $('#time').textContent=`${tick} / ${horizon()} 步`;$<HTMLInputElement>('#time-slider').value=String(tick);
   tapes.forEach((tape,i)=>{
     const count=tape.counts[Math.min(tick,tape.frames.length)];views[i].render(tick,individual);
     $(`#end-${i}`).textContent=tick>=tape.frames.length?`记录结束于 ${tape.frames.length} 步`:`${tape.frames.length} 步记录`;
@@ -118,25 +120,37 @@ for(const id of ['#side','#ant'])$(id).addEventListener('change',()=>void loadWe
 $('#group').addEventListener('change',()=>{page=0;renderCharts();});
 $('#previous').addEventListener('click',()=>{page=Math.max(0,page-1);renderCharts();});
 $('#next').addEventListener('click',()=>{page++;renderCharts();});
-$('#play').addEventListener('click',()=>{if(busy||!tapes.length)return;if(tick>=768)tick=0;setPlaying(!playing);});
-$('#step').addEventListener('click',()=>{setPlaying(false);tick=Math.min(768,tick+1);render();});
+$('#play').addEventListener('click',()=>{if(busy||!tapes.length)return;if(tick>=horizon())tick=0;setPlaying(!playing);});
+$('#step').addEventListener('click',()=>{setPlaying(false);tick=Math.min(horizon(),tick+1);render();});
 $('#reset').addEventListener('click',()=>{setPlaying(false);tick=0;render();});
 $('#focus').addEventListener('click',()=>views.forEach(view=>view.focus()));
 $('#time-slider').addEventListener('input',()=>{setPlaying(false);tick=Number($<HTMLInputElement>('#time-slider').value);render();});
 let last=performance.now(),remaining=0;
 function animate(now:number):void{
   const elapsed=Math.min(250,now-last);last=now;
-  if(playing&&!busy){remaining+=elapsed*Number(value('#speed'))/100;if(remaining>=1){tick=Math.min(768,tick+Math.floor(remaining));remaining%=1;render();if(tick===768)setPlaying(false);}}
+  if(playing&&!busy){remaining+=elapsed*Number(value('#speed'))/100;if(remaining>=1){tick=Math.min(horizon(),tick+Math.floor(remaining));remaining%=1;render();if(tick===horizon())setPlaying(false);}}
   else remaining=0;requestAnimationFrame(animate);
 }
 requestAnimationFrame(animate);controls();
-async function start():Promise<void>{
+async function loadBatch():Promise<void>{
+  busy=true;setPlaying(false);controls();$('#loading').textContent='读取批次';
   try{
     catalog=await (await response('/api/acceptance/catalog')).json() as Catalog;
-    $('#outcome').textContent=catalog.summary.development_continue?'通过本批开发条件':'接受策略未通过采用条件';
+    $('#outcome').textContent=catalog.summary?(catalog.summary.development_continue?'通过本批开发条件':'接受策略未通过采用条件'):'工程试跑 · 未作效果判定';
+    const batch=batches.find(b=>b.id===value('#batch'))!;
+    $('#data-note').textContent=`${batch.worlds} 世界 · ${catalog.execution.plan.seeds.length} 个配对种子 · ${catalog.summary?'已登记对照':'场景验收，非正式优势实验'} · 全场信息素快照未记录`;
+    $<HTMLInputElement>('#time-slider').max=String(horizon());
     $('#condition').innerHTML=catalog.execution.plan.conditions.map(c=>`<option value="${c.name}">${conditions[c.name]}</option>`).join('');
     $('#seed').innerHTML=catalog.execution.plan.seeds.map(seed=>`<option>${seed}</option>`).join('');
     await loadWorlds();
+  }catch(error){failure(error);$('#loading').textContent='载入失败';busy=false;controls();}
+}
+$('#batch').addEventListener('change',()=>void loadBatch());
+async function start():Promise<void>{
+  try{
+    batches=await (await response('/api/acceptance/batches')).json() as BatchInfo[];
+    $<HTMLSelectElement>('#batch').replaceChildren(...batches.map(batch=>{const option=document.createElement('option');option.value=batch.id;option.textContent=batch.label;return option;}));
+    await loadBatch();
   }catch(error){failure(error);$('#loading').textContent='载入失败';}
 }
 void start();

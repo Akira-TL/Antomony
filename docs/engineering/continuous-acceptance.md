@@ -13,7 +13,7 @@ bash scripts/acceptance/stop.sh
 
 ## 数据与操作
 
-固定读取登记批次 `logs/continuous-adaptation/20260926T123655-2/` 及[正式分析](../../analysis/continuous-adaptation/README.md)。这是实际记录回放，不是新训练、实时重新模拟或参数快照续跑。
+批次菜单保留登记批次 `logs/continuous-adaptation/20260926T123655-2/` 及[正式分析](../../analysis/continuous-adaptation/README.md)，另提供[远距场景](distant-acceptance.md)的独立工程试跑；远距批次完整后默认选中，食物距巢8至10，页面标注实际距离及未作效果判定。原80世界及其分析不变。这是实际记录回放，不是新训练、实时重新模拟或参数快照续跑。
 
 四条件、四世界种子均可选；左侧为学习接受，右侧可选固定接受、全部跳过、普通MLP、纯规则。播放、暂停、单步及时间轴作用于两侧的同一时间。早停世界保持终态，不补造动作、写入或交付。初始默认暂停，页面明确保留本接受策略未通过采用条件的状态，交付和死亡差值不截断负值。
 

@@ -6,13 +6,14 @@ export interface Ant {
 }
 export interface Frame {tick:number;source_position:number[];source_active:boolean;ants:Ant[]}
 export interface Result {seed:number;condition:string;arm:Arm;steps:number;deliveries:number;deaths:number;writes:number[];snapshots:number[]}
-export interface Header {result:Result;food:number[];initial_positions:number[][];initial_headings:number[];nest_radius:number;signal_radius:number;contact_radius:number;source_strength:number}
+export interface Header {result:Result;food:number[];initial_positions:number[][];initial_headings:number[];nest_radius:number;signal_radius:number;contact_radius:number;source_strength:number;stock:number}
 export interface Update {tick:number;individual:number;prediction:number|null;eligible:boolean;accepted:boolean;changed:boolean;before:number[];after:number[]}
 export interface WeightPoint {tick:number;values:number[]}
 export interface WeightGroup {name:string;shape:number[];frozen:boolean;points:WeightPoint[]}
 export interface Count {deliveries:number;pickups:number;deaths:number;exhausted:number;writes:number;reward:number}
 export interface Tape {header:Header;frames:Frame[];updates:Update[];counts:Count[]}
-export interface Catalog {execution:{plan:{seeds:number[];conditions:{name:string}[];environment:{horizon:number;ants:number;stock:number}}};summary:{development_continue:boolean;passing_seeds:number;passing_conditions:number}}
+export interface BatchInfo {id:'registered'|'distant';label:string;worlds:number}
+export interface Catalog {execution:{plan:{seeds:number[];conditions:{name:string}[];environment:{horizon:number;ants:number;stock:number}}};summary:{development_continue:boolean;passing_seeds:number;passing_conditions:number}|null}
 
 export function counts(frames:Frame[]):Count[] {
   const result:Count[]=[{deliveries:0,pickups:0,deaths:0,exhausted:0,writes:0,reward:0}];

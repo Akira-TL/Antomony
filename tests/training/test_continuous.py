@@ -183,3 +183,35 @@ def test_acceptance_reads_exact_parameters_without_constructing_networks(plan, t
     with pytest.raises(HTTPException) as invalid_world:
         acceptance.trace("reference", 2, "learned")
     assert invalid_world.value.status_code == 404
+
+
+def test_acceptance_separates_preview_from_registered_results(plan, tmp_path, monkeypatch):
+    import json
+    from fastapi import HTTPException
+    from mathhackson.training.comparison.continuous import run
+    from mathhackson.training.comparison import acceptance
+    directory = tmp_path / "distant"
+    run(plan, directory, protocol_sha256="engineering-test")
+    tape = acceptance.TapeStore(directory)
+    monkeypatch.setattr(acceptance, "store", lambda: tape)
+    monkeypatch.setattr(acceptance, "DISTANT_DATA", directory)
+    acceptance.distant_store.cache_clear()
+    try:
+        assert [batch.id for batch in acceptance.batches()] == ["distant", "registered"]
+        preview = json.loads(acceptance.catalog("distant").body)
+        assert preview["summary"] is None
+        assert preview["execution"]["protocol_sha256"] == "engineering-test"
+        assert acceptance.catalog().path == acceptance.RESULT
+        assert acceptance.header("reference", 18999, "rules", "distant").stock == 48
+        assert acceptance.weights("reference", 18999, "rules", 0, "distant") == []
+        with pytest.raises(HTTPException):
+            acceptance.selected_store("../../other")
+        lines = (directory / "worlds.jsonl").read_text().splitlines()
+        (directory / "worlds.jsonl").write_text("\n".join(lines[:-1]))
+        acceptance.distant_store.cache_clear()
+        assert [batch.id for batch in acceptance.batches()] == ["registered"]
+        with pytest.raises(HTTPException) as incomplete:
+            acceptance.catalog("distant")
+        assert incomplete.value.status_code == 409
+    finally:
+        acceptance.distant_store.cache_clear()
