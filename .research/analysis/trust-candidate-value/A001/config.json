@@ -1,0 +1,6 @@
+{
+  "input_directory": "logs/trust-candidate-value/20260926T091027-2",
+  "manifest": "data/trust-candidate-value/manifest.sha256",
+  "output": ".research/analysis/trust-candidate-value/A001/outputs/summary.json",
+  "tolerance": 0.000001
+}
