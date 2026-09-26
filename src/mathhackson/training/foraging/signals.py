@@ -6,7 +6,7 @@ import math
 
 import numpy as np
 
-from mathhackson.colony.pheromone import Pheromones
+from .trails import LocalTrailField, TrailProfile
 
 RECEPTOR_COUNT = 8
 Response = tuple[float, float, float, float, float, float, float, float]
@@ -35,8 +35,8 @@ class SignalSource:
 
 
 class LocalSignals:
-    def __init__(self) -> None:
-        self.trails = Pheromones()
+    def __init__(self, *, trail_profile: TrailProfile = "additive-cell-v1") -> None:
+        self.trails = LocalTrailField(trail_profile)
 
     def trail_samples(self, points: np.ndarray) -> np.ndarray:
         grid = self.trails

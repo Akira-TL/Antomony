@@ -11,6 +11,7 @@ from mathhackson.colony.geometry import move_discs, unit
 from mathhackson.training.direction.environment import MAX_TURN, STEP_DISTANCE, wrap_angle
 
 from .signals import LocalSignals, SignalSource, receptor_points
+from .trails import TrailProfile
 
 
 class ForagingConfig(BaseModel):
@@ -29,6 +30,7 @@ class ForagingConfig(BaseModel):
     signal_threshold: float = Field(default=.001, gt=0.)
     nest_signal_radius: float = Field(default=1.5, gt=0.)
     nest_signal_strength: float = Field(default=0., ge=0.)
+    trail_profile: TrailProfile = "additive-cell-v1"
 
 
 @dataclass(frozen=True)
@@ -67,7 +69,9 @@ class ForagingEnvironment:
         angle = float(rng.uniform(-math.pi, math.pi))
         distance = self.config.food_distance_min + float(rng.uniform(0., self.config.food_distance_span))
         self.food = unit(angle) * distance
-        self.signals = LocalSignals()
+        self.signals = LocalSignals(trail_profile=self.config.trail_profile)
+        if self.config.trail_profile == "bounded-local-v2":
+            self.signals.trails.deposit(self.position, 0, self.config.home_rate)
         self.extra_sources: tuple[SignalSource, ...] = ()
         self.carrying = self.contact = self.previous_move = False
         self.previous_turn = 0.

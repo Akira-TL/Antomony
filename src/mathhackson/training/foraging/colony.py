@@ -60,7 +60,7 @@ class ColonyEnvironment:
         angle = float(rng.uniform(-math.pi, math.pi))
         distance = self.config.food_distance_min + float(rng.uniform(0., self.config.food_distance_span))
         self.food = unit(angle) * distance
-        self.signals = LocalSignals()
+        self.signals = LocalSignals(trail_profile=self.config.trail_profile)
         self.extra_sources: tuple[SignalSource, ...] = ()
         self.stock = self.config.stock
         self.steps = 0
@@ -68,6 +68,9 @@ class ColonyEnvironment:
         self.ants = [Forager(.5 * unit(2. * math.pi * i / self.config.ants),
                             float(rng.uniform(-math.pi, math.pi)), self.config.exploration_steps,
                             self.config.reserve_steps) for i in range(self.config.ants)]
+        if self.config.trail_profile == "bounded-local-v2":
+            for ant in self.ants:
+                self.signals.trails.deposit(ant.position, 0, self.config.home_rate)
 
     def sources(self) -> tuple[SignalSource, ...]:
         food = (SignalSource(float(self.food[0]), float(self.food[1]), self.config.food_radius,
