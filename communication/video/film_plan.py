@@ -22,3 +22,17 @@ CHAPTERS = (
 )
 DURATIONS = tuple(ch.seconds for ch in CHAPTERS)
 assert sum(DURATIONS) == 180
+
+# Visual beat times. Speech is separated at the synthesizer's sentence boundaries,
+# with original pauses preserved inside each sentence and room to watch between them.
+SENTENCE_STARTS = (
+    (0.40, 1.80, 2.55, 4.65, 6.50, 13.00),
+    (0.40, 2.20, 5.00, 8.90, 12.00),
+    (0.40, 2.45, 3.85, 6.45, 11.40, 16.60),
+    (0.40, 2.25, 4.25, 6.00, 8.00, 13.10),
+    (0.40, 3.80, 6.90, 12.10, 14.15, 17.60, 20.85),
+    (0.40, 2.60, 4.85, 7.20, 11.00, 13.75, 21.00),
+    (0.40, 3.20, 6.90, 12.15),
+    (0.40, 2.00, 6.30, 11.85, 16.90),
+    (0.40, 4.65),
+)
