@@ -11,11 +11,13 @@ flowchart TD
     N5["局部反馈能否支持学会接受有益更新并适应未见环境<br/>question · active"]
     N8["候选短期价值描述：危险分支未显示后果差异<br/>analysis · resolved"]
     N10["取消返巢奖励未通过采用条件<br/>analysis · resolved"]
+    N12["伤害候选质量与接受判断均有不足<br/>analysis · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
         N7["陌生信号候选更新的同状态价值诊断<br/>design · resolved"]
         N9["空载返巢奖励是否干扰危险适应<br/>design · resolved"]
+        N11["伤害后单次候选与接受判断<br/>design · resolved"]
     end
     N1 --> N2
     N2 --> N3
@@ -26,6 +28,8 @@ flowchart TD
     N7 --> N8
     N5 --> N9
     N9 --> N10
+    N5 --> N11
+    N11 --> N12
 ```
 
 ## Node Index
@@ -42,3 +46,5 @@ flowchart TD
 | N8 | analysis | resolved | 候选短期价值描述：危险分支未显示后果差异 | [打开](../analysis/candidate-update-value/README.md) |
 | N9 | design | resolved | 空载返巢奖励是否干扰危险适应 | [打开](../designs/return-reward-ablation.md) |
 | N10 | analysis | resolved | 取消返巢奖励未通过采用条件 | [打开](../analysis/return-reward-ablation/README.md) |
+| N11 | design | resolved | 伤害后单次候选与接受判断 | [打开](../designs/injury-candidate.md) |
+| N12 | analysis | resolved | 伤害候选质量与接受判断均有不足 | [打开](../analysis/injury-candidate/README.md) |

@@ -1,0 +1,672 @@
+{
+  "files_verified": 3169,
+  "frames_verified": 8192,
+  "execution": {
+    "source_commit": "9211f0c87864e14b1af2af34da2271a11dd965ac",
+    "started_at": "2026-09-26T14:51:27.778252+00:00",
+    "completed_at": "2026-09-26T14:56:15.998140+00:00",
+    "plan": {
+      "source_root": "logs/return-reward-ablation/20260926T142153-2",
+      "manifest": "data/return-reward-ablation/manifest.sha256",
+      "seeds": [
+        19301,
+        19302
+      ],
+      "maximum_parent_steps": 1536,
+      "pairs_per_world": 16,
+      "branch_steps": 128
+    },
+    "verified_source_files": 24386,
+    "worlds": [
+      {
+        "seed": 19301,
+        "parent_steps": 240,
+        "points": [
+          [
+            156,
+            24
+          ],
+          [
+            159,
+            21
+          ],
+          [
+            163,
+            8
+          ],
+          [
+            172,
+            30
+          ],
+          [
+            190,
+            13
+          ],
+          [
+            192,
+            3
+          ],
+          [
+            202,
+            11
+          ],
+          [
+            204,
+            19
+          ],
+          [
+            206,
+            2
+          ],
+          [
+            213,
+            17
+          ],
+          [
+            219,
+            12
+          ],
+          [
+            224,
+            7
+          ],
+          [
+            234,
+            27
+          ],
+          [
+            238,
+            15
+          ],
+          [
+            240,
+            0
+          ],
+          [
+            240,
+            1
+          ]
+        ]
+      },
+      {
+        "seed": 19302,
+        "parent_steps": 539,
+        "points": [
+          [
+            157,
+            20
+          ],
+          [
+            240,
+            1
+          ],
+          [
+            352,
+            3
+          ],
+          [
+            352,
+            6
+          ],
+          [
+            355,
+            26
+          ],
+          [
+            358,
+            28
+          ],
+          [
+            366,
+            30
+          ],
+          [
+            367,
+            13
+          ],
+          [
+            383,
+            2
+          ],
+          [
+            384,
+            0
+          ],
+          [
+            384,
+            7
+          ],
+          [
+            395,
+            11
+          ],
+          [
+            496,
+            5
+          ],
+          [
+            519,
+            9
+          ],
+          [
+            525,
+            21
+          ],
+          [
+            539,
+            10
+          ]
+        ]
+      }
+    ]
+  },
+  "rows": [
+    {
+      "seed": 19301,
+      "tick": 156,
+      "individual": 24,
+      "death_window": true,
+      "originally_accepted": true,
+      "prediction": 0.08369462192058563,
+      "reward_difference": 2.24,
+      "delivery_difference": 0,
+      "death_difference": -1,
+      "exhaustion_difference": 0,
+      "injury_difference": -0.2399999499320984,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 3
+    },
+    {
+      "seed": 19301,
+      "tick": 159,
+      "individual": 21,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.1401703655719757,
+      "reward_difference": 0.08000000000000007,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": -0.07999999821186066,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19301,
+      "tick": 163,
+      "individual": 8,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.5959833860397339,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 1
+    },
+    {
+      "seed": 19301,
+      "tick": 172,
+      "individual": 30,
+      "death_window": true,
+      "originally_accepted": false,
+      "prediction": -0.5093446969985962,
+      "reward_difference": 3.040000000000001,
+      "delivery_difference": 0,
+      "death_difference": -1,
+      "exhaustion_difference": 0,
+      "injury_difference": -1.0399998426437378,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19301,
+      "tick": 190,
+      "individual": 13,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.1304563283920288,
+      "reward_difference": -2.9600000000000013,
+      "delivery_difference": 0,
+      "death_difference": 1,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.9599998444318771,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19301,
+      "tick": 192,
+      "individual": 3,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.07655629515647888,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19301,
+      "tick": 202,
+      "individual": 11,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.14319874346256256,
+      "reward_difference": 2.08,
+      "delivery_difference": 0,
+      "death_difference": -1,
+      "exhaustion_difference": 0,
+      "injury_difference": -0.07999998331069946,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 2
+    },
+    {
+      "seed": 19301,
+      "tick": 204,
+      "individual": 19,
+      "death_window": true,
+      "originally_accepted": false,
+      "prediction": -0.3397993743419647,
+      "reward_difference": 0.4800000000000004,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": -0.4799998998641968,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 5
+    },
+    {
+      "seed": 19301,
+      "tick": 206,
+      "individual": 2,
+      "death_window": true,
+      "originally_accepted": false,
+      "prediction": -0.4179092049598694,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 3
+    },
+    {
+      "seed": 19301,
+      "tick": 213,
+      "individual": 17,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.19834545254707336,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 3
+    },
+    {
+      "seed": 19301,
+      "tick": 219,
+      "individual": 12,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -1.552700161933899,
+      "reward_difference": -3.0400000000000014,
+      "delivery_difference": 0,
+      "death_difference": 1,
+      "exhaustion_difference": 0,
+      "injury_difference": 1.0399998426437378,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": -5
+    },
+    {
+      "seed": 19301,
+      "tick": 224,
+      "individual": 7,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.1644676923751831,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": -3
+    },
+    {
+      "seed": 19301,
+      "tick": 234,
+      "individual": 27,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.03840722143650055,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 2
+    },
+    {
+      "seed": 19301,
+      "tick": 238,
+      "individual": 15,
+      "death_window": true,
+      "originally_accepted": true,
+      "prediction": 0.3013485074043274,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": -1
+    },
+    {
+      "seed": 19301,
+      "tick": 240,
+      "individual": 0,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.05407135188579559,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 1
+    },
+    {
+      "seed": 19301,
+      "tick": 240,
+      "individual": 1,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.05120610445737839,
+      "reward_difference": -0.6400000000000006,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.6399999111890793,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 157,
+      "individual": 20,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -1.3657407760620117,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 240,
+      "individual": 1,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.43634116649627686,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 352,
+      "individual": 3,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.233352392911911,
+      "reward_difference": -0.08000000000000007,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.07999999821186066,
+      "colony_delivery_difference": -1,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 352,
+      "individual": 6,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.18149521946907043,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": -1,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 355,
+      "individual": 26,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.6422579288482666,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": -3
+    },
+    {
+      "seed": 19302,
+      "tick": 358,
+      "individual": 28,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.15083955228328705,
+      "reward_difference": -0.31999999999999984,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.31999993324279785,
+      "colony_delivery_difference": -1,
+      "colony_death_difference": 1
+    },
+    {
+      "seed": 19302,
+      "tick": 366,
+      "individual": 30,
+      "death_window": true,
+      "originally_accepted": true,
+      "prediction": 0.06987550854682922,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 367,
+      "individual": 13,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.17577767372131348,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 383,
+      "individual": 2,
+      "death_window": true,
+      "originally_accepted": false,
+      "prediction": -0.5544300079345703,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 384,
+      "individual": 0,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.7662670612335205,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 384,
+      "individual": 7,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.09103809297084808,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 395,
+      "individual": 11,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.47942855954170227,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": -2
+    },
+    {
+      "seed": 19302,
+      "tick": 496,
+      "individual": 5,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.049577079713344574,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 519,
+      "individual": 9,
+      "death_window": false,
+      "originally_accepted": true,
+      "prediction": 0.1362185776233673,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 525,
+      "individual": 21,
+      "death_window": false,
+      "originally_accepted": false,
+      "prediction": -0.1317002773284912,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 0,
+      "colony_death_difference": 0
+    },
+    {
+      "seed": 19302,
+      "tick": 539,
+      "individual": 10,
+      "death_window": true,
+      "originally_accepted": false,
+      "prediction": -0.22849515080451965,
+      "reward_difference": 0.0,
+      "delivery_difference": 0,
+      "death_difference": 0,
+      "exhaustion_difference": 0,
+      "injury_difference": 0.0,
+      "colony_delivery_difference": 1,
+      "colony_death_difference": 1
+    }
+  ],
+  "groups": [
+    {
+      "seed": 19301,
+      "points": 16,
+      "improved_accepted": 2,
+      "improved_rejected": 3,
+      "worse_accepted": 2,
+      "worse_rejected": 1,
+      "tied_accepted": 4,
+      "tied_rejected": 4,
+      "death_saving_rejected": 2,
+      "delivery_gaining_rejected": 0
+    },
+    {
+      "seed": 19302,
+      "points": 16,
+      "improved_accepted": 0,
+      "improved_rejected": 0,
+      "worse_accepted": 1,
+      "worse_rejected": 1,
+      "tied_accepted": 6,
+      "tied_rejected": 8,
+      "death_saving_rejected": 0,
+      "delivery_gaining_rejected": 0
+    }
+  ],
+  "missed_benefit_in_both_worlds": false
+}

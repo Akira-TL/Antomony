@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [伤害候选与接受判断](injury-candidate/README.md) - 规则已固定，待计算。
+- [伤害候选与接受判断](injury-candidate/README.md) - 已完成；两世界未一致出现有益候选被拒绝，候选质量及接受判断均有不足。
 
 - [返巢奖励配对后果](return-reward-ablation/README.md) - 已完成；取消奖励未通过采用条件，保留当前默认值。
 
