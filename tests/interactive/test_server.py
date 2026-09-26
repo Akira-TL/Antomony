@@ -47,3 +47,14 @@ def test_failed_engine_cannot_continue_partial_world(live):
     with pytest.raises(HTTPException) as error:
         asyncio.run(server.control(request(engine), Control(kind="step")))
     assert error.value.status_code == 409 and live.tick == 0
+
+
+def test_cached_state_is_not_changed_by_an_in_progress_world_step(live):
+    engine = server.Engine(live)
+    original = engine.view.model_dump_json()
+    live.groups[0].world.foods[0].stock -= 1
+    live.groups[0].world.ants[0].position[:] = [4., 3.]
+    assert engine.view.model_dump_json() == original
+    refreshed = engine.refresh().model_dump_json()
+    live.groups[0].world.foods[0].stock -= 1
+    assert engine.view.model_dump_json() == refreshed

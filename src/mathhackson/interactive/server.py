@@ -35,11 +35,11 @@ class Engine:
         self.lock = asyncio.Lock()
         self.error: str | None = None
         self.stopping = False
-        self.view = session.frame()
+        self.view = session.frame().model_copy(deep=True)
         self.downloads: dict[str, Path] = {}
 
     def refresh(self) -> Frame:
-        self.view = self.session.frame().model_copy(update={"error": self.error})
+        self.view = self.session.frame().model_copy(update={"error": self.error}, deep=True)
         return self.view
 
     def ensure_ready(self) -> None:
