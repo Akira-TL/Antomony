@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [四步与十六步窗口](window-cadence/README.md) - planned，按冻结的失败次数差判据核对。
+- [四步与十六步窗口](window-cadence/README.md) - completed，四步比十六步少失败21/23次，但相对不更新多2/少50次，未通过两参照门槛。
 
 - [负反馈提前判断](feedback-trigger/README.md) - completed；写入明显增加但相对固定窗口失败+1/+3，停止采用。
 

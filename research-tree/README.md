@@ -17,6 +17,7 @@ flowchart TD
     N17["生存反馈相对不更新改善但未稳定优于旧反馈<br/>analysis · resolved"]
     N18["多数死亡前已写入但仍未形成稳定避险<br/>analysis · resolved"]
     N20["提前触发增加写入但未减少失败<br/>analysis · resolved"]
+    N22["四步优于十六步但未稳定优于不更新<br/>analysis · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -48,6 +49,7 @@ flowchart TD
     N5 --> N19
     N19 --> N20
     N5 --> N21
+    N21 --> N22
 ```
 
 ## Node Index
@@ -75,3 +77,4 @@ flowchart TD
 | N19 | design | resolved | 仅提前负反馈候选时机的有限对照 | [打开](../designs/feedback-trigger.md) |
 | N20 | analysis | resolved | 提前触发增加写入但未减少失败 | [打开](../analysis/feedback-trigger/README.md) |
 | N21 | design | resolved | 固定四步与十六步窗口的生存对照 | [打开](../designs/window-cadence.md) |
+| N22 | analysis | resolved | 四步优于十六步但未稳定优于不更新 | [打开](../analysis/window-cadence/README.md) |
