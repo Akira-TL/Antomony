@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [生存反馈配对](survival-feedback/README.md) - planned，先审计后按冻结判据计算。
+- [生存反馈配对](survival-feedback/README.md) - completed；相对不更新少失败6/58次，相对旧反馈多7/少21次，未通过采用。
 
 - [历史基线配对后果](historical-baseline/README.md) - 未通过采用条件；出现零交付但总奖励提高，需重新明确目标取舍。
 
