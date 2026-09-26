@@ -28,6 +28,8 @@
 
 ## Relations
 
+- [伤害候选诊断](injury-candidate.md) → [实际实施](../study/injury-candidate/README.md)、[配对分析](../analysis/injury-candidate/README.md)。
+
 - [返巢奖励诊断](return-reward-ablation.md) → [实际实施](../study/return-reward-ablation/README.md)、[配对分析](../analysis/return-reward-ablation/README.md)。
 
 - [连续对照](continuous-adaptation.md) → [基础资格](../analysis/matched-foundation/README.md)、[固定接受模型](../data/memory-acceptance-models/README.md)、[实际实施](../study/continuous-adaptation/README.md)、[连续数据](../data/continuous-adaptation/README.md)、[连续分析](../analysis/continuous-adaptation/README.md)。
