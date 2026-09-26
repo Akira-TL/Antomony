@@ -43,7 +43,7 @@
 
 ## Relations
 
-- [可塑方向基础课程实施](feedback-plasticity-course/README.md) → [冻结设计](../designs/feedback-plasticity-course.md)。尚无登记的Dataset或Analysis。
+- [可塑方向基础课程实施](feedback-plasticity-course/README.md) → [冻结设计](../designs/feedback-plasticity-course.md)、[固定原始数据](../data/feedback-plasticity-course/README.md)。
 
 - [首步方向实施](first-action-outcomes/README.md) → [设计](../designs/first-action-outcomes.md)、[数据](../data/first-action-outcomes/README.md)。
 

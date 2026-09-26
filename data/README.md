@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [可塑方向基础课程原始记录](feedback-plasticity-course/README.md) - 129项完整输入已固定并核对散列，尚未汇总效果。
+
 - [首步方向数据](first-action-outcomes/README.md) - 209文件、8状态128分支，完整清单固定。
 
 - [后到反馈归因数据](credit-history/README.md) - 四世界、54个共同状态，完整清单固定。
@@ -42,6 +44,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [可塑方向基础课程数据](feedback-plasticity-course/README.md) → [真实实施](../study/feedback-plasticity-course/README.md)。分析计划随后独立登记，不以数据存在声明效果。
 
 - [新基础接受数据](memory-update-learning/README.md) → [候选交付与奖励覆盖追查](../analysis/candidate-label-coverage/README.md)。
 
