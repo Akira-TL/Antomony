@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [反馈时间范围比较](feedback-window.md) - 待冻结；同状态只比较16与64步一次。
+
 - [基础扰动恢复参照](restoration-control.md) - 已冻结；区分改善机会不足与候选未找到改善。
 
 - [无危险基础更新学习](basic-update-learning.md) - 已冻结；固定训练与留出种子，不接触危险机制。
@@ -11,6 +13,8 @@
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
 
 ## Relations
+
+- [反馈时间范围](feedback-window.md) → [恢复诊断](../analysis/restoration-control/README.md)，作为课程及候选问题的开发依据。
 
 - [恢复参照](restoration-control.md) → [实际采样](../study/restoration-control/README.md)、[本次分析](../analysis/restoration-control/README.md)、[前次基础训练结果](../analysis/basic-update-learning/README.md)。后者作为新诊断动机，不重用旧留出调参。
 
