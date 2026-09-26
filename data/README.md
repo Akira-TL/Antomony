@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [近似规模模型基础数据](matched-foundation/README.md) - 253文件，含104参数快照与48世界轨迹。
+
 - [新基础接受配对数据](memory-update-learning/README.md) - 301条记录、2738文件和1344组快照。
 
 - [探索课程数据](exploration-course/README.md) - 245文件，含72组参数快照。
@@ -18,6 +20,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [近似规模基础数据](matched-foundation/README.md) → [实际实施](../study/matched-foundation/README.md)。
 
 - [新基础接受数据](memory-update-learning/README.md) → [实际采样](../study/memory-update-learning/README.md)、[接受学习结果](../analysis/memory-update-learning/README.md)。
 
