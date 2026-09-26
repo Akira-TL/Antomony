@@ -195,6 +195,8 @@ def test_acceptance_separates_preview_from_registered_results(plan, tmp_path, mo
     tape = acceptance.TapeStore(directory)
     monkeypatch.setattr(acceptance, "store", lambda: tape)
     monkeypatch.setattr(acceptance, "DISTANT_DATA", directory)
+    monkeypatch.setattr(acceptance, "REVIVING_DATA", tmp_path / "missing-revival")
+    acceptance.reviving_store.cache_clear()
     acceptance.distant_store.cache_clear()
     try:
         assert [batch.id for batch in acceptance.batches()] == ["distant", "registered"]
@@ -233,6 +235,18 @@ def test_revival_run_preserves_memory_and_records_repeated_deaths(plan, tmp_path
                (tmp_path / "revival/updates.jsonl").read_text().splitlines()]
     assert any(r.changed and r.continuing_after_death for r in records)
     assert all(not r.accepted for r in records if r.tick == 6)
+
+
+def test_revival_rule_world_never_uses_a_neural_network(plan, tmp_path, monkeypatch):
+    plan = plan.model_copy(update={"respawn": True, "environment": plan.environment.model_copy(update={"horizon": 3})})
+    condition = Condition(name="moving-danger", disturbance=DisturbanceConfig(contact_radius=20., injury_per_step=1.))
+    def forbidden(*args, **kwargs):
+        raise AssertionError("复活规则世界使用了神经网络")
+    monkeypatch.setattr(torch.nn.Module, "__init__", forbidden)
+    monkeypatch.setattr(torch.nn.Module, "__call__", forbidden)
+    result = run_world(plan, 18999, condition, "rules", tmp_path / "rules-revival")
+    assert result.deaths == 6 and result.revivals == 4
+    assert result.decisions == 0 and not list((tmp_path / "rules-revival").glob("*.npz"))
 
 
 def test_expanded_population_has_independent_parameters_and_random_streams(plan):

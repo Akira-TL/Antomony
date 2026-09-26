@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {ColonyScene} from '../scene';
 import type {Tape} from './model';
+import {visibleIndividualIds} from './model';
 
 const emptyField=btoa('\0'.repeat(96*64*2));
 export class WorldView {
@@ -11,16 +12,17 @@ export class WorldView {
   private tape:Tape|null=null;
   private version=0;
   private lastTick=-1;
+  private visibleIds:number[]=[];
   constructor(host:HTMLElement,onSelect:(id:number)=>void){
     this.scene=new ColonyScene(host,true);this.scene.showField=false;
-    this.scene.onPoint=(_x,_y,id)=>{if(id!==null)onSelect(id);};
+    this.scene.onPoint=(_x,_y,id)=>{if(id!==null&&this.visibleIds[id]!==undefined)onSelect(this.visibleIds[id]);};
     const nest=new THREE.Mesh(new THREE.CylinderGeometry(.65,.65,.06,48),new THREE.MeshStandardMaterial({color:0x368777}));
     nest.position.y=.05;this.scene.scene.add(nest);
     this.nestRange=new THREE.Mesh(new THREE.RingGeometry(.99,1,64),new THREE.MeshBasicMaterial({color:0x50c5de,side:THREE.DoubleSide,transparent:true,opacity:.65}));
     this.nestRange.rotation.x=-Math.PI/2;this.nestRange.position.y=.025;this.scene.scene.add(this.nestRange);
     this.source=new THREE.Mesh(new THREE.RingGeometry(.96,1,48),new THREE.MeshBasicMaterial({color:0xe96c6c,side:THREE.DoubleSide,transparent:true,opacity:.9}));
     this.source.rotation.x=-Math.PI/2;this.scene.scene.add(this.source);this.source.visible=false;
-    for(let i=0;i<8;i++){
+    for(let i=0;i<32;i++){
       const mark=new THREE.Mesh(new THREE.RingGeometry(.22,.27,20),new THREE.MeshBasicMaterial({color:0xf47272,side:THREE.DoubleSide}));
       mark.rotation.x=-Math.PI/2;mark.visible=false;this.scene.scene.add(mark);this.deaths.push(mark);
     }
@@ -38,21 +40,26 @@ export class WorldView {
   render(tick:number,individual:number):void{
     const tape=this.tape;if(!tape)return;
     const actual=Math.min(tick,tape.frames.length),frame=actual?tape.frames[actual-1]:null;
+    const ids=visibleIndividualIds(tape.header,frame);
+    if(ids.length!==this.visibleIds.length||ids.some((id,i)=>id!==this.visibleIds[i]))this.version++;
+    this.visibleIds=ids;
     if(this.lastTick>=0&&(actual<this.lastTick||actual-this.lastTick>1))this.version++;
+    if(frame?.ants.some(a=>a.respawned))this.version++;
     this.lastTick=actual;
     const count=tape.counts[actual];
-    this.scene.selected=individual;
+    this.scene.selected=ids.indexOf(individual);
     this.scene.update({mode:tape.header.result.arm==='rules'?'rules':'neural',tick:actual,seconds:actual*.1,seed:this.version,
       delivered:0,field_width:96,field_height:64,pheromones:emptyField,walls:[],
-      foods:[{id:0,x:tape.header.food[0],y:tape.header.food[1],amount:tape.header.stock-count.pickups}],
-      ants:tape.header.initial_positions.map((position,id)=>{
+      foods:[{id:0,x:tape.header.food[0],y:tape.header.food[1],amount:frame?.food_stock??(tape.header.stock-count.pickups)}],
+      ants:ids.map((id,drawIndex)=>{
+        const position=tape.header.initial_positions[id];
         const ant=frame?.ants[id],p=ant?.position??position,heading=ant?.heading??tape.header.initial_headings[id];
-        return {id,x:p[0],y:p[1],heading,carrying:ant?.carrying??false,
+        return {id:drawIndex,x:p[0],y:p[1],heading,carrying:ant?.carrying??false,
           frozen:!!ant?.exhausted||!['learned','always'].includes(tape.header.result.arm),rays:[],sense_x:p[0],sense_y:p[1],sense_heading:heading};
       })});
     this.source.visible=!!frame?.source_active&&tape.header.source_strength>0;
     if(frame){this.source.position.set(frame.source_position[0],.04,frame.source_position[1]);
       const radius=tape.header.result.condition==='moving-danger'?tape.header.contact_radius:.9;this.source.scale.setScalar(radius);}
-    this.deaths.forEach((mark,id)=>{const ant=frame?.ants[id];mark.visible=!!ant?.exhausted;if(ant)mark.position.set(ant.position[0],.05,ant.position[1]);});
+    this.deaths.forEach((mark,id)=>{const ant=frame?.ants[id];mark.visible=!!ant?.exhausted&&(!ant.pending||!!ant.cumulative_terminations);if(ant)mark.position.set(ant.position[0],.05,ant.position[1]);});
   }
 }

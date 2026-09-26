@@ -12,6 +12,7 @@ import numpy as np
 from pydantic import BaseModel
 
 from mathhackson.training.foraging.disturbance import DisturbedColony
+from mathhackson.training.foraging.revival import RevivingColony
 from .continuous import ARMS, Arm, Execution, WorldResult
 from .online_actor import UpdateRecord
 
@@ -19,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[4]
 DATA = ROOT / "logs/continuous-adaptation/20260926T123655-2"
 RESULT = ROOT / "analysis/continuous-adaptation/summary.json"
 DISTANT_DATA = ROOT / "logs/acceptance-far/20260926-v1"
-Batch = Literal["registered", "distant"]
+REVIVING_DATA = ROOT / "logs/acceptance-revival/20260926-v1"
+Batch = Literal["registered", "distant", "reviving"]
 
 
 class BatchInfo(BaseModel):
@@ -55,6 +57,8 @@ class Header(BaseModel):
     contact_radius: float
     source_strength: float
     stock: int
+    initial_pending: list[bool]
+    respawn: bool
 
 
 class TapeStore:
@@ -81,11 +85,12 @@ class TapeStore:
     def header(self, condition: str, seed: int, arm: Arm) -> Header:
         _, result = self.world(condition, seed, arm)
         config = next(c.disturbance for c in self.execution.plan.conditions if c.name == condition)
-        env = DisturbedColony(seed, self.execution.plan.environment, config)
+        env = (RevivingColony if self.execution.plan.respawn else DisturbedColony)(seed, self.execution.plan.environment, config)
         return Header(result=result, food=env.food.tolist(), initial_positions=[a.position.tolist() for a in env.ants],
             initial_headings=[a.heading for a in env.ants], nest_radius=self.execution.plan.environment.nest_signal_radius,
             signal_radius=config.signal_radius, contact_radius=config.contact_radius, source_strength=config.signal_strength,
-            stock=self.execution.plan.environment.stock)
+            stock=self.execution.plan.environment.stock, respawn=self.execution.plan.respawn,
+            initial_pending=env.pending.tolist() if isinstance(env, RevivingColony) else [False] * len(env.ants))
 
     def weights(self, condition: str, seed: int, arm: Arm, individual: int) -> list[WeightGroup]:
         directory, result = self.world(condition, seed, arm)
@@ -131,11 +136,23 @@ def distant_store() -> TapeStore:
         raise HTTPException(409, "远距批次尚未完整完成") from error
 
 
+@lru_cache(maxsize=1)
+def reviving_store() -> TapeStore:
+    if not (REVIVING_DATA / "execution.json").exists():
+        raise HTTPException(404, "复活批次尚未准备")
+    try:
+        return TapeStore(REVIVING_DATA)
+    except ValueError as error:
+        raise HTTPException(409, "复活批次尚未完整完成") from error
+
+
 def selected_store(batch: Batch) -> TapeStore:
     if batch == "registered":
         return store()
     if batch == "distant":
         return distant_store()
+    if batch == "reviving":
+        return reviving_store()
     raise HTTPException(404, "未知批次")
 
 
@@ -161,8 +178,16 @@ def batches() -> list[BatchInfo]:
     try:
         distant = distant_store()
     except HTTPException:
-        return result
-    return [BatchInfo(id="distant", label="远距场景（工程试跑）", worlds=len(distant.worlds)), *result]
+        pass
+    else:
+        result.insert(0, BatchInfo(id="distant", label="远距8只（工程试跑）", worlds=len(distant.worlds)))
+    try:
+        reviving = reviving_store()
+    except HTTPException:
+        pass
+    else:
+        result.insert(0, BatchInfo(id="reviving", label="远距32只 · 保留记忆复活", worlds=len(reviving.worlds)))
+    return result
 
 
 @app.get("/api/acceptance/{condition}/{seed}/{arm}/header")

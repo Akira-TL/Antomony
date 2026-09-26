@@ -3,24 +3,33 @@ export interface Ant {
   observation:number[];active:boolean;move:boolean;turn:number;position:number[];heading:number;
   carrying:boolean;exploration_left:number;reserve_left:number;picked_up:boolean;delivered:boolean;
   budget_return:boolean;exhausted:boolean;killed:boolean;injury:number;reward:number;writes:number;
+  pending?:boolean;respawned?:boolean;cumulative_deaths?:number;cumulative_terminations?:number;revivals?:number;
 }
-export interface Frame {tick:number;source_position:number[];source_active:boolean;ants:Ant[]}
+export interface Frame {tick:number;source_position:number[];source_active:boolean;ants:Ant[];food_stock?:number|null}
 export interface Result {seed:number;condition:string;arm:Arm;steps:number;deliveries:number;deaths:number;writes:number[];snapshots:number[]}
-export interface Header {result:Result;food:number[];initial_positions:number[][];initial_headings:number[];nest_radius:number;signal_radius:number;contact_radius:number;source_strength:number;stock:number}
+export interface Header {result:Result;food:number[];initial_positions:number[][];initial_headings:number[];nest_radius:number;signal_radius:number;contact_radius:number;source_strength:number;stock:number;initial_pending:boolean[];respawn:boolean}
 export interface Update {tick:number;individual:number;prediction:number|null;eligible:boolean;accepted:boolean;changed:boolean;before:number[];after:number[]}
 export interface WeightPoint {tick:number;values:number[]}
 export interface WeightGroup {name:string;shape:number[];frozen:boolean;points:WeightPoint[]}
-export interface Count {deliveries:number;pickups:number;deaths:number;exhausted:number;writes:number;reward:number}
+export interface Count {deliveries:number;pickups:number;deaths:number;exhausted:number;writes:number;reward:number;alive:number;waiting:number;revivals:number}
 export interface Tape {header:Header;frames:Frame[];updates:Update[];counts:Count[]}
-export interface BatchInfo {id:'registered'|'distant';label:string;worlds:number}
+export interface BatchInfo {id:'registered'|'distant'|'reviving';label:string;worlds:number}
 export interface Catalog {execution:{plan:{seeds:number[];conditions:{name:string}[];environment:{horizon:number;ants:number;stock:number}}};summary:{development_continue:boolean;passing_seeds:number;passing_conditions:number}|null}
 
-export function counts(frames:Frame[]):Count[] {
-  const result:Count[]=[{deliveries:0,pickups:0,deaths:0,exhausted:0,writes:0,reward:0}];
-  for(const frame of frames){const prior=result.at(-1)!;result.push({
+export function visibleIndividualIds(header:Header,frame:Frame|null):number[]{
+  return header.initial_positions.map((_,id)=>id).filter(id=>!(frame?.ants[id].pending??header.initial_pending[id]));
+}
+
+export function counts(frames:Frame[],initialPending:boolean[]=[]):Count[] {
+  const waiting=initialPending.filter(Boolean).length;
+  const result:Count[]=[{deliveries:0,pickups:0,deaths:0,exhausted:0,writes:0,reward:0,alive:(frames[0]?.ants.length??0)-waiting,waiting,revivals:0}];
+  for(const frame of frames){const prior=result.at(-1)!,reviving=frame.food_stock!=null;result.push({
     deliveries:prior.deliveries+frame.ants.filter(a=>a.delivered).length,
     pickups:prior.pickups+frame.ants.filter(a=>a.picked_up).length,
-    deaths:frame.ants.filter(a=>a.killed).length,exhausted:frame.ants.filter(a=>a.exhausted).length,
+    deaths:reviving?frame.ants.reduce((n,a)=>n+(a.cumulative_deaths??0),0):frame.ants.filter(a=>a.killed).length,
+    exhausted:reviving?frame.ants.reduce((n,a)=>n+(a.cumulative_terminations??0),0):frame.ants.filter(a=>a.exhausted).length,
+    alive:frame.ants.filter(a=>!a.exhausted).length,waiting:frame.ants.filter(a=>a.pending).length,
+    revivals:frame.ants.reduce((n,a)=>n+(a.revivals??0),0),
     writes:frame.ants.reduce((n,a)=>n+a.writes,0),reward:prior.reward+frame.ants.reduce((n,a)=>n+a.reward,0),
   });}return result;
 }

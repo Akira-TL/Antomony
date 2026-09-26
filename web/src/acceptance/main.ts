@@ -36,7 +36,7 @@ async function loadTape(arm:Arm):Promise<Tape>{
   const frames=jsonLines<Frame>(await (await response(`${base}/trace`)).text());
   const updates=jsonLines<Update>(await (await response(`${base}/updates`)).text());
   if(frames.length!==header.result.steps||frames.some((frame,i)=>frame.tick!==i+1))throw new Error('轨迹记录不完整');
-  return {header,frames,updates,counts:counts(frames)};
+  return {header,frames,updates,counts:counts(frames,header.initial_pending)};
 }
 async function loadWorlds():Promise<void>{
   const current=++revision;weightRevision++;busy=true;setPlaying(false);controls();$('#loading').textContent='读取中';$('#error').hidden=true;
@@ -44,7 +44,7 @@ async function loadWorlds():Promise<void>{
     const next=await Promise.all([loadTape('learned'),loadTape(value('#comparator') as Arm)]);
     if(current!==revision)return;tapes=next;tick=0;
     tapes.forEach((tape,i)=>{views[i].setTape(tape);$(`#name-${i}`).textContent=names[tape.header.result.arm];});
-    const distance=Math.hypot(...tapes[0].header.food);$('#batch-label').textContent=`MathHackson · ${batches.find(b=>b.id===value('#batch'))?.label} · 巢食距离 ${distance.toFixed(2)}`;
+    const distance=Math.hypot(...tapes[0].header.food);$('#batch-label').textContent=`MathHackson · ${batches.find(b=>b.id===value('#batch'))?.label} · ${tapes[0].header.initial_positions.length} 只 · 巢食距离 ${distance.toFixed(2)}`;
     $('#side').children[1].textContent=names[tapes[1].header.result.arm];
     await loadWeights();render();$('#loading').textContent='已暂停';
   }catch(error){if(current===revision){tapes=[];failure(error);$('#loading').textContent='读取失败';}}
@@ -102,14 +102,14 @@ function render():void{
   tapes.forEach((tape,i)=>{
     const count=tape.counts[Math.min(tick,tape.frames.length)];views[i].render(tick,individual);
     $(`#end-${i}`).textContent=tick>=tape.frames.length?`记录结束于 ${tape.frames.length} 步`:`${tape.frames.length} 步记录`;
-    $(`#stats-${i}`).innerHTML=`<span>交付<b>${count.deliveries}</b></span><span>死亡<b>${count.deaths}</b></span><span>耗尽<b>${count.exhausted}</b></span><span>写入<b>${count.writes}</b></span>`;
+    $(`#stats-${i}`).innerHTML=`<span>交付<b>${count.deliveries}</b></span><span>存活<b>${count.alive}</b></span>${tape.header.respawn?`<span>等待<b>${count.waiting}</b></span><span>累计复活<b>${count.revivals}</b></span>`:''}<span>累计死亡<b>${count.deaths}</b></span><span>体力耗尽<b>${count.exhausted-count.deaths}</b></span><span>写入<b>${count.writes}</b></span>`;
   });
   const a=tapes[0].counts[Math.min(tick,tapes[0].frames.length)],b=tapes[1].counts[Math.min(tick,tapes[1].frames.length)],delta=a.deliveries-b.deliveries;
   $('#difference').innerHTML=`学习接受 − ${names[tapes[1].header.result.arm]}：交付 <b class="${delta<0?'negative':''}">${delta>0?'+':''}${delta}</b> · 死亡 <b>${a.deaths-b.deaths}</b>`;
   const tape=tapes[side],actual=Math.min(tick,tape.frames.length),ant=actual?tape.frames[actual-1].ants[individual]:null;
   $('#run-note').textContent=tape.header.result.condition==='reference'?'记录回放 · 正常条件，无新增干预':'记录回放 · 外部干预从第 128 步起';
-  const group=selectedGroup();if(group&&!group.frozen)$('#freeze').textContent=ant?.exhausted?'个体已终止':'可更新';
-  $('#ant-state').textContent=ant?`${ant.killed?'死亡':ant.exhausted?'体力耗尽':ant.carrying?'携食返回':'空载'} · ${ant.move?'前进':'停步'} · 转向 ${(ant.turn*10).toFixed(2)}°\n探索 ${ant.exploration_left} · 返巢 ${ant.reserve_left} · 写入 ${ant.writes}`:'初始状态';
+  const group=selectedGroup();if(group&&!group.frozen)$('#freeze').textContent=ant?.pending?'等待出巢或复活':ant?.exhausted?'个体已终止':'可更新';
+  $('#ant-state').textContent=ant?`${ant.pending?'等待出巢或复活':ant.killed?'死亡':ant.exhausted?'体力耗尽':ant.carrying?'携食返回':'空载'} · ${ant.move?'前进':'停步'} · 转向 ${(ant.turn*10).toFixed(2)}°\n探索 ${ant.exploration_left} · 返巢 ${ant.reserve_left} · 写入 ${ant.writes}${tape.header.respawn?` · 累计复活 ${ant.revivals??0}`:''}`:'初始状态';
   $('#receptors').innerHTML=Array.from({length:8},(_,i)=>{const v=ant?.observation[i]??0;return `<div class="receptor" title="接收器 ${i+1}：${v.toPrecision(7)}"><i style="height:${Math.min(50,50*v/(1+v))}px"></i><span>${i+1}</span></div>`;}).join('');
   const events=tape.updates.filter(u=>u.individual===individual&&u.tick<=tick).slice(-4).reverse();
   $('#events').innerHTML=events.length?events.map(u=>`<div>第 ${u.tick} 步 · ${u.changed?'实际写入':u.accepted?'接受但未变化':u.eligible?'跳过':'无可执行更新'}${u.prediction!==null?` · 预测差 ${u.prediction.toFixed(5)}`:''}</div>`).join(''):'暂无更新决策';
@@ -142,6 +142,7 @@ async function loadBatch():Promise<void>{
     $<HTMLInputElement>('#time-slider').max=String(horizon());
     $('#condition').innerHTML=catalog.execution.plan.conditions.map(c=>`<option value="${c.name}">${conditions[c.name]}</option>`).join('');
     $('#seed').innerHTML=catalog.execution.plan.seeds.map(seed=>`<option>${seed}</option>`).join('');
+    $('#ant').innerHTML=Array.from({length:catalog.execution.plan.environment.ants},(_,i)=>`<option value="${i}">${i+1}</option>`).join('');
     await loadWorlds();
   }catch(error){failure(error);$('#loading').textContent='载入失败';busy=false;controls();}
 }
