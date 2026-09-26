@@ -155,7 +155,7 @@ class NovelSignalLearner:
         returns = discounted_returns(self.rewards, bootstrap, self.config.gamma)
         return returns - torch.stack(self.values)
 
-    def resolve(self, proposal: AdaptationProposal, *, accept: tuple[bool, ...]) -> bool:
+    def _bounded_delta(self, proposal: AdaptationProposal, accept: tuple[bool, ...]) -> np.ndarray:
         if proposal is not self.proposal or len(accept) != len(self.adaptive_parameters()) or any(type(x) is not bool for x in accept):
             raise ValueError("必须明确处理当前个体的当前提案")
         delta = np.asarray(proposal.delta, dtype=np.float32).copy()
@@ -170,6 +170,17 @@ class NovelSignalLearner:
         current = self.parameter.fast
         while float(np.linalg.norm(current + delta)) > self.config.maximum_residual_norm and np.any(delta):
             delta *= .5
+        return delta
+
+    def preview_weights(self, proposal: AdaptationProposal, *, accept: tuple[bool, ...]) -> np.ndarray:
+        delta = self._bounded_delta(proposal, accept)
+        parameter = copy.deepcopy(self.parameter)
+        if np.any(delta) and np.any(parameter.effective + delta != parameter.effective):
+            parameter.add_delta(delta)
+        return parameter.effective.copy()
+
+    def resolve(self, proposal: AdaptationProposal, *, accept: tuple[bool, ...]) -> bool:
+        delta = self._bounded_delta(proposal, accept)
         changed = bool(np.any(delta) and np.any(self.parameter.effective + delta != self.parameter.effective))
         if changed:
             self.parameter.add_delta(delta)
