@@ -6,4 +6,4 @@
 
 ## Relations
 
-- [本数据](candidate-update-value/README.md) → [实际采样](../study/candidate-update-value/README.md)。
+- [本数据](candidate-update-value/README.md) → [实际采样](../study/candidate-update-value/README.md)、[描述分析](../analysis/candidate-update-value/README.md)。

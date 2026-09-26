@@ -1,0 +1,6 @@
+{
+  "input_directory": "logs/candidate-value/20260926T081311-2",
+  "manifest": "data/candidate-update-value/manifest.sha256",
+  "output": ".research/analysis/candidate-update-value/A001/outputs/summary.json",
+  "tolerance": 0.000001
+}
