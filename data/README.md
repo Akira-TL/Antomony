@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [返巢奖励配对数据](return-reward-ablation/README.md) - 已完成20世界并固定清单，待分析核对。
+- [返巢奖励配对数据](return-reward-ablation/README.md) - 已完成20世界并固定清单，完整性与配对核对通过。
 
 - [连续复杂来源数据](continuous-adaptation/README.md) - 80世界、6634文件，未按结果筛选。
 

@@ -1,4 +1,4 @@
-Status: claimed
+Status: resolved
 Category: bug
 Blocked by: 43
 
@@ -16,3 +16,5 @@ Blocked by: 43
 ## Comments
 
 2026-09-26：本轮无预训练或结构修改。设计见 `designs/return-reward-ablation.md`。
+
+20世界完成，81920帧与三个无更新对照行为核对通过。取消奖励未通过采用条件，不接入8774，不擅自放大奖惩。分析首轮浓度量纲核对错误已修正并保留失败记录；9项定向分析测试通过，第二次分析完整完成。结果与剩余不确定性见 `analysis/return-reward-ablation/README.md`。此条只关闭返巢奖励诊断，不表示适应性总目标达成。

@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [返巢奖励配对后果](return-reward-ablation/README.md) - 已登记计划；核对单变量奖励及完整行为差异。
+- [返巢奖励配对后果](return-reward-ablation/README.md) - 已完成；取消奖励未通过采用条件，保留当前默认值。
 
 - [连续复杂来源对照](continuous-adaptation/README.md) - completed；更新优于跳过，但学习接受不如固定接受，未通过采用条件。
 
