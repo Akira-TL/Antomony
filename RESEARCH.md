@@ -26,6 +26,8 @@ DESIGN
 
 ## Active Work
 
+最新[三组基础资格检查](analysis/foundation-qualification/README.md)已完成48个新世界：三组均搬完全部食物，循环/MLP/规则平均完成步数分别285.125/263.875/267.375。无线索探索半径分别2.367/5.730/15.496，循环未达到冻结的4.5开发门槛，且返回与耗尽也较差。下一步优先以固定预算补无线索探索与返回课程，保持局部输入、奖励学习及冻结动作底座，不再训练已饱和的纯食物趋近任务；不把规则恢复后的公平性问题掩盖为自训练效果。
+
 已完成[候选短期价值诊断](analysis/candidate-update-value/README.md)：72 点中70点焦点奖励不变，危险17点缺少后果差异。停止给当前候选追加门控训练，避免把全跳过学成表面成功。
 
 已补齐相同观察与动作权限下的普通 MLP、无神经网络规则及[固定预算基础检查](docs/engineering/comparator-foundations-results.md)。随后[直线诊断](docs/engineering/local-return-diagnosis.md)定位到信息素局部高峰与末段定位问题；用户批准有限巢穴源，新环境显式使用局部平滑、不累加的沉积版本，旧配置不变。

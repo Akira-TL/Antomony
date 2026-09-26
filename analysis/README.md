@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [三组基础能力](foundation-qualification/README.md) - 首次描述计划，不作等效声明。
+- [三组基础能力](foundation-qualification/README.md) - 已完成；三组搬运均完成，循环无线索探索未达开发门槛。
 
 - [反馈时间范围比较](feedback-window/README.md) - 已完成；64步没有通过开发条件，保留16步，不追加窗口搜索。
 
