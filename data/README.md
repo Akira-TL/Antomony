@@ -41,6 +41,8 @@
 
 ## Relations
 
+- [窗口原始数据](window-cadence/README.md) → [写入约束诊断](../analysis/update-constraints/README.md)。
+
 - [后到归因数据](credit-history/README.md) → [实施](../study/credit-history/README.md)、[分析](../analysis/credit-history/README.md)。
 
 - [动作输入数据](action-update-learning/README.md) → [实际采样](../study/action-update-learning/README.md)、[分析](../analysis/action-update-learning/README.md)。

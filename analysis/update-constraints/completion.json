@@ -11,6 +11,11 @@
   "code_path": "scripts/analyses/update_constraints.py",
   "dataset_slugs": ["window-cadence"],
   "artifacts": [
+    {"path": "analysis/update-constraints/registration.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "analysis/update-constraints/attempt-a001.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "analysis/update-constraints/attempt-a002.json", "role": "other", "timing_role": "result"},
+    {"path": "analysis/update-constraints/node.json", "role": "other", "timing_role": "result"},
+    {"path": "analysis/update-constraints/completion.json", "role": "other", "timing_role": "result"},
     {"path": "analysis/update-constraints/summary.json", "role": "table", "timing_role": "result"},
     {"path": ".research/analysis/update-constraints/A002/outputs/summary.json", "role": "diagnostic", "timing_role": "result", "git_tracking": "not_required", "tracking_reason": "完整154条逐次结果可由固定输入和提交重建；规范汇总及散列进入Git。"},
     {"path": "logs/analysis/update-constraints-A001.log", "role": "log", "timing_role": "result", "git_tracking": "not_required", "tracking_reason": "保留首次执行数值校验失败原文，实际时间及错误在规范记录登记。"},
