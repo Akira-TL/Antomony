@@ -39,7 +39,9 @@ class CandidateValue(BaseModel):
 class EvaluationActor:
     """复制推理状态，不复制仍附着计算图的训练缓冲。"""
 
-    def __init__(self, source: NovelSignalLearner, *, accept: bool = False) -> None:
+    def __init__(self, source: NovelSignalLearner, *, accept: bool = False, reset_fast: bool = False) -> None:
+        if accept and reset_fast:
+            raise ValueError("不能同时应用候选与已知扰动恢复参照")
         if source.awaiting_feedback:
             raise ValueError("分支必须在实际行动反馈完成后创建")
         if accept and (source.proposal is None or source.terminal):
@@ -50,6 +52,10 @@ class EvaluationActor:
         self.agent.random.set_state(source.random.get_state().clone())
         self.agent.history = deque((h.detach().clone() for h in source.history), maxlen=16)
         self.changed = False
+        if reset_fast:
+            self.changed = bool(np.any(self.agent.parameter.fast))
+            self.agent.parameter.fast = np.zeros_like(self.agent.parameter.fast)
+            self.agent.assign_weights(self.agent.parameter.effective)
         if accept:
             self.agent.proposal = source.proposal
             self.changed = self.agent.resolve(source.proposal, accept=(True,) * len(source.adaptive_parameters()))
@@ -87,13 +93,14 @@ def _rollout(env: DisturbedColony, actors: list[EvaluationActor], focal: int, ho
 
 
 def evaluate_candidate(env: DisturbedColony, agents: list[NovelSignalLearner], focal: int,
-                       *, horizon: int = 64) -> CandidateValue:
+                       *, horizon: int = 64, reset_fast: bool = False) -> CandidateValue:
     if horizon < 1 or not 0 <= focal < len(agents) or len(agents) != len(env.ants):
         raise ValueError("分支时限和个体索引必须有效")
     if env.done or env.ants[focal].exhausted or agents[focal].terminal or agents[focal].proposal is None:
         raise ValueError("这里只评价有待定更新的存活个体，不把下一代混入短期标签")
     skip = [EvaluationActor(agent) for agent in agents]
-    accept = [EvaluationActor(agent, accept=i == focal) for i, agent in enumerate(agents)]
+    accept = [EvaluationActor(agent, accept=i == focal and not reset_fast, reset_fast=i == focal and reset_fast)
+              for i, agent in enumerate(agents)]
     return CandidateValue(skip=_rollout(copy.deepcopy(env), skip, focal, horizon),
                           accept=_rollout(copy.deepcopy(env), accept, focal, horizon),
                           changed=accept[focal].changed,

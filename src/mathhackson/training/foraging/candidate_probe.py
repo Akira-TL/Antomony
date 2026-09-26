@@ -35,6 +35,8 @@ class ProbePlan(BaseModel):
     policy_directory: str
     motor_path: str
     initial_residual_norm: float = Field(default=0., ge=0., allow_inf_nan=False)
+    initial_residual_pattern: Literal["isotropic", "coherent-fourth"] = "isotropic"
+    restoration_control: bool = False
 
     @model_validator(mode="after")
     def check_candidate_configuration(self) -> ProbePlan:
@@ -69,6 +71,8 @@ class CandidateRecord(BaseModel):
     proposal: AdaptationProposal
     result: CandidateValue
     diagnostics: CandidateDiagnostics | None = None
+    restoration: CandidateValue | None = None
+    current_rotation: float | None = None
 
 
 class WorldRecord(BaseModel):
@@ -82,7 +86,10 @@ class WorldRecord(BaseModel):
     deaths: int
 
 
-def initialize_residual(agent: NovelDirectionLearner, *, seed: int, norm: float) -> None:
+def initialize_residual(agent: NovelDirectionLearner, *, seed: int, norm: float,
+                        pattern: Literal["isotropic", "coherent-fourth"] = "isotropic") -> None:
+    if pattern not in ("isotropic", "coherent-fourth"):
+        raise ValueError("未知初始扰动模式")
     if (not np.isfinite(norm) or norm < 0. or norm >= agent.config.maximum_residual_norm
             or agent.history or agent.awaiting_feedback or agent.rewards or agent.proposal is not None
             or agent.decisions or agent.writes or np.any(agent.parameter.fast)):
@@ -90,7 +97,11 @@ def initialize_residual(agent: NovelDirectionLearner, *, seed: int, norm: float)
     if norm == 0.:
         return
     random = np.random.default_rng(seed)
-    vector = random.normal(size=agent.parameter.fast.shape)
+    if pattern == "isotropic":
+        vector = random.normal(size=agent.parameter.fast.shape)
+    else:
+        vector = np.zeros(45)
+        vector.reshape(9, 5)[:, 0] = random.choice((-1., 1.))
     vector *= norm / np.linalg.norm(vector)
     agent.parameter.fast = vector.astype(np.float32)
     agent.assign_weights(agent.parameter.effective)
@@ -102,7 +113,7 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
     agents = [learner(ForagingPolicy.load(Path(plan.policy_directory) / f"episode-0008-ant-{i:02d}.npz"),
                                     motor, seed * 8 + i, plan.adaptation) for i in range(plan.environment.ants)]
     for i, agent in enumerate(agents):
-        initialize_residual(agent, seed=seed * 8 + i, norm=plan.initial_residual_norm)
+        initialize_residual(agent, seed=seed * 8 + i, norm=plan.initial_residual_norm, pattern=plan.initial_residual_pattern)
         if plan.initial_residual_norm:
             agent.save(directory / f"tick-0000-ant-{i:02d}.npz")
     initial = [agent.parameter.fast.copy() for agent in agents]
@@ -133,10 +144,19 @@ def collect(plan: ProbePlan, seed: int, condition: str, directory: Path) -> Worl
                 focal = min(eligible, key=lambda i: (i - start) % len(agents))
                 agent = agents[focal]
                 result = evaluate_candidate(env, agents, focal, horizon=plan.branch_horizon)
+                restoration = None
+                rotation = None
+                if plan.restoration_control:
+                    restoration = evaluate_candidate(env, agents, focal, horizon=plan.branch_horizon, reset_fast=True)
+                    if restoration.skip != result.skip:
+                        raise AssertionError("恢复参照与候选未从相同状态和随机流出发")
+                    novel = env.observation(focal).vector()[:72].reshape(9, 8)[:, 3:].flatten()
+                    rotation = float(np.pi * np.tanh(agent.weights() @ novel))
                 record = CandidateRecord(condition=condition, seed=seed, tick=env.steps, focal=focal,
                                          observation=env.observation(focal).vector().tolist(),
                                          hidden=agent.history[-1].detach().tolist(), proposal=agent.proposal, result=result,
-                                         diagnostics=agent.diagnostics if isinstance(agent, TrustDirectionLearner) else None)
+                                         diagnostics=agent.diagnostics if isinstance(agent, TrustDirectionLearner) else None,
+                                         restoration=restoration, current_rotation=rotation)
                 output.write(record.model_dump_json() + "\n")
                 output.flush()
                 pairs += 1
