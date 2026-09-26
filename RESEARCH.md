@@ -28,7 +28,9 @@ DESIGN
 
 已完成[候选短期价值诊断](analysis/candidate-update-value/README.md)：72 点中70点焦点奖励不变，危险17点缺少后果差异。停止给当前候选追加门控训练，避免把全跳过学成表面成功。
 
-已补齐相同观察与动作权限下的普通 MLP、无神经网络规则及[固定预算基础检查](docs/engineering/comparator-foundations-results.md)。采样方式下三种神经策略均搬完四个食物世界，但无线索探索返巢不足；循环模型返回更多同时探索范围更小，规则只交付3/64份。不能宣称基础能力相当，也不能用弱规则支持优势。下一步先有限诊断返巢缺口的来源，再为一个有实质反馈的候选生成训练方案固定可判别检验，不无限追加基础训练。训练期分支未来不得进入部署输入，已见危险采样不能冒充从未接触危险的训练。总体[对照草案](designs/ant-self-training-adaptation.md)仍未就绪。
+已补齐相同观察与动作权限下的普通 MLP、无神经网络规则及[固定预算基础检查](docs/engineering/comparator-foundations-results.md)。随后[直线诊断](docs/engineering/local-return-diagnosis.md)定位到信息素局部高峰与末段定位问题；用户批准有限巢穴源，新环境显式使用局部平滑、不累加的沉积版本，旧配置不变。
+
+[冻结参数复查](docs/engineering/foundation-recheck-results.md)的56个世界中，神经策略两种方向方式均搬完四个食物世界且零耗尽；前馈采样探索返回也改善。但循环确定方向无线索条件仍30/32耗尽，规则仅交付4/64份，完整基础能力相当仍不成立。下一步为一个有实质反馈的候选生成方案固定可判别检验，并避免把循环初始能力不足混成自训练效果，不再盲目追加训练。主要机制比较须保持同一初始化的接受与跳过，跨模型对照另验资格。训练期分支未来不得进入部署输入，已见危险采样不能冒充从未接触危险的训练。总体[对照草案](designs/ant-self-training-adaptation.md)仍未就绪。
 
 ## Open Threads
 
