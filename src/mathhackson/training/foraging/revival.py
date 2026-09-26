@@ -72,7 +72,7 @@ class RevivingColony(DisturbedColony):
             self.deaths[i] += int(self.killed[i])
             self.terminations[i] += 1
             if ant.carrying:
-                self.stock += 1
+                self.return_food(i)
                 ant.carrying = False
             self.pending[i] = True
             self.waiting.append(i)

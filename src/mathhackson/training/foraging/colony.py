@@ -73,13 +73,24 @@ class ColonyEnvironment:
             for ant in self.ants:
                 self.signals.trails.deposit(ant.position, 0, self.config.home_rate)
 
-    def sources(self) -> tuple[SignalSource, ...]:
-        food = (SignalSource(float(self.food[0]), float(self.food[1]), self.config.food_radius,
+    def food_sources(self) -> tuple[SignalSource, ...]:
+        return (SignalSource(float(self.food[0]), float(self.food[1]), self.config.food_radius,
                              self.config.food_strength, (1., 0., 0., 0., 0., 0., 0., 0.)),) if self.stock else ()
+
+    def sources(self) -> tuple[SignalSource, ...]:
         nest = (SignalSource(float(self.home[0]), float(self.home[1]), self.config.nest_signal_radius,
                              self.config.nest_signal_strength, (0., 1., 0., 0., 0., 0., 0., 0.)),
                 ) if self.config.nest_signal_strength else ()
-        return food + nest + self.extra_sources
+        return self.food_sources() + nest + self.extra_sources
+
+    def take_food(self, index: int) -> bool:
+        if self.stock > 0 and float(np.linalg.norm(self.ants[index].position - self.food)) < .4:
+            self.stock -= 1
+            return True
+        return False
+
+    def return_food(self, index: int) -> None:
+        self.stock += 1
 
     def observation(self, index: int) -> LocalObservation:
         ant = self.ants[index]
@@ -143,12 +154,11 @@ class ColonyEnvironment:
                 ant.release_distance = 0.
             at_home = float(np.linalg.norm(ant.position - self.home)) < .65
             delivery = ant.carrying and at_home
-            pickup = not ant.carrying and self.stock > 0 and float(np.linalg.norm(ant.position - self.food)) < .4
+            pickup = not ant.carrying and self.take_food(i)
             returned = at_home and ant.away and ant.exploration_left == 0
             if pickup:
                 ant.carrying = True
                 ant.pickups += 1
-                self.stock -= 1
             elif delivery:
                 ant.carrying = False
                 ant.deliveries += 1
