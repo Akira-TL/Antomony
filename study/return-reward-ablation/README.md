@@ -7,7 +7,7 @@
 
 ## Study Identity
 
-身份 `return-reward-ablation`，本地连续模拟。2026-09-26 14:21:54.302021 UTC开始，当前执行中；尚未完成结果核对。
+身份 `return-reward-ablation`，本地连续模拟。2026-09-26 14:21:54.302021 UTC开始，14:30:18.142436 UTC结束，20世界均正常完成；正式分析核对另记。
 
 ## Source and Experimental Units
 
@@ -23,7 +23,7 @@
 
 ## Assays and Measurements
 
-连续记录行动、实际拾取交付、体力与危险终止、复活、伤害、奖励及更新提案。每256步与终点保存参数和记忆。正在产生数据，尚未进行正式配对分析。
+连续记录行动、实际拾取交付、体力与危险终止、复活、伤害、奖励及更新提案。每256步与终点保存参数和记忆。20世界均达到4096步，未提前交付全部库存；记录齐全，尚未进行正式配对分析。
 
 ## Protocol / Materials / Instruments
 
@@ -31,11 +31,11 @@
 
 ## Batch / Run / Time
 
-入口 `scripts/training/return-reward-ablation.sh`，批次 `20260926T142153-2`；最多8个独立进程，各进程PyTorch单线程。结束时间尚待执行器记录。两批启动时分别记录实际Git提交，后续分析开发提交不会解释为模型改变。
+入口 `scripts/training/return-reward-ablation.sh`，批次 `20260926T142153-2`；最多8个独立进程，各进程PyTorch单线程。保留奖励批14:26:01.663909 UTC完成，取消奖励批14:26:02.735594 UTC开始、14:30:18.142436 UTC完成。合计约504秒墙钟时间，不是严格性能基准。两批记录的执行提交均为 `a8fc37b2f21cffcb7d80a5f278b304531884ec31`；并行撰写的后续分析文件不改变仿真与模型。
 
 ## Failures / Missing Events
 
-当前无已确认失败；进程仍执行中，不能将尚未产生的世界视为缺失或完整。
+两批均正常退出，20世界无缺失；危险死亡及耗尽作为实际结局保留，不视为需要删除的执行失败。
 
 ## Deviations
 
@@ -43,8 +43,8 @@
 
 ## Outputs
 
-每批 `execution.json`、`worlds.jsonl`、逐世界 `result.json`、`trajectory.jsonl.gz`、`updates.jsonl` 及参数文件；执行输出另保存在批次根目录的两份日志。完成后生成完整散列清单再交给数据登记。
+每批 `execution.json`、`worlds.jsonl`、逐世界 `result.json`、`trajectory.jsonl.gz`、`updates.jsonl` 及参数文件；执行输出另保存在批次根目录的两份日志。完成后生成完整散列清单交给数据登记。
 
 ## Record Boundary / Corrections
 
-开始时间及版本来自运行器实录；完成状态不提前填写。原工程种子19201只用于提出问题，不进入本次结果。
+时间、版本及完成状态来自运行器实录；完成后补记，不倒填为结果前事实。原工程种子19201只用于提出问题，不进入本次结果。

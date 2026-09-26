@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [返巢奖励配对数据](return-reward-ablation/README.md) - 已完成20世界并固定清单，待分析核对。
+
 - [连续复杂来源数据](continuous-adaptation/README.md) - 80世界、6634文件，未按结果筛选。
 
 - [固定个体接受模型](memory-acceptance-models/README.md) - 原分析参数的完整固定副本，来源课程未通过采用条件。
@@ -24,6 +26,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [返巢奖励配对数据](return-reward-ablation/README.md) → [实际实施](../study/return-reward-ablation/README.md)。
 
 - [连续数据](continuous-adaptation/README.md) → [实际实施](../study/continuous-adaptation/README.md)、[固定接受来源](memory-acceptance-models/README.md)、[MLP来源](matched-foundation/README.md)、[连续分析](../analysis/continuous-adaptation/README.md)。
 
