@@ -4,6 +4,7 @@
   "design_slug": "first-action-outcomes",
   "study_type": "本地模拟单步干预",
   "status": "in_progress",
+  "started_at": "2026-09-26T19:47:40+00:00",
   "provenance_path": "study/first-action-outcomes/README.md",
   "artifacts": [{"location": ".research/analysis/first-action-outcomes/A001/config.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"}]
 }
