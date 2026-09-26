@@ -1,0 +1,11 @@
+{
+  "analysis_slug": "update-constraints",
+  "attempt_key": "A001",
+  "status": "invalid",
+  "git_commit": "2a0e4b7",
+  "config_path": ".research/analysis/update-constraints/A001/config.json",
+  "reason": "批量与逐状态概率相差约2.24e-7，新增校验过严而停止，未生成科学结果。",
+  "started_at": "2026-09-26T19:18:55.760618+00:00",
+  "completed_at": "2026-09-26T19:19:35+00:00",
+  "decision_reason": "保留失败记录；不将数值校验失败解释成模型效果。结束时间取工具确认失败时点。"
+}

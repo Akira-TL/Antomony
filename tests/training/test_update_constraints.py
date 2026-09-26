@@ -11,6 +11,15 @@ from mathhackson.training.foraging.disturbance import DisturbanceConfig
 from mathhackson.training.foraging.trust_candidate import rotation_probabilities
 
 
+def test_float32_probability_check_accepts_roundoff_but_rejects_changed_distribution():
+    probability = np.asarray([.12327119708061218], dtype=np.float32)
+    batched = np.asarray([.12327142059803009], dtype=np.float32)
+    tolerance = 16. * np.finfo(np.float32).eps
+    np.testing.assert_allclose(probability, batched, atol=tolerance, rtol=tolerance)
+    with pytest.raises(AssertionError):
+        np.testing.assert_allclose(probability, probability + .0001, atol=tolerance, rtol=tolerance)
+
+
 def test_probability_jacobian_matches_independent_central_difference():
     rng = np.random.default_rng(822)
     bases = np.asarray([[1., 0.], [0., 1.]], dtype=np.float32)

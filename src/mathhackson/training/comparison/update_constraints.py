@@ -125,7 +125,10 @@ def measure_constraints(seed: int, record: UpdateRecord, samples: list[Sample], 
     features = torch.stack([sample.features for sample in samples])
     before = rotation_probabilities(torch.tensor(record.before, dtype=torch.float32), bases, features)
     after = rotation_probabilities(torch.tensor(record.after, dtype=torch.float32), bases, features)
-    np.testing.assert_allclose(before.numpy(), np.stack([s.probabilities for s in samples]), atol=1e-7, rtol=1e-6)
+    # 批量矩阵乘法与逐状态点积的浮点32位求和顺序不同。
+    probability_tolerance = 16. * np.finfo(np.float32).eps
+    np.testing.assert_allclose(before.numpy(), np.stack([s.probabilities for s in samples]),
+                               atol=probability_tolerance, rtol=probability_tolerance)
     divergence = (before * (before.log() - after.log())).sum(-1).clamp_min(0.)
     mean_kl, maximum_kl = float(divergence.mean()), float(divergence.max())
     if abs(mean_kl - record.diagnostics.mean_kl) > 2e-6 or abs(maximum_kl - record.diagnostics.maximum_kl) > 2e-6:

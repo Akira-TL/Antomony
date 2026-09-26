@@ -46,7 +46,7 @@
 
 ## Reproduction
 
-入口 `scripts/analyses/update-constraints.sh`；配置 `.research/analysis/update-constraints/A001/config.json`；模块 `update_constraints.py`。复用锁定环境、单线程执行，无新采样或训练。分析运行硬上限300秒，另设终止宽限5秒；超时或缺失输入保留失败记录，不扩大范围。准备时间上限30分钟，触线即返回。
+入口 `scripts/analyses/update-constraints.sh`；原配置 `.research/analysis/update-constraints/A001/config.json`，修正浮点校验后的配置 `A002/config.json`；模块 `update_constraints.py`。复用锁定环境、单线程执行，无新采样或训练。诊断总计算上限300秒；A001开始至工具确认失败约40秒，因此A002硬上限260秒，另设终止宽限5秒，不按执行编号重置预算。超时或缺失输入保留失败记录，不扩大范围。准备时间上限30分钟，触线即返回。
 
 ## Result Boundary
 
@@ -54,4 +54,4 @@
 
 ## Amendments
 
-不适用：首次计划，尚未生成新增测量结果。
+A001在逐状态与批量计算的概率一致性校验中失败，单元素最大差0.00000022351742，未生成测量输出。实际随机动作仍逐一核对，已有参数链检查未报错。A002仅将该附加比较的绝对及相对容差改为浮点32位机器精度的16倍，约0.000001907；不改指标、样本、已保存相对熵校验或科学判据。这属于结果生成前的数值校验修正，原失败记录保留。

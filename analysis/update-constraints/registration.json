@@ -14,6 +14,13 @@
     {"path": "scripts/analyses/update-constraints.sh", "role": "other", "timing_role": "pre_result_support"},
     {"path": ".research/analysis/update-constraints/A001/config.json", "role": "other", "timing_role": "pre_result_support"},
     {"path": "src/mathhackson/training/comparison/update_constraints.py", "role": "other", "timing_role": "pre_result_support"},
-    {"path": "tests/training/test_update_constraints.py", "role": "other", "timing_role": "pre_result_support"}
-  ]
+    {"path": "tests/training/test_update_constraints.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": ".research/analysis/update-constraints/A002/config.json", "role": "other", "timing_role": "pre_result_support"}
+  ],
+  "amendments": [{
+    "timing": "pre_result",
+    "description": "A001未生成结果，批量与逐状态概率相差约2.24e-7导致过严容差失败。A002只将附加概率一致性容差改为浮点32位机器精度16倍，独立测试通过；保留原实际动作与相对熵核对。",
+    "reason": "不同浮点求和顺序的数值误差，不改变测量定义、数据、样本或科学判据；A002最多260秒，计入A001约40秒后总预算300秒。",
+    "commit_ref": "2a0e4b7"
+  }]
 }
