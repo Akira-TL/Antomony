@@ -93,6 +93,23 @@ def test_audit_rejects_tampered_reported_acceptance_count(records: AuditFixture)
         audited_rows(records.directory, records.plan)
 
 
+def test_audit_rejects_oversized_single_write_within_total_limit(records: AuditFixture) -> None:
+    path = records.trace_path()
+    with np.load(path, allow_pickle=False) as original:
+        arrays = {name: original[name] for name in original.files}
+    fast = arrays["fast"]
+    fast[3:] = 0.
+    fast[3:, 0, 0, 0] = (records.plan.max_step + records.plan.max_fast) / 2.
+    fast[7, 0, 0, 1] = .01
+    arrays["write_norm"] = np.linalg.norm(
+        (fast - np.concatenate((np.zeros_like(fast[:1]), fast[:-1]))).reshape(8, 1, -1), axis=-1)
+    assert arrays["write_norm"][3, 0] > records.plan.max_step
+    assert np.linalg.norm(fast.reshape(8, 1, -1), axis=-1).max() < records.plan.max_fast
+    np.savez_compressed(path, **arrays)
+    with pytest.raises(ValueError, match="单次写入超过协议上限"):
+        audited_rows(records.directory, records.plan)
+
+
 def test_audit_rejects_unmatched_actual_acceptance_count(records: AuditFixture) -> None:
     path = records.trace_path("matched")
     with np.load(path, allow_pickle=False) as original:

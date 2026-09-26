@@ -132,6 +132,8 @@ def audited_rows(directory: Path, plan: Protocol) -> list[EvaluationRow]:
                     raise ValueError("随机接受次数没有逐回合匹配")
                 fast = trace["fast"]
                 change = np.linalg.norm((fast - np.concatenate((np.zeros_like(fast[:1]), fast[:-1]))).reshape(*shape, -1), axis=-1)
+                if np.any(change > plan.max_step + 1e-5):
+                    raise ValueError("单次写入超过协议上限")
                 if (np.any(change[~accepted] != 0) or not np.allclose(change, trace["write_norm"], atol=1e-6)
                         or np.any(np.linalg.norm(fast.reshape(*shape, -1), axis=-1) > plan.max_fast + 1e-5)):
                     raise ValueError("跳过、写入范数或参数约束不符")
