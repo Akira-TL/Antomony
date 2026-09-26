@@ -19,7 +19,7 @@ from mathhackson.training.direction.environment import DirectionEnvironment, MAX
 from mathhackson.training.direction.gate import Feedback, FeedbackHistory, UpdateGate, accept_proposal
 
 Scenario = Literal["normal", "positive", "negative", "transient", "periodic"]
-Mode = Literal["off", "always", "rule", "learned"]
+Mode = Literal["off", "always", "rule", "learned", "random"]
 SCENARIOS: tuple[Scenario, ...] = ("normal", "positive", "negative", "transient", "periodic")
 HORIZON = 192
 TEACHER_STEPS = 8
@@ -214,7 +214,12 @@ def train_gate(config: Config, x: torch.Tensor, benefit: torch.Tensor, seed: int
 
 
 def evaluate(episode: Episode, mode: Mode, gate_seed: int | None, gate: UpdateGate | None,
-             directory: Path) -> Result:
+             directory: Path, *, schedule: np.ndarray | None = None) -> Result:
+    if mode == "random":
+        if schedule is None or schedule.shape != (HORIZON,) or schedule.dtype != np.bool_:
+            raise ValueError("随机接受时刻表必须包含每步的布尔选择")
+    elif schedule is not None:
+        raise ValueError("其他策略不能读取随机接受时刻表")
     individual = Individual.create(episode)
     commands = episode.commands()
     frames: list[Frame] = []
@@ -222,6 +227,9 @@ def evaluate(episode: Episode, mode: Mode, gate_seed: int | None, gate: UpdateGa
         frame, observed = individual.observe_and_propose(float(commands[tick // 48]), episode.bias(tick), tick)
         if mode == "always":
             probability = 1.
+        elif mode == "random":
+            assert schedule is not None
+            probability = float(schedule[tick])
         elif mode == "learned":
             assert gate is not None
             probability = gate.probability(observed)

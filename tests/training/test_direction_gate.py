@@ -74,3 +74,29 @@ def test_training_teacher_keeps_real_state_and_equal_branches_only_pay_write_cos
     individual.observe_and_propose(.8, .15, 71)
     assert model.offset.item() == 0.
     individual.assert_frozen()
+
+
+def test_random_control_preserves_exact_acceptance_budget_and_reproducibility(monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "scripts/training"))
+    from direction_gate_control import random_schedule
+    for count in (0, 7, 192):
+        first = random_schedule(192, count, (6101, 41, 5201, 101, 0))
+        second = random_schedule(192, count, (6101, 41, 5201, 101, 0))
+        assert first.dtype == np.bool_
+        assert first.shape == (192,)
+        assert np.count_nonzero(first) == count
+        np.testing.assert_array_equal(first, second)
+    with pytest.raises(ValueError):
+        random_schedule(192, 193, (6101,))
+
+
+def test_random_control_rejects_invalid_schedule_before_loading_models(monkeypatch, tmp_path):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[2] / "scripts/training"))
+    from direction_gate import Episode, evaluate
+    episode = Episode(motor_seed=41, scene_seed=5201, scenario="normal", magnitude=.22)
+    with pytest.raises(ValueError):
+        evaluate(episode, "random", 101, None, tmp_path, schedule=np.zeros(191, dtype=np.bool_))
+    with pytest.raises(ValueError):
+        evaluate(episode, "random", 101, None, tmp_path, schedule=np.zeros(192))
+    with pytest.raises(ValueError):
+        evaluate(episode, "learned", 101, None, tmp_path, schedule=np.zeros(192, dtype=np.bool_))
