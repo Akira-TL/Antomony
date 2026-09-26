@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/return-reward-ablation/20260926T142153-2",
+  "manifest": "data/return-reward-ablation/manifest.sha256",
+  "output": ".research/analysis/return-reward-ablation/A001/outputs/summary.json"
+}
