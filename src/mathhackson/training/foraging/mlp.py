@@ -35,14 +35,17 @@ class FeedforwardPolicy(nn.Module):
             self.value.requires_grad_(False)
         self.train(phase != "frozen")
 
-    def forward(self, observation: torch.Tensor, history: tuple[torch.Tensor, ...] = ()) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def encode(self, observation: torch.Tensor) -> torch.Tensor:
         if observation.shape[-1] != 78:
             raise ValueError("多层感知机只接收局部信号和六项自身状态")
         receptors = observation[..., :72].reshape(*observation.shape[:-1], 9, 8)
         strength = receptors.mean(dim=-2)
         contrast = (receptors - strength.unsqueeze(-2)) / receptors.amax(dim=-2, keepdim=True).clamp_min(.001)
         inputs = torch.cat((contrast.flatten(-2), strength, observation[..., 72:]), dim=-1)
-        hidden = torch.tanh(self.middle(torch.tanh(self.encoder(inputs))))
+        return self.middle(torch.tanh(self.encoder(inputs)))
+
+    def forward(self, observation: torch.Tensor, history: tuple[torch.Tensor, ...] = ()) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        hidden = torch.tanh(self.encode(observation))
         raw = self.direction(hidden)
         direction = raw / torch.linalg.vector_norm(raw, dim=-1, keepdim=True).clamp_min(1e-6)
         return direction, hidden, self.value(hidden).squeeze(-1)

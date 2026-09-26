@@ -11,14 +11,15 @@ from mathhackson.training.direction.policy import DirectionAction, DirectionMoto
 from mathhackson.training.foraging.curriculum import signal_batch
 from mathhackson.training.foraging.environment import LocalObservation
 from mathhackson.training.foraging.mlp import FeedforwardPolicy
+from mathhackson.training.foraging.memory import MemoryPolicy
 from mathhackson.training.foraging.policy import ForagingPolicy
 from mathhackson.training.foraging.reward import DIRECTIONS, actor_critic_losses, direction_distribution, discounted_returns
 
-Policy = FeedforwardPolicy | ForagingPolicy
+Policy = FeedforwardPolicy | ForagingPolicy | MemoryPolicy
 
 
 def assert_reserved(model: Policy) -> None:
-    if isinstance(model, FeedforwardPolicy):
+    if isinstance(model, (FeedforwardPolicy, MemoryPolicy)):
         model.assert_reserved()
     elif any(bool(p.any()) or p.grad is not None for p in model.reserved_parameters()):
         raise AssertionError("基础课程改变了预留接收器")
@@ -51,7 +52,7 @@ class NeuralForager:
             raise ValueError("当前策略梯度训练必须采样行动")
         with torch.set_grad_enabled(training):
             direction, hidden, value = self.model(torch.from_numpy(observation.vector()), tuple(self.history))
-            if isinstance(self.model, ForagingPolicy):
+            if isinstance(self.model, (ForagingPolicy, MemoryPolicy)):
                 self.history.append(hidden)
             if sampled:
                 distribution = direction_distribution(direction)
