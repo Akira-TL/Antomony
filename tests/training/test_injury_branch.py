@@ -1,12 +1,14 @@
 from dataclasses import replace
 import gzip
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 import torch
 
 from mathhackson.training.comparison.injury_branch import clone_for_branch, evaluate
+from mathhackson.training.comparison import continuous, injury_probe
 from mathhackson.training.comparison.online_actor import OnlineForager
 from mathhackson.training.direction.policy import DirectionMotor
 from mathhackson.training.foraging.colony import ColonyConfig
@@ -62,3 +64,27 @@ def test_clone_restores_before_and_changes_only_accept_copy():
     record.tick += 1
     with pytest.raises(ValueError):
         evaluate(env, actors, record, horizon=3, directory=Path('unused'))
+
+
+def test_probe_reconstructs_short_record_without_changing_source(tmp_path, monkeypatch):
+    torch.set_num_threads(1)
+    condition = continuous.Condition(name='moving-danger', disturbance=DisturbanceConfig(
+        signal_radius=10., injury_per_step=1., contact_radius=10.))
+    config = continuous.ContinuousPlan(seeds=(1,), conditions=(condition,), respawn=True,
+        environment=ColonyConfig(ants=1, horizon=5), checkpoint_every=2)
+
+    def factory(plan, seed, arm):
+        return [OnlineForager(MemoryPolicy(FeedforwardPolicy(71)), DirectionMotor(41), UpdateDecision(),
+            seed * 32, 'learned', TrustConfig(window=1, feedback_mode='observed-window'))]
+
+    monkeypatch.setattr(continuous, 'make_actors', factory)
+    monkeypatch.setattr(injury_probe, 'make_actors', factory)
+    source = tmp_path / 'source'
+    world = continuous.run_world(config, 1, condition, 'learned', source)
+    original = (source / 'trajectory.jsonl.gz').read_bytes()
+    store = SimpleNamespace(execution=SimpleNamespace(plan=config), world=lambda *args: (source, world))
+    plan = injury_probe.Plan(source_root=source, manifest=tmp_path / 'unused', seeds=(1,),
+                            maximum_parent_steps=3, pairs_per_world=1, branch_steps=2)
+    result = injury_probe.probe_world(plan, store, 1, tmp_path / 'branches')
+    assert result.parent_steps <= 3 and len(result.points) == 1
+    assert (source / 'trajectory.jsonl.gz').read_bytes() == original

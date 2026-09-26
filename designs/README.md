@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [伤害后的单次候选诊断](injury-candidate.md) - 结果前设计；最多32对，分支支持复活但不继续更新。
+
 - [空载返巢奖励配对诊断](return-reward-ablation.md) - 已冻结并登记；固定两个新种子、20世界，只改变返巢奖励。
 
 - [复杂来源连续更新对照](continuous-adaptation.md) - 已冻结并登记；固定80世界，主要比较同初始化的三种更新方式。

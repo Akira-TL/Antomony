@@ -1,0 +1,8 @@
+{
+  "source_root": "logs/return-reward-ablation/20260926T142153-2",
+  "manifest": "data/return-reward-ablation/manifest.sha256",
+  "seeds": [19301, 19302],
+  "maximum_parent_steps": 1536,
+  "pairs_per_world": 16,
+  "branch_steps": 128
+}
