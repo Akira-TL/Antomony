@@ -76,6 +76,7 @@ def main() -> None:
     elapsed = time.perf_counter() - start
     final = float((model(x) - y).square().mean().detach())
     restored = copy.deepcopy(model)
+    mup.set_base_shapes(restored, restored, rescale_params=False)
     restored_optimizer = MuLO_naive(restored.parameters(), lr=1., hf_key=str(WEIGHTS))
     restored_optimizer.network.requires_grad_(False)
     restored_optimizer.load_state_dict(copy.deepcopy(optimizer.state_dict()))
