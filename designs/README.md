@@ -2,6 +2,7 @@
 
 ## Objects
 
+- [行动概率约束候选诊断](trust-candidate-value.md) - 待冻结；最多64点，检验后续实际差异，不训练接受网络。
 - [候选更新短期价值诊断](candidate-update-value.md) - 已冻结；采样72点，结论边界见描述分析，不作优势检验。
 - [蚁群自主参数更新与未见环境适应性对照](ant-self-training-adaptation.md) - `draft`；当前主线，接受决策、对照能力与确认环境尚未齐备。
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
