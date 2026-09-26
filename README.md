@@ -2,7 +2,7 @@
 
 Math Hackathon 2026 的独立工程与研究工作区。项目名称和路径按用户指定为 `/home/Akira/Projects/MathHackson`。
 
-当前进入 V2V 单一机制提取：已独立提取可逆参数更新模块并通过 20 项工程测试。候选作品围绕小型神经网络的在线更新与选择性回退；自主决策策略、学习收益和正式参赛范围尚未验证。详见 [提取范围](docs/competition/v2v-extraction-scope.md)。
+当前已独立提取可逆参数更新模块，已有20项工程测试。候选作品进一步形成了赛道二的现场演示与两天开发方案，以及固定非线性特征、线性读出选择性回退的研究设计草案。设计尚未冻结，预测器和自动回退策略尚未实现；没有学习收益结果。详见 [演示与开发方案](docs/competition/track2-demo-development.md)。
 
 ## 阅读入口
 
@@ -13,6 +13,8 @@ Math Hackathon 2026 的独立工程与研究工作区。项目名称和路径按
 | [RESEARCH.md](RESEARCH.md) | 当前科研目标、问题与停止边界 |
 | [研究结构](research-tree/README.md) | 由数据库生成的研究关系视图 |
 | [单一机制提取](docs/competition/v2v-extraction-scope.md) | 提取内容、原实验边界、后续最小验证 |
+| [赛道二演示与开发](docs/competition/track2-demo-development.md) | 契合度判断、三分钟现场路径和两天纵向切片 |
+| [研究设计草案](designs/neural-readout-selective-rollback.md) | 解析回退、后到反馈、公平对照、停止条件；未冻结未执行 |
 | [赛事资料](docs/competition/README.md) | 赛题、原始附件位置、历史说明与数据约束 |
 | [技能说明](docs/agents/skills.md) | Matt / Research 项目引用、来源版本与恢复 |
 | [工程任务约定](docs/agents/issue-tracker.md) | 本地任务、依赖与领取规则 |
