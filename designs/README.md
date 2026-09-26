@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [反馈时间范围比较](feedback-window.md) - 待冻结；同状态只比较16与64步一次。
+- [反馈时间范围比较](feedback-window.md) - 已冻结；同状态只比较16与64步一次。
 
 - [基础扰动恢复参照](restoration-control.md) - 已冻结；区分改善机会不足与候选未找到改善。
 
