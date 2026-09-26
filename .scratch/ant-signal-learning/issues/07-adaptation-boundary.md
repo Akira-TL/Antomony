@@ -1,6 +1,6 @@
 Type: grilling
 Status: ready-for-human
-Blocked by: 05, 06
+Blocked by: 05, 06, 15
 
 # 基础课程通过后，自修改应学习什么，以及允许改变哪里？
 
