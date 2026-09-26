@@ -69,7 +69,8 @@ export class ColonyScene {
     this.legs=new THREE.InstancedMesh(new THREE.CylinderGeometry(.014,.014,1,5),material,64*12);this.scene.add(this.legs);
     this.cargo=new THREE.InstancedMesh(new THREE.BoxGeometry(.18,.18,.18),new THREE.MeshStandardMaterial({color:0xf8b85b,emissive:0xb46616,emissiveIntensity:.6,metalness:.3,roughness:.35}),64);this.scene.add(this.cargo);
     this.delivered=new THREE.InstancedMesh(new THREE.BoxGeometry(.12,.12,.12),this.cargo.material,384);this.scene.add(this.delivered);
-    [...this.antMeshes,this.legs,this.cargo,this.delivered].forEach(mesh=>mesh.count=0);
+    // 个体位置逐帧改变；初始实例包围球不能用于近景裁剪。
+    [...this.antMeshes,this.legs,this.cargo,this.delivered].forEach(mesh=>{mesh.count=0;mesh.frustumCulled=false;});
     for(let channel=0;channel<2;channel++){
       const texture=new THREE.DataTexture(new Uint8Array(96*64*4),96,64,THREE.RGBAFormat);
       texture.flipY=true;texture.magFilter=THREE.LinearFilter;texture.minFilter=THREE.LinearFilter;
