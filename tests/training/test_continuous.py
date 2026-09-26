@@ -114,6 +114,26 @@ def test_invalid_continuous_plan_rejected(plan, changes):
         ContinuousPlan.model_validate({**plan.model_dump(), **changes})
 
 
+@pytest.mark.parametrize("rate", [0., .1])
+def test_reward_baseline_history_matches_real_snapshots_and_detects_corruption(plan, tmp_path, rate):
+    import numpy as np
+    from mathhackson.training.comparison.baseline_audit import history
+    plan = plan.model_copy(update={"respawn": True, "adaptation": plan.adaptation.model_copy(
+        update={"historical_baseline_rate": rate})})
+    directory = tmp_path / "baseline"
+    world = run_world(plan, 18999, plan.conditions[0], "skip", directory)
+    result = history(directory, world, plan)
+    assert result.windows == (10 if rate else 0)
+    assert result.snapshots == 8
+    path = directory / "tick-0008-ant-00.residual.npz"
+    with np.load(path, allow_pickle=False) as data:
+        fields = {key: data[key].copy() for key in data.files}
+    fields['return_baseline'] = np.asarray(999.)
+    np.savez(path, **fields)
+    with pytest.raises(ValueError, match="快照"):
+        history(directory, world, plan)
+
+
 def test_reconstruction_compares_full_trace_proposals_and_parameters(plan, tmp_path):
     import numpy as np
     from mathhackson.training.comparison.continuous_audit import compare_world, window_scores
