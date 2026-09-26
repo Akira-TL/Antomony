@@ -145,3 +145,18 @@ def test_recurrent_direction_uses_recent_and_sparse_hidden_frames():
     history[-8] = torch.zeros(8)
     history[-4] = torch.ones(8)
     torch.testing.assert_close(policy(observation, tuple(history))[1], torch.full((8,), .92166855))
+
+
+def test_old_checkpoint_gets_neutral_state_scale_without_changing_behavior(tmp_path):
+    from mathhackson.training.foraging.policy import ForagingPolicy, RECENT_LAGS, SPARSE_LAGS
+    original = ForagingPolicy(71)
+    legacy = tmp_path / "legacy.npz"
+    with legacy.open("xb") as stream:
+        np.savez(stream, version="local-foraging-v1", recent_lags=RECENT_LAGS, sparse_lags=SPARSE_LAGS,
+                 **{key: value.detach().numpy() for key, value in original.state_dict().items()
+                    if not key.startswith("state_scale.")})
+    restored = ForagingPolicy.load(legacy)
+    observations = torch.from_numpy(np.random.default_rng(71).normal(size=(10, 76)).astype(np.float32))
+    torch.testing.assert_close(original(observations)[0], restored(observations)[0], rtol=0., atol=0.)
+    assert not restored.state_scale.weight.any()
+    assert not restored.state_scale.bias.any()

@@ -31,12 +31,15 @@ class ForagingPolicy(nn.Module):
             self.sparse_memory = nn.Linear(4 * HIDDEN_WIDTH, HIDDEN_WIDTH, bias=False)
             self.direction = nn.Linear(HIDDEN_WIDTH, 2)
             self.value = nn.Linear(HIDDEN_WIDTH, 1)
+            self.state_scale = nn.Linear(1, 8)
             with torch.no_grad():
                 self.novel_signal.weight.zero_()
                 self.recent_memory.weight.zero_()
                 self.sparse_memory.weight.zero_()
                 self.direction.weight.mul_(.1)
                 self.direction.bias.copy_(torch.tensor([1., 0.]))
+                self.state_scale.weight.zero_()
+                self.state_scale.bias.zero_()
         self.set_phase("signal")
 
     def set_phase(self, phase: Phase) -> None:
@@ -53,6 +56,8 @@ class ForagingPolicy(nn.Module):
     def forward(self, observation: torch.Tensor, history: tuple[torch.Tensor, ...] = ()) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         receptors = observation[..., :72].reshape(*observation.shape[:-1], 9, 8)
         encoded = torch.tanh(self.basic_signal(receptors[..., :3]) + self.novel_signal(receptors[..., 3:]))
+        scale = 2. * torch.sigmoid(self.state_scale(observation[..., 72:73]))
+        encoded = encoded * scale.unsqueeze(-2)
         current = self.observation_layer(torch.cat((encoded.flatten(-2), observation[..., 72:]), dim=-1))
         zero = torch.zeros_like(current)
         recent = torch.cat([history[-lag] if len(history) >= lag else zero for lag in RECENT_LAGS], dim=-1)
@@ -64,7 +69,7 @@ class ForagingPolicy(nn.Module):
 
     def save(self, path: Path, *, update: int, phase: Phase) -> None:
         with path.open("xb") as stream:
-            np.savez(stream, version="local-foraging-v1", update=update, phase=phase,
+            np.savez(stream, version="local-foraging-v2", update=update, phase=phase,
                      recent_lags=RECENT_LAGS, sparse_lags=SPARSE_LAGS,
                      **{key: value.detach().numpy() for key, value in self.state_dict().items()})
 
@@ -72,10 +77,13 @@ class ForagingPolicy(nn.Module):
     def load(cls, path: Path) -> ForagingPolicy:
         model = cls(0)
         with np.load(path, allow_pickle=False) as data:
-            if (str(data["version"]) != "local-foraging-v1" or tuple(data["recent_lags"]) != RECENT_LAGS
+            version = str(data["version"])
+            if (version not in ("local-foraging-v1", "local-foraging-v2") or tuple(data["recent_lags"]) != RECENT_LAGS
                     or tuple(data["sparse_lags"]) != SPARSE_LAGS):
                 raise ValueError("局部往返检查点版本不兼容")
-            weights = {key: torch.from_numpy(data[key].copy()) for key in model.state_dict()}
+            # 旧快照的缩放恰为一，恢复不改变旧策略行为。
+            weights = {key: (value if version == "local-foraging-v1" and key.startswith("state_scale.")
+                             else torch.from_numpy(data[key].copy())) for key, value in model.state_dict().items()}
             if not all(bool(torch.isfinite(value).all()) for value in weights.values()):
                 raise ValueError("模型权重非有限")
             model.load_state_dict(weights)
