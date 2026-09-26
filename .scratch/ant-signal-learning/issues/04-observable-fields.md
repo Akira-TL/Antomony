@@ -1,6 +1,6 @@
 Type: research
 Status: ready-for-agent
-Blocked by: 02
+Blocked by: 02, 08
 
 # 哪些固定信号规则能让局部观察包含可学习的方向？
 
