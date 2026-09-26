@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [伤害候选分支](injury-candidate/README.md) - 已完成两个世界32对。
+
 - [空载返巢奖励配对诊断](return-reward-ablation/README.md) - 已完成20世界；单变量奖励、两个新种子。
 
 - [连续复杂来源采样](continuous-adaptation/README.md) - 80世界完成，完整保存轨迹与参数。
@@ -24,6 +26,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [伤害候选分支](injury-candidate/README.md) → [冻结设计](../designs/injury-candidate.md)、[数据](../data/injury-candidate/README.md)。
 
 - [返巢奖励诊断](return-reward-ablation/README.md) → [冻结设计](../designs/return-reward-ablation.md)、[原始数据](../data/return-reward-ablation/README.md)。
 

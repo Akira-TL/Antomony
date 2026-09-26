@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [伤害候选与接受判断](injury-candidate/README.md) - 规则已固定，待计算。
+
 - [返巢奖励配对后果](return-reward-ablation/README.md) - 已完成；取消奖励未通过采用条件，保留当前默认值。
 
 - [连续复杂来源对照](continuous-adaptation/README.md) - completed；更新优于跳过，但学习接受不如固定接受，未通过采用条件。
@@ -24,6 +26,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [伤害候选分析](injury-candidate/README.md) → [设计](../designs/injury-candidate.md)、[数据](../data/injury-candidate/README.md)。
 
 - [返巢奖励配对后果](return-reward-ablation/README.md) → [冻结设计](../designs/return-reward-ablation.md)、[输入数据](../data/return-reward-ablation/README.md)。
 

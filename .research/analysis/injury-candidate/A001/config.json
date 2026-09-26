@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/injury-candidate/20260926T145121-2",
+  "manifest": "data/injury-candidate/manifest.sha256",
+  "output": ".research/analysis/injury-candidate/A001/outputs/summary.json"
+}
