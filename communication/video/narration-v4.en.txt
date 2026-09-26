@@ -1,0 +1,17 @@
+A little to the left. Good. She's following the trail. Now add a sideways push. Same sensors, same legs, but her old steering rule leaves her drifting off course. What would have to change for her to recover?
+
+Give her a twin. Both start with exactly the same steering. One keeps its rule; the other can adjust a small part of it. Watch the paths separate. This is a toy illustration, but it gives us a useful question: what, exactly, is the second ant learning?
+
+Not how to move her legs. That skill stays. What changes is a correction to the steering. Slide this number, and watch the heading change. The effective weight is the old weight plus the correction. A tiny change inside the model becomes a different movement outside it.
+
+Where should the correction come from? Here's the movement she predicted. Here's what actually happened. This gap is the error. Combine it with the input that produced the prediction, and we get a local update. We don't have to backpropagate through the whole network to make this particular correction.
+
+So why not update every time? Try one brief gust. An eager learner starts correcting for a push that's already gone. Now try a lasting change. This time, refusing to learn is the mistake. The size of one error can't tell these situations apart. We need to learn when an update is worth making.
+
+But who teaches that choice? Start by allowing small trials. Remember which adjustment was tried. Then let the ant keep moving. Only afterward does the consequence arrive. Compare it with what was expected, and use that difference to change future update decisions. Now two things can adapt: the steering, and the rule deciding when to change the steering.
+
+And a recent adjustment needn't be permanent. Remove this particular contribution, and the steering changes again. Notice what doesn't go backward: the ant, the clock, or the path she's already walked. We're undoing a weight change, not erasing an experience.
+
+There's still a deadline. The next step can't wait for every learning calculation. Keep acting with the latest complete weights; commit a finished update between actions. Watch her feet: they keep moving while the correction is being worked out. That's the real-time behavior we want to test.
+
+These moving ants are an illustration, not a benchmark victory. The proposal is to learn from local consequences, learn how to use those consequences, and keep acting throughout.
