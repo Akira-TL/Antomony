@@ -36,13 +36,17 @@ class LocalRuleController:
             target = local_gradient(signals[:, 2])
         else:
             target = -local_gradient(signals[:, 1])
-        if observation.contact and self.escape_left == 0:
+        has_target = float(np.linalg.norm(target)) > .0001
+        # 接触也可能来自正常拥挤；可用的局部方向优先于盲目原地避让。
+        if has_target:
+            self.escape_left = 0
+        elif observation.contact and self.escape_left == 0:
             self.escape_left = 12
             self.escape_sign = float(self.random.choice((-1., 1.)))
         if self.escape_left:
             self.escape_left -= 1
             return DirectionAction(False, self.escape_sign, 0.)
-        if float(np.linalg.norm(target)) <= .0001:
+        if not has_target:
             self.wander = float(np.clip(.9 * self.wander + self.random.normal(0., .18), -1., 1.))
             return DirectionAction(True, self.wander, 1.)
         angle = math.atan2(float(target[1]), float(target[0]))
