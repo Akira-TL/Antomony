@@ -1,4 +1,4 @@
-Status: claimed
+Status: resolved
 Category: enhancement
 Blocked by: 08
 
@@ -7,3 +7,7 @@ Blocked by: 08
 用户补充多蚁与返巢预算后，原未执行的单蚁方案撤销。采用预算监督课程后8只独立模型的8回合群体奖励课程，配置见 `docs/engineering/local-reward-curriculum.md`。不引入全局答案，不改固定信息素释放；预留接收器不训练。比较训练前后相同采样方式，并单独保留确定性与遮蔽诊断。
 
 完成条件：8回合群体课程及28个评估世界结束、定期全部个体权重与轨迹保存、动作冻结与预留冻结核验、失败结果如实记录。
+
+## Answer
+
+执行提交6842148；结果在 `logs/colony-reward/20260926T070617-2/`，8个训练与28个评估世界结束，53份模型快照及全部轨迹保留。相关26项测试与两蚁短链路通过；动作/策略冻结及预留连接运行期检查通过。结果见 `docs/engineering/colony-reward-results.md`。确定性搬运改善，但相同采样下搬回量63降至59；不判定整体有效。预算返巢仍需专门诊断。
