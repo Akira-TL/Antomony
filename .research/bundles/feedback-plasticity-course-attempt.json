@@ -1,0 +1,8 @@
+{
+  "analysis_slug": "feedback-plasticity-course",
+  "attempt_key": "A001",
+  "status": "planned",
+  "git_commit": "93837332f32624567cf9aca1710929b5f812d8df",
+  "config_path": ".research/analysis/feedback-plasticity-course/A001/config.json",
+  "reason": "唯一既定配对汇总；先核验129项固定原件、全部结构保存点和147456帧，再按冻结数值判据评价。不追加训练、不选择中途参数。分析前补齐既有单次写入上限的机械审计，原始数据和科学判据未变。"
+}
