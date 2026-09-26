@@ -1,0 +1,13 @@
+{
+  "analysis_slug": "first-action-outcomes",
+  "attempt_key": "A002",
+  "parent_attempt_key": "A001",
+  "status": "selected",
+  "git_commit": "af90c0a",
+  "config_path": ".research/analysis/first-action-outcomes/A002/config.json",
+  "output_path": ".research/analysis/first-action-outcomes/A002/outputs/summary.json",
+  "reason": "仅修清单路径解析，209原文件和清单不变；保留A001失败，没有重采。",
+  "started_at": "2026-09-26T19:52:54.262430+00:00",
+  "completed_at": "2026-09-26T19:52:55.849121+00:00",
+  "decision_reason": "完整209文件与128分支4096步审计通过；时点来自日志创建和末次写入，非精确进程边界。A002约1.59秒，整体计算约38秒，仅产生无判别力的首步后果结果。"
+}

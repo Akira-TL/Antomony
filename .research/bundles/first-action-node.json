@@ -1,0 +1,12 @@
+{
+  "slug": "first-action-outcomes-analysis",
+  "kind": "analysis",
+  "label": "首次受伤前首步方向32步后果",
+  "scientific_scope": "8点的单次方向选择，固定后续随机流，未发现已登记焦点后果差异；不评价持续更新架构上界，不训练。",
+  "workflow_status": "resolved",
+  "branch_priority": "secondary",
+  "parent_slug": "update-constraints-analysis",
+  "canonical_entity_type": "analysis",
+  "canonical_entity_id": "22",
+  "artifact_path": "analysis/first-action-outcomes/README.md"
+}

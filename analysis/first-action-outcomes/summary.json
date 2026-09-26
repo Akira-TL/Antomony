@@ -1,0 +1,23 @@
+{
+  "title": "首次受伤前单次方向选择的32步后果",
+  "world_seeds": [19701, 19702],
+  "points": 8,
+  "directions_per_point": 16,
+  "branch_world_steps": 4096,
+  "raw_files": 209,
+  "raw_manifest_sha256": "fbbce9cfd7dec3859fc0943947c73d15607b499d1bbd57d631a9f5097153561c",
+  "full_output": ".research/analysis/first-action-outcomes/A002/outputs/summary.json",
+  "full_output_sha256": "94d763a6e01d52d013c8680cf78e663cbd8aa5d4b7960b774b26f62914008214",
+  "points_with_focal_outcome_variation": 0,
+  "constant_focal_outcomes": {
+    "failures": 1,
+    "deaths": 1,
+    "non_danger_exhaustion": 0,
+    "injury": 1.0399998426437378,
+    "deliveries": 0,
+    "survival_feedback": -2.039999842643738
+  },
+  "interpretation": "这8点的单次方向干预对已登记32步焦点指标无判别力；不判断架构、学习幅度或自训练可行性。",
+  "numerical_boundary": "原浮点概率总和舍入使直接加权内积与常量后果相差小于8e-8，不当作方向收益。",
+  "scope": "固定后续随机流下的首步方向后果，不是总体期望、持续修改架构上界或现有旋转分布可实现最优。"
+}

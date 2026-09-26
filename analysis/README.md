@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [首步方向32步后果](first-action-outcomes/README.md) - 结果前固定规范，最多8状态16方向。
+- [首步方向32步后果](first-action-outcomes/README.md) - 已完成；8点每点16方向焦点指标相同，单次干预无判别力，停止扩样。
 
 - [四步写入约束与动作响应](update-constraints/README.md) - completed；152/154写入实际动作总变差至少0.01，无角度饱和，不支持更新普遍不起作用的解释。
 
