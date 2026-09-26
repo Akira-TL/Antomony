@@ -33,6 +33,7 @@ class Artifact(BaseModel):
 class ProbeConfig(BaseModel):
     source_commit: str
     sources: list[Artifact]
+    profile: Literal["initial", "wider"] = "initial"
     seeds: tuple[int, ...] = (9401, 9402)
     generations: int = 3
     modes: tuple[Mode, ...] = ("skip", "accept")
@@ -155,6 +156,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--profile", choices=("initial", "wider"), default="initial")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(1)
@@ -162,7 +164,11 @@ def main() -> None:
     paths = [training / f"episode-0008-ant-{i:02d}.npz" for i in range(8)]
     motor_path = FOUNDATION / "seed-41/update-001200.npz"
     config = ProbeConfig(source_commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-                         sources=[Artifact(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest()) for path in [*paths, motor_path]])
+                         sources=[Artifact(path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest()) for path in [*paths, motor_path]],
+                         profile=args.profile)
+    if args.profile == "wider":
+        config = config.model_copy(update={"adaptation": AdaptationConfig(learning_rate=.2, maximum_step_norm=.2,
+                                                                          maximum_residual_norm=2.)})
     if args.smoke:
         config = config.model_copy(update={"seeds": (9499,), "generations": 2,
                                            "environment": ColonyConfig(ants=2, horizon=20)})
