@@ -21,6 +21,7 @@
 ## Decisions so far
 
 - [接收器直接区分信号类别，还是让模型从响应组合中辨别？](issues/02-receptor-information.md) — 用户选择混合感知，并将信号处理、方向判断与冻结行动分层。
+- [如何完整保留第 2570 回合的动作能力与输入语义？](issues/01-frozen-interface.md) — 保存点包含实际参与动作的循环记忆；距离与低层反馈的兼容需要另作决定。
 
 ## Not yet specified
 
