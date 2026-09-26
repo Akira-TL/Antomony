@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [近似规模MLP基础资格](matched-foundation.md) - 固定训练预算及48世界评价，待登记冻结。
+
 - [保留基础能力后的接受学习](memory-update-learning.md) - 已冻结；无危险课程，8训练与4留出种子，不使用未校准价值输出。
 
 - [无线索探索课程](exploration-course.md) - 已冻结；32回合、固定最终模型，不挑中间点。
@@ -19,6 +21,8 @@
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
 
 ## Relations
+
+- [近似规模基础资格](matched-foundation.md) → [原基础资格结果](../analysis/foundation-qualification/README.md)、[研究首页](../RESEARCH.md)。
 
 - [新基础接受课程](memory-update-learning.md) → [实际采样](../study/memory-update-learning/README.md)、[原始数据](../data/memory-update-learning/README.md)、[接受学习结果](../analysis/memory-update-learning/README.md)。
 
