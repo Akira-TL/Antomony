@@ -4,6 +4,8 @@ import numpy as np
 import pytest
 import torch
 
+from mathhackson.training.comparison.actors import NeuralForager
+from mathhackson.training.direction.policy import DirectionMotor
 from mathhackson.training.foraging.curriculum import signal_batch
 from mathhackson.training.foraging.environment import LocalObservation
 from mathhackson.training.foraging.mlp import FeedforwardPolicy
@@ -72,3 +74,23 @@ def test_rule_ignores_untrained_responses_and_reproducible_exploration():
     two = [second.act(empty) for _ in range(40)]
     assert one == two and all(a.move and -1. <= a.turn <= 1. for a in one)
     assert len({a.turn for a in one}) > 1
+
+
+def test_reward_training_is_individual_and_motor_stays_frozen():
+    model, motor = FeedforwardPolicy(81), DirectionMotor(41)
+    learner = NeuralForager(model, motor, 14, training=True)
+    other = NeuralForager(model, motor, 14)
+    before = [p.detach().clone() for p in other.model.parameters()]
+    motor_before = [p.detach().clone() for p in learner.motor.parameters()]
+    obs = local_observation()
+    with pytest.raises(ValueError):
+        learner.act(obs, sampled=False)
+    for tick in range(4):
+        learner.act(obs, sampled=True)
+        learner.feedback(float(tick == 3), obs, terminal=tick == 3)
+    assert learner.updates == 1 and not learner.history and not learner.rewards
+    assert all(a.equal(b) for a, b in zip(before, other.model.parameters(), strict=True))
+    assert all(a.equal(b) for a, b in zip(motor_before, learner.motor.parameters(), strict=True))
+    assert any(not a.equal(b) for a, b in zip(before, learner.model.parameters(), strict=True))
+    learner.model.assert_reserved()
+    learner.restart(14)
