@@ -21,10 +21,17 @@ FOUNDATION = ROOT / "checkpoints" / "recurrent" / "foundation-episode-002570.npz
 
 class Evaluation(BaseModel):
     name: str
+    first_pickups: int
     first_deliveries: int
     two_deliveries: int
     total_deliveries: int
     seeds: int
+    return_steps: int
+    return_scent_steps: int
+    early_return_steps: int
+    early_return_scent_steps: int
+    second_departure_steps: int
+    food_scent_steps: int
     runtime_writes: int
     mean_write_probability: float
 
@@ -46,15 +53,29 @@ def evaluate(model: RoundTripPolicy, name: str, seeds: int, write_mode: WriteMod
     model.phase = "autonomous"
     model.write_mode = write_mode
     delivered: list[int] = []
+    pickups: list[int] = []
     writes = 0
     probabilities = 0.
     steps = 0
+    return_steps = return_scent_steps = second_departure_steps = food_scent_steps = 0
+    early_return_steps = early_return_scent_steps = 0
     try:
         for seed in range(seeds):
             environment = RoundTripEnvironment(seed)
             model.reset_state()
             while not environment.done:
-                action = model.decide(environment.observation())
+                observation = environment.observation()
+                if environment.carrying:
+                    return_steps += 1
+                    scented = int(np.linalg.norm(observation[9:11]) >= .005)
+                    return_scent_steps += scented
+                    if environment.leg_steps < 20:
+                        early_return_steps += 1
+                        early_return_scent_steps += scented
+                elif environment.delivered:
+                    second_departure_steps += 1
+                    food_scent_steps += int(np.linalg.norm(observation[12:14]) >= .005)
+                action = model.decide(observation)
                 environment.step(action.move, action.turn,
                                  action.release_home if scent_enabled else False,
                                  action.release_food if scent_enabled else False)
@@ -63,12 +84,19 @@ def evaluate(model: RoundTripPolicy, name: str, seeds: int, write_mode: WriteMod
                 probabilities += write.probability
                 steps += 1
             delivered.append(environment.delivered)
+            pickups.append(environment.pickups)
     finally:
         model.phase, model.write_mode = previous_phase, previous_mode
         model.reset_state()
-    return Evaluation(name=name, first_deliveries=sum(value >= 1 for value in delivered),
+    return Evaluation(name=name, first_pickups=sum(value >= 1 for value in pickups),
+                      first_deliveries=sum(value >= 1 for value in delivered),
                       two_deliveries=sum(value >= 2 for value in delivered),
                       total_deliveries=sum(delivered), seeds=seeds,
+                      return_steps=return_steps, return_scent_steps=return_scent_steps,
+                      early_return_steps=early_return_steps,
+                      early_return_scent_steps=early_return_scent_steps,
+                      second_departure_steps=second_departure_steps,
+                      food_scent_steps=food_scent_steps,
                       runtime_writes=writes, mean_write_probability=probabilities / max(steps, 1))
 
 
