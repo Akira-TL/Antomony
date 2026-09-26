@@ -1,7 +1,11 @@
+import gzip
+
 import pytest
 
-from mathhackson.training.comparison.continuous import AntFrame, Frame
-from mathhackson.training.comparison.return_reward_audit import Pair, Totals, behavior_equal, decide, known_reward
+from mathhackson.training.comparison.continuous import AntFrame, Condition, ContinuousPlan, Frame, run_world
+from mathhackson.training.comparison.return_reward_audit import Pair, Totals, audit_world, behavior_equal, decide, known_reward
+from mathhackson.training.foraging.colony import ColonyConfig
+from mathhackson.training.foraging.disturbance import DisturbanceConfig
 
 
 def ant() -> AntFrame:
@@ -52,3 +56,20 @@ def test_decision_retains_negative_and_mixed_outcomes():
     assert not decide([pair(1, 0, 0), pair(2, 0, 0)], 'learned').worth_further_validation
     with pytest.raises(ValueError):
         decide([pair(1, 0, 0), pair(1, 0, 0)], 'learned')
+
+
+def test_real_rule_trace_is_audited_and_unearned_reward_rejected(tmp_path):
+    condition = Condition(name='moving-danger', disturbance=DisturbanceConfig(active_from=128))
+    plan = ContinuousPlan(seeds=(1,), conditions=(condition,), respawn=True,
+                          environment=ColonyConfig(ants=2, horizon=4), checkpoint_every=2)
+    path = tmp_path / 'world'
+    world = run_world(plan, 1, condition, 'rules', path)
+    result = audit_world(path, world, plan)
+    assert result.deliveries == world.deliveries and result.reward == pytest.approx(world.reward)
+    with gzip.open(path / 'trajectory.jsonl.gz', 'rt') as stream:
+        trace = [Frame.model_validate_json(line) for line in stream]
+    trace[0].ants[0].reward += 2.
+    with gzip.open(path / 'trajectory.jsonl.gz', 'wt') as stream:
+        stream.writelines(frame.model_dump_json() + '\n' for frame in trace)
+    with pytest.raises(ValueError, match='奖励分解'):
+        audit_world(path, world, plan)
