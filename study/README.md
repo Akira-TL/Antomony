@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [连续复杂来源采样](continuous-adaptation/README.md) - 80世界完成，完整保存轨迹与参数。
+
 - [近似规模模型基础采样](matched-foundation/README.md) - 已完成八模型训练与48评价世界。
 
 - [新基础接受课程采样](memory-update-learning/README.md) - 已完成24世界、301条配对记录。
@@ -20,6 +22,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [连续采样](continuous-adaptation/README.md) → [冻结设计](../designs/continuous-adaptation.md)、[原始数据](../data/continuous-adaptation/README.md)。
 
 - [近似规模基础采样](matched-foundation/README.md) → [冻结设计](../designs/matched-foundation.md)、[模型与轨迹](../data/matched-foundation/README.md)。
 
