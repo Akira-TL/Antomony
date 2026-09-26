@@ -15,7 +15,7 @@ import torch
 from mathhackson.training.direction.checkpoint import load_motor
 from ..feedback_cues import CONDITIONS, Condition, CueConfig, CueEpisode, cue_episode
 from ..memory import MemoryPolicy
-from ..plastic_direction import PlasticDirection
+from ..plastic_direction import DirectionMode, PlasticDirection
 from .checkpoint import save_checkpoint
 from .rollout import CourseTrace, Mode, matched_schedule, outer_loss, rollout
 
@@ -50,6 +50,7 @@ class Protocol(BaseModel):
     write_cost: float = Field(default=.002, ge=0, le=.1)
     max_step: float = Field(default=.25, gt=0, le=2.)
     max_fast: float = Field(default=2., gt=0, le=4.)
+    direction_mode: DirectionMode = "unit"
     checkpoint_interval: Literal[25] = 25
     time_limit_seconds: int = Field(default=900, ge=30, le=900)
 
@@ -260,7 +261,8 @@ def main() -> None:
             directory.mkdir()
             base = MemoryPolicy.load(verified(initialization.foundation))
             original = {key: value.clone() for key, value in base.state_dict().items()}
-            model = PlasticDirection(motor, seed=initialization.seed, max_step=plan.max_step, max_fast=plan.max_fast)
+            model = PlasticDirection(motor, seed=initialization.seed, max_step=plan.max_step,
+                max_fast=plan.max_fast, direction_mode=plan.direction_mode)
             train(model, base, initialization, plan, directory, start + plan.time_limit_seconds)
             evaluate(model, base, initialization, plan, directory, start + plan.time_limit_seconds)
             if not all(torch.equal(value, original[key]) for key, value in base.state_dict().items()):

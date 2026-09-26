@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 from dataclasses import dataclass, replace
 import math
+from typing import Literal
 
 import torch
 from torch import nn
@@ -12,6 +13,9 @@ from torch.distributions import Bernoulli
 from mathhackson.training.direction.policy import DirectionAction, DirectionMotor
 from .policy import RECENT_LAGS, SPARSE_LAGS
 from .reward import DIRECTIONS, direction_distribution
+
+
+DirectionMode = Literal["unit", "bounded"]
 
 
 @dataclass(frozen=True)
@@ -66,12 +70,15 @@ def _limit(value: torch.Tensor, maximum: float) -> torch.Tensor:
 
 class PlasticDirection(nn.Module):
     def __init__(self, motor: DirectionMotor, *, seed: int = 0, feature_width: int = 45,
-                 max_step: float = .05, max_fast: float = .5) -> None:
+                 max_step: float = .05, max_fast: float = .5, direction_mode: DirectionMode = "unit") -> None:
         super().__init__()
         if (type(feature_width) is not int or feature_width < 1 or not math.isfinite(max_step)
                 or not math.isfinite(max_fast) or not 0 < max_step <= max_fast):
             raise ValueError("特征宽度和快权重范数上限无效")
+        if direction_mode not in ("unit", "bounded"):
+            raise ValueError("方向模式必须为unit或bounded")
         self.feature_width, self.max_step, self.max_fast = feature_width, max_step, max_fast
+        self.direction_mode = direction_mode
         self.motor = copy.deepcopy(motor).freeze()
         with torch.random.fork_rng(devices=[]):
             torch.manual_seed(seed)
@@ -131,10 +138,15 @@ class PlasticDirection(nn.Module):
         residual = torch.einsum("bf,bfo->bo", observed, state.fast)
         raw = base + residual
         norm = raw.norm(dim=1, keepdim=True)
-        normalized = torch.where(norm > 1e-6, raw / norm.clamp_min(1e-6), base)
-        # 零残差逐值保留原方向，同时保留对可塑连接的一阶导数。
-        direction = normalized + torch.where((residual == 0).all(dim=1, keepdim=True),
-                                             base - normalized, torch.zeros_like(base)).detach()
+        if self.direction_mode == "bounded":
+            # 零残差保留合法基础输入的舍入误差和初始径向梯度；球面取内侧导数。
+            outside = (norm > 1.) & (residual != 0).any(dim=1, keepdim=True)
+            direction = torch.where(outside, raw / norm.clamp_min(1.), raw)
+        else:
+            normalized = torch.where(norm > 1e-6, raw / norm.clamp_min(1e-6), base)
+            # 零残差逐值保留原方向，同时保留对可塑连接的一阶导数。
+            direction = normalized + torch.where((residual == 0).all(dim=1, keepdim=True),
+                                                 base - normalized, torch.zeros_like(base)).detach()
         _tensor(direction, (batch, 2), "有效方向")
         distribution = direction_distribution(direction)
         if sampled:

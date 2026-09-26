@@ -13,8 +13,10 @@ from mathhackson.training.foraging.plastic_course.checkpoint import load_checkpo
 from mathhackson.training.foraging.plastic_direction import PlasticDirection
 
 
-def test_structure_roundtrip_restores_values_and_forward(tmp_path: Path) -> None:
-    original = PlasticDirection(DirectionMotor(41), seed=7, feature_width=6, max_step=.03, max_fast=.7)
+@pytest.mark.parametrize("direction_mode", ["unit", "bounded"])
+def test_structure_roundtrip_restores_values_and_forward(tmp_path: Path, direction_mode: str) -> None:
+    original = PlasticDirection(DirectionMotor(41), seed=7, feature_width=6, max_step=.03, max_fast=.7,
+        direction_mode=direction_mode)
     with torch.no_grad():
         original.recent_weights.fill_(.12)
         original.sparse_weights.fill_(-.13)
@@ -23,6 +25,7 @@ def test_structure_roundtrip_restores_values_and_forward(tmp_path: Path) -> None
     save_checkpoint(path, original, update=25, seed=7)
     restored = load_checkpoint(path)
     assert restored.feature_width == 6 and restored.max_step == .03 and restored.max_fast == .7
+    assert restored.direction_mode == direction_mode
     assert not restored.training and all(not p.requires_grad for p in restored.parameters())
     for key, value in original.state_dict().items():
         assert torch.equal(value, restored.state_dict()[key])
@@ -39,6 +42,7 @@ def test_structure_roundtrip_restores_values_and_forward(tmp_path: Path) -> None
         left, right = x.state, y.state
     with np.load(path, allow_pickle=False) as data:
         assert str(data["version"]) == "plastic-direction-structure-v1"
+        assert str(data["direction_mode"]) == direction_mode
         assert int(data["update"]) == 25 and int(data["seed"]) == 7
         assert "motor.encoder.weight" in data.files
         assert "fast" not in data.files and "history" not in data.files
@@ -55,7 +59,7 @@ def test_trainable_load_never_unfreezes_motor(tmp_path: Path) -> None:
     assert loaded.initial_state().history == ()
 
 
-@pytest.mark.parametrize("damage", ["missing", "extra", "shape", "dtype", "nonfinite", "version", "seed_dtype", "limit", "metadata_shape"])
+@pytest.mark.parametrize("damage", ["missing", "extra", "shape", "dtype", "nonfinite", "version", "seed_dtype", "limit", "metadata_shape", "mode", "mode_dtype", "mode_shape"])
 def test_invalid_structure_archives_are_rejected(tmp_path: Path, damage: str) -> None:
     path = tmp_path / "model.npz"
     save_checkpoint(path, PlasticDirection(DirectionMotor(41)), update=25, seed=41)
@@ -77,6 +81,12 @@ def test_invalid_structure_archives_are_rejected(tmp_path: Path, damage: str) ->
         arrays["seed"] = np.int32(41)
     elif damage == "limit":
         arrays["max_step"] = np.float64(4.)
+    elif damage == "mode":
+        arrays["direction_mode"] = np.asarray("invalid")
+    elif damage == "mode_dtype":
+        arrays["direction_mode"] = np.asarray(1)
+    elif damage == "mode_shape":
+        arrays["direction_mode"] = np.asarray(["unit"])
     else:
         arrays["update"] = np.asarray([25], dtype=np.int64)
     invalid = tmp_path / "invalid.npz"
@@ -116,3 +126,19 @@ def test_save_refuses_overwrite_and_invalid_parameters(tmp_path: Path) -> None:
 def test_save_metadata_is_strict(tmp_path: Path, update: int, seed: int) -> None:
     with pytest.raises(ValueError):
         save_checkpoint(tmp_path / "bad.npz", PlasticDirection(DirectionMotor(41)), update=update, seed=seed)
+
+
+def test_legacy_structure_without_direction_mode_loads_as_unit(tmp_path: Path) -> None:
+    original = PlasticDirection(DirectionMotor(41), seed=7)
+    path = tmp_path / "current.npz"
+    save_checkpoint(path, original, update=25, seed=7)
+    with np.load(path, allow_pickle=False) as archive:
+        legacy = {key: archive[key].copy() for key in archive.files if key != "direction_mode"}
+    old = tmp_path / "legacy.npz"
+    np.savez(old, **legacy)
+    loaded = load_checkpoint(old)
+    assert loaded.direction_mode == "unit"
+    assert all(torch.equal(value, loaded.state_dict()[key]) for key, value in original.state_dict().items())
+    base, features = torch.tensor([[.6, .8]]), torch.ones(1, 45)
+    assert torch.equal(original.infer(base, features, original.initial_state()).probabilities,
+        loaded.infer(base, features, loaded.initial_state()).probabilities)

@@ -30,6 +30,15 @@ def test_partitions_and_numeric_limits_are_checked_before_training():
         Protocol(**(plan.model_dump() | {"max_step": 2., "max_fast": .1}))
 
 
+def test_direction_mode_is_explicit_and_legacy_protocol_defaults_to_unit():
+    old = protocol().model_dump(exclude={"direction_mode"})
+    assert Protocol(**old).direction_mode == "unit"
+    bounded = Protocol(**(old | {"direction_mode": "bounded"}))
+    assert bounded.direction_mode == "bounded"
+    with pytest.raises(ValueError, match="direction_mode"):
+        Protocol(**(old | {"direction_mode": "invalid"}))
+
+
 def test_trace_keeps_every_evaluation_frame_and_frozen_base(tmp_path):
     episode = cue_episode(908901, CueConfig(steps=8, batch=2))
     base = MemoryPolicy(FeedforwardPolicy(10))

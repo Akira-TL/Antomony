@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 import torch
 
 from mathhackson.training.direction.policy import DirectionMotor
-from ..plastic_direction import PlasticDirection
+from ..plastic_direction import DirectionMode, PlasticDirection
 
 
 class CheckpointMetadata(BaseModel):
@@ -22,6 +22,7 @@ class CheckpointMetadata(BaseModel):
     feature_width: int = Field(ge=1, le=2**63 - 1)
     max_step: float = Field(gt=0)
     max_fast: float = Field(gt=0)
+    direction_mode: DirectionMode = "unit"
 
     @model_validator(mode="after")
     def valid_limits(self) -> CheckpointMetadata:
@@ -32,12 +33,13 @@ class CheckpointMetadata(BaseModel):
 
 def _model(metadata: CheckpointMetadata) -> PlasticDirection:
     return PlasticDirection(DirectionMotor(metadata.seed), seed=metadata.seed,
-        feature_width=metadata.feature_width, max_step=metadata.max_step, max_fast=metadata.max_fast)
+        feature_width=metadata.feature_width, max_step=metadata.max_step, max_fast=metadata.max_fast,
+        direction_mode=metadata.direction_mode)
 
 
 def save_checkpoint(path: Path, model: PlasticDirection, *, update: int, seed: int) -> None:
     metadata = CheckpointMetadata(update=update, seed=seed, feature_width=model.feature_width,
-                                  max_step=model.max_step, max_fast=model.max_fast)
+        max_step=model.max_step, max_fast=model.max_fast, direction_mode=model.direction_mode)
     expected, actual = _model(metadata).state_dict(), model.state_dict()
     if actual.keys() != expected.keys():
         raise ValueError("结构参数键不匹配")
@@ -51,7 +53,8 @@ def save_checkpoint(path: Path, model: PlasticDirection, *, update: int, seed: i
     with path.open("xb") as stream:
         np.savez_compressed(stream, version=metadata.version, update=np.int64(metadata.update),
             seed=np.int64(metadata.seed), feature_width=np.int64(metadata.feature_width),
-            max_step=np.float64(metadata.max_step), max_fast=np.float64(metadata.max_fast), **weights)
+            max_step=np.float64(metadata.max_step), max_fast=np.float64(metadata.max_fast),
+            direction_mode=metadata.direction_mode, **weights)
 
 
 def _integer(archive: NpzFile, key: str) -> int:
@@ -76,15 +79,23 @@ def load_checkpoint(path: Path, *, trainable: bool = False) -> PlasticDirection:
         if len(names) != len(set(names)):
             raise ValueError("检查点包含重复归档键")
     with np.load(path, allow_pickle=False) as archive:
-        metadata_keys = set(CheckpointMetadata.model_fields)
+        metadata_keys = set(CheckpointMetadata.model_fields) - {"direction_mode"}
         if not metadata_keys.issubset(archive.files):
             raise ValueError("检查点缺少结构元数据")
         version = archive["version"]
         if version.shape != () or version.dtype.kind != "U":
             raise ValueError("版本必须为Unicode字符串标量")
+        direction_mode = "unit"
+        if "direction_mode" in archive.files:
+            value = archive["direction_mode"]
+            if value.shape != () or value.dtype.kind != "U":
+                raise ValueError("方向模式必须为Unicode字符串标量")
+            direction_mode = str(value)
+            metadata_keys.add("direction_mode")
         metadata = CheckpointMetadata(version=str(version), update=_integer(archive, "update"),
             seed=_integer(archive, "seed"), feature_width=_integer(archive, "feature_width"),
-            max_step=_real(archive, "max_step"), max_fast=_real(archive, "max_fast"))
+            max_step=_real(archive, "max_step"), max_fast=_real(archive, "max_fast"),
+            direction_mode=direction_mode)
         model = _model(metadata)
         expected = model.state_dict()
         allowed = set(expected) | metadata_keys
