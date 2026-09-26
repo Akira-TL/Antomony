@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+from concurrent.futures import ProcessPoolExecutor
 import gzip
 import hashlib
+import multiprocessing
 from pathlib import Path
 import subprocess
 import time
@@ -135,6 +137,7 @@ class Execution(BaseModel):
     plan: ContinuousPlan
     protocol_sha256: str
     sources: list[SourceRecord]
+    workers: int = 1
 
 
 def make_actors(plan: ContinuousPlan, seed: int, arm: Arm) -> list[Actor]:
@@ -258,7 +261,9 @@ def run_world(plan: ContinuousPlan, seed: int, condition: Condition, arm: Arm, d
     return result
 
 
-def run(plan: ContinuousPlan, directory: Path, *, protocol_sha256: str, smoke: bool = False) -> None:
+def run(plan: ContinuousPlan, directory: Path, *, protocol_sha256: str, smoke: bool = False, workers: int = 1) -> None:
+    if type(workers) is not int or not 1 <= workers <= 8:
+        raise ValueError("独立世界执行进程数须为1至8")
     if smoke:
         plan = ContinuousPlan.model_validate({**plan.model_dump(), "seeds": (18999,), "checkpoint_every": 4,
             "environment": plan.environment.model_copy(update={"ants": 2, "horizon": 8}),
@@ -267,15 +272,27 @@ def run(plan: ContinuousPlan, directory: Path, *, protocol_sha256: str, smoke: b
              *[plan.gate_path(i) for i in range(plan.environment.ants)], *[plan.mlp_path(i) for i in range(plan.environment.ants)]]
     sources = [SourceRecord(path=str(p), sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in paths]
     execution = Execution(source_commit=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
-        started_at=datetime.now(timezone.utc).isoformat(), smoke=smoke, plan=plan, protocol_sha256=protocol_sha256, sources=sources)
+        started_at=datetime.now(timezone.utc).isoformat(), smoke=smoke, plan=plan, protocol_sha256=protocol_sha256,
+        sources=sources, workers=workers)
     directory.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(1)
     (directory / "execution.json").write_text(execution.model_dump_json(indent=2))
+    jobs = [(plan, seed, condition, arm, directory / f"{condition.name}-{seed}-{arm}")
+            for seed in plan.seeds for condition in plan.conditions for arm in ARMS]
     with (directory / "worlds.jsonl").open("x") as output:
-        for seed in plan.seeds:
-            for condition in plan.conditions:
-                for arm in ARMS:
-                    result = run_world(plan, seed, condition, arm, directory / f"{condition.name}-{seed}-{arm}")
+        if workers == 1:
+            for job in jobs:
+                result = run_world(*job)
+                output.write(result.model_dump_json() + "\n")
+                output.flush()
+                print(result.model_dump_json(), flush=True)
+        else:
+            # 新进程不继承父进程的PyTorch线程和随机状态；汇总仍按固定组序写入。
+            with ProcessPoolExecutor(max_workers=workers, mp_context=multiprocessing.get_context("spawn"),
+                                     initializer=torch.set_num_threads, initargs=(1,)) as pool:
+                futures = [pool.submit(run_world, *job) for job in jobs]
+                for future in futures:
+                    result = future.result()
                     output.write(result.model_dump_json() + "\n")
                     output.flush()
                     print(result.model_dump_json(), flush=True)
@@ -290,6 +307,8 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--workers", type=int, default=1)
     args = parser.parse_args()
     content = args.config.read_bytes()
-    run(ContinuousPlan.model_validate_json(content), args.output, protocol_sha256=hashlib.sha256(content).hexdigest(), smoke=args.smoke)
+    run(ContinuousPlan.model_validate_json(content), args.output, protocol_sha256=hashlib.sha256(content).hexdigest(),
+        smoke=args.smoke, workers=args.workers)

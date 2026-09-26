@@ -244,3 +244,19 @@ def test_expanded_population_has_independent_parameters_and_random_streams(plan)
         assert {p.data_ptr() for p in first.frozen_parameters()}.isdisjoint(p.data_ptr() for p in second.frozen_parameters())
         assert first.agent.offset.data_ptr() != second.agent.offset.data_ptr()
         assert not first.agent.random.get_state().equal(second.agent.random.get_state())
+
+
+def test_process_workers_reproduce_serial_worlds_and_order(plan, tmp_path):
+    from mathhackson.training.comparison.continuous import Execution, WorldResult, run
+    from mathhackson.training.comparison.continuous_audit import compare_world
+    plan = plan.model_copy(update={"environment": plan.environment.model_copy(update={"horizon": 4})})
+    serial, parallel = tmp_path / "serial", tmp_path / "parallel"
+    run(plan, serial, protocol_sha256="workers-test")
+    run(plan, parallel, protocol_sha256="workers-test", workers=2)
+    assert Execution.model_validate_json((parallel / "execution.json").read_text()).workers == 2
+    first = [WorldResult.model_validate_json(line) for line in (serial / "worlds.jsonl").read_text().splitlines()]
+    second = [WorldResult.model_validate_json(line) for line in (parallel / "worlds.jsonl").read_text().splitlines()]
+    assert [row.arm for row in first] == [row.arm for row in second] == list(ARMS)
+    for a, b in zip(first, second, strict=True):
+        key = f"{a.condition}-{a.seed}-{a.arm}"
+        compare_world(serial / key, parallel / key, a, b)

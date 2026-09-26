@@ -1,0 +1,17 @@
+{
+  "seeds": [19201],
+  "respawn": true,
+  "checkpoint_every": 256,
+  "environment": {
+    "ants": 32, "horizon": 4096, "stock": 384,
+    "food_distance_min": 8.0, "food_distance_span": 2.0,
+    "trail_profile": "bounded-local-v2", "nest_signal_strength": 1.0
+  },
+  "adaptation": {"window": 16, "feedback_mode": "observed-window"},
+  "conditions": [
+    {"name":"reference","disturbance":{"signal_strength":0.0,"injury_per_step":0.0}},
+    {"name":"slow","disturbance":{"response":[0,0,0,0,1,0,0,0],"injury_per_step":0.0,"speed_multiplier":0.3,"slowdown_radius":0.9,"active_from":128,"inactive_signal_scale":0.0}},
+    {"name":"periodic","disturbance":{"response":[0,0,0,0,0,1,0,0],"injury_per_step":0.0,"speed_multiplier":0.3,"slowdown_radius":0.9,"active_from":128,"period_steps":128,"active_steps":64,"inactive_signal_scale":0.0}},
+    {"name":"moving-danger","disturbance":{"response":[1,0,0,0,0,0,1,0],"injury_per_step":0.08,"contact_radius":0.45,"active_from":128,"inactive_signal_scale":0.0,"motion_amplitude":1.2,"motion_period_steps":128}}
+  ]
+}
