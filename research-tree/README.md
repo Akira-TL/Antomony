@@ -21,6 +21,7 @@ flowchart TD
         N9["空载返巢奖励是否干扰危险适应<br/>design · resolved"]
         N11["伤害后单次候选与接受判断<br/>design · resolved"]
         N13["历史奖励基线的单变量连续对照<br/>design · resolved"]
+        N16["生存优先的反馈有限对照<br/>design · resolved"]
     end
     N1 --> N2
     N2 --> N3
@@ -36,6 +37,7 @@ flowchart TD
     N5 --> N13
     N13 --> N14
     N5 --> N15
+    N5 --> N16
 ```
 
 ## Node Index
@@ -57,3 +59,4 @@ flowchart TD
 | N13 | design | resolved | 历史奖励基线的单变量连续对照 | [打开](../designs/historical-baseline.md) |
 | N14 | analysis | resolved | 历史基线未通过且奖励与交付排序相反 | [打开](../analysis/historical-baseline/README.md) |
 | N15 | question | resolved | 势函数辅助奖励在有限回合和更新截断中何时保留原任务 | [打开](../docs/research/reward-shaping-boundaries.md) |
+| N16 | design | resolved | 生存优先的反馈有限对照 | [打开](../designs/survival-feedback.md) |
