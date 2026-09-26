@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/feedback-window/20260926T101927-2",
+  "manifest": "data/feedback-window/manifest.sha256",
+  "output": ".research/analysis/feedback-window/A001/outputs/summary.json"
+}

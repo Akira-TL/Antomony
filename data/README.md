@@ -13,7 +13,7 @@
 
 ## Relations
 
-- [反馈窗口数据](feedback-window/README.md) → [实际采样](../study/feedback-window/README.md)。
+- [反馈窗口数据](feedback-window/README.md) → [实际采样](../study/feedback-window/README.md)、[配对分析](../analysis/feedback-window/README.md)。
 
 - [恢复参照数据](restoration-control/README.md) → [实际采样](../study/restoration-control/README.md)、[后果分析](../analysis/restoration-control/README.md)。
 
