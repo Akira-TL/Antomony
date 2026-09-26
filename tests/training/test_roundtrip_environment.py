@@ -95,6 +95,23 @@ def test_second_departure_exposes_food_scent_without_routing_it_as_target():
     assert world.observation()[16] == 0.
 
 
+def test_scent_receptors_detect_nearby_trail_without_long_range_direction():
+    world = RoundTripEnvironment(5)
+    world.food = np.asarray([5., 0.], np.float32)
+    world.carrying = True
+    world.field.deposit(np.asarray([0., .9], np.float32), 0, 1.)
+    local = world.observation()
+    assert local[8] > 0.
+    assert local[10] > 0.
+    assert local[0] == local[1] == 0.
+    world.heading = math.pi / 2
+    rotated = world.observation()
+    assert rotated[9] > 0.
+    assert rotated[10] == 0.
+    world.position = np.asarray([0., -1.8], np.float32)
+    assert np.array_equal(world.observation()[8:11], np.zeros(3))
+
+
 def test_stationary_release_requests_do_not_build_a_scent_peak():
     world = RoundTripEnvironment(6)
     for _ in range(12):

@@ -30,12 +30,14 @@ class RoundTripEnvironment:
         self.turn = self.reward = self.progress = 0.
 
     def _local_scent(self, channel: int) -> tuple[float, float, float]:
-        strength = min(1., self.field.sample(self.position, channel) / 4.)
-        gradient = self.field.gradient(self.position, channel)
         facing = unit(self.heading)
         left = np.asarray([-facing[1], facing[0]], np.float32)
-        forward = float(np.clip(gradient @ facing, -1., 1.))
-        lateral = float(np.clip(gradient @ left, -1., 1.))
+        directions = np.stack((facing, left, -facing, -left))
+        points = self.position + np.asarray([.45, .9, 1.35], np.float32)[:, None, None] * directions
+        peaks = self.field.sample_many(points, channel).max(axis=0)
+        strength = min(1., max(self.field.sample(self.position, channel), float(peaks.max())) / 4.)
+        forward = float(np.clip(peaks[0] - peaks[2], -1., 1.))
+        lateral = float(np.clip(peaks[1] - peaks[3], -1., 1.))
         return strength, forward, lateral
 
     def observation(self) -> np.ndarray:
