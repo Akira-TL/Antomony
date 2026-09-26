@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [后到反馈动作归因](credit-history/README.md) - planned；相同状态比较4步与16步动作保留。
+
 - [四步候选动作输入学习](action-update-learning/README.md) - completed；训练及留出均无正收益候选，两输入0/2通过，停止本课程。
 
 - [四步候选动作影响](candidate-steering/README.md) - completed，重建65536次动作；152次含受伤写入中70次即时朝向投影恶化，23次与目标方向变化相反。
@@ -40,6 +42,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [后到归因评价](credit-history/README.md) → [设计](../designs/credit-history.md)、[数据](../data/credit-history/README.md)。
 
 - [动作输入学习](action-update-learning/README.md) → [设计](../designs/action-update-learning.md)、[数据](../data/action-update-learning/README.md)。
 

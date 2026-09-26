@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/credit-history/20260926T180337-2",
+  "manifest": "data/credit-history/manifest.sha256",
+  "output": ".research/analysis/credit-history/A001/outputs/summary.json"
+}
