@@ -1,8 +1,12 @@
 {
   "analysis_slug": "feedback-plasticity-course",
   "attempt_key": "A001",
-  "status": "planned",
+  "status": "selected",
   "git_commit": "93837332f32624567cf9aca1710929b5f812d8df",
   "config_path": ".research/analysis/feedback-plasticity-course/A001/config.json",
-  "reason": "唯一既定配对汇总；先核验129项固定原件、全部结构保存点和147456帧，再按冻结数值判据评价。不追加训练、不选择中途参数。分析前补齐既有单次写入上限的机械审计，原始数据和科学判据未变。"
+  "reason": "唯一既定配对汇总；先核验129项固定原件、全部结构保存点和147456帧，再按冻结数值判据评价。不追加训练、不选择中途参数。分析前补齐既有单次写入上限的机械审计，原始数据和科学判据未变。",
+  "output_path": ".research/analysis/feedback-plasticity-course/A001/outputs/summary.json",
+  "started_at": "2026-09-26T23:46:10.014789+00:00",
+  "completed_at": "2026-09-26T23:46:21.845381+00:00",
+  "decision_reason": "唯一既定执行退出码0，完整129项来源、保存点及147456评价帧核验通过，采用其完整负结果而非按效果选择。两个初始化均未通过课程门槛；selected仅表示结果采用，不表示模型成功。completed_at来自summary.json真实修改时间UTC2026-09-26T23:46:21.845381876Z，字段保留微秒，不冒充精确退出时间或耗时；started_at沿用原计划登记时间，不当作精确启动计时。实际运行HEAD817a750仅比代码身份多计划执行登记，配置保持原版本。"
 }
