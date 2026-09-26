@@ -1,0 +1,1698 @@
+{
+  "files_verified": 245,
+  "frames_verified": 39848,
+  "snapshots_verified": 72,
+  "execution": {
+    "source_commit": "dd8d5963a673ec9d93e40324daa442e99d6834a1",
+    "started_at": "2026-09-26T11:02:26.695079+00:00",
+    "completed_at": "2026-09-26T11:06:16.647687+00:00",
+    "smoke": false,
+    "snapshot_episodes": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      28,
+      32
+    ],
+    "final_updates": [
+      349,
+      435,
+      385,
+      414,
+      385,
+      368,
+      368,
+      369
+    ]
+  },
+  "worlds": [
+    {
+      "model": "recurrent-before",
+      "seed": 15101,
+      "sampled": true,
+      "task": "food",
+      "steps": 257,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 3.5487686097621918,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15101,
+      "sampled": true,
+      "task": "food",
+      "steps": 474,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 3,
+      "mean_max_radius": 2.613746978342533,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15101,
+      "sampled": true,
+      "task": "food",
+      "steps": 279,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 3,
+      "returning_individuals": 3,
+      "exhausted": 0,
+      "mean_max_radius": 4.7170190513134,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15101,
+      "sampled": null,
+      "task": "food",
+      "steps": 299,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 4,
+      "returning_individuals": 4,
+      "exhausted": 0,
+      "mean_max_radius": 10.64962288737297,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15101,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 7,
+      "returning_individuals": 4,
+      "exhausted": 4,
+      "mean_max_radius": 2.2327553555369377,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15101,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 5,
+      "returning_individuals": 4,
+      "exhausted": 5,
+      "mean_max_radius": 2.688255652785301,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15101,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 10,
+      "returning_individuals": 7,
+      "exhausted": 1,
+      "mean_max_radius": 6.514065444469452,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15101,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 9,
+      "returning_individuals": 7,
+      "exhausted": 1,
+      "mean_max_radius": 15.772959351539612,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15102,
+      "sampled": true,
+      "task": "food",
+      "steps": 312,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 3.8925460278987885,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15102,
+      "sampled": true,
+      "task": "food",
+      "steps": 477,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 4,
+      "mean_max_radius": 2.465709924697876,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15102,
+      "sampled": true,
+      "task": "food",
+      "steps": 242,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 4.004342079162598,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15102,
+      "sampled": null,
+      "task": "food",
+      "steps": 339,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 5,
+      "returning_individuals": 5,
+      "exhausted": 1,
+      "mean_max_radius": 11.702135533094406,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15102,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 5,
+      "returning_individuals": 4,
+      "exhausted": 4,
+      "mean_max_radius": 2.7170339450240135,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15102,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 4,
+      "returning_individuals": 3,
+      "exhausted": 4,
+      "mean_max_radius": 3.3390192091464996,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15102,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 10,
+      "returning_individuals": 6,
+      "exhausted": 1,
+      "mean_max_radius": 5.498642839491367,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15102,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 12,
+      "returning_individuals": 7,
+      "exhausted": 1,
+      "mean_max_radius": 15.813642501831055,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15103,
+      "sampled": true,
+      "task": "food",
+      "steps": 260,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 3.3492859601974487,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15103,
+      "sampled": true,
+      "task": "food",
+      "steps": 238,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 2.9490272402763367,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15103,
+      "sampled": true,
+      "task": "food",
+      "steps": 255,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 2,
+      "returning_individuals": 2,
+      "exhausted": 0,
+      "mean_max_radius": 4.630837082862854,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15103,
+      "sampled": null,
+      "task": "food",
+      "steps": 278,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 3,
+      "returning_individuals": 3,
+      "exhausted": 0,
+      "mean_max_radius": 10.45794853568077,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15103,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 4,
+      "returning_individuals": 3,
+      "exhausted": 5,
+      "mean_max_radius": 2.588532265275717,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15103,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 6,
+      "mean_max_radius": 2.409709185361862,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15103,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 12,
+      "returning_individuals": 7,
+      "exhausted": 1,
+      "mean_max_radius": 6.603328853845596,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15103,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 12,
+      "returning_individuals": 8,
+      "exhausted": 0,
+      "mean_max_radius": 15.461449384689331,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15104,
+      "sampled": true,
+      "task": "food",
+      "steps": 233,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 3.149559438228607,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15104,
+      "sampled": true,
+      "task": "food",
+      "steps": 298,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 2.4652231112122536,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15104,
+      "sampled": true,
+      "task": "food",
+      "steps": 204,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 3.2469173967838287,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15104,
+      "sampled": null,
+      "task": "food",
+      "steps": 213,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 8.768932312726974,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15104,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 9,
+      "returning_individuals": 6,
+      "exhausted": 2,
+      "mean_max_radius": 2.806318551301956,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15104,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 3,
+      "returning_individuals": 2,
+      "exhausted": 5,
+      "mean_max_radius": 2.2234854102134705,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15104,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 9,
+      "returning_individuals": 7,
+      "exhausted": 1,
+      "mean_max_radius": 5.683788478374481,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15104,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 8,
+      "returning_individuals": 6,
+      "exhausted": 2,
+      "mean_max_radius": 16.218968629837036,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15105,
+      "sampled": true,
+      "task": "food",
+      "steps": 239,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 3.3932759165763855,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15105,
+      "sampled": true,
+      "task": "food",
+      "steps": 512,
+      "deliveries": 14,
+      "pickups": 14,
+      "budget_returns": 4,
+      "returning_individuals": 3,
+      "exhausted": 4,
+      "mean_max_radius": 3.534458726644516,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15105,
+      "sampled": true,
+      "task": "food",
+      "steps": 241,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 4.152058243751526,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15105,
+      "sampled": null,
+      "task": "food",
+      "steps": 234,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 2,
+      "returning_individuals": 2,
+      "exhausted": 0,
+      "mean_max_radius": 9.201946645975113,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15105,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 7,
+      "returning_individuals": 5,
+      "exhausted": 3,
+      "mean_max_radius": 2.6233957707881927,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15105,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 2,
+      "returning_individuals": 2,
+      "exhausted": 7,
+      "mean_max_radius": 2.900731936097145,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15105,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 10,
+      "returning_individuals": 6,
+      "exhausted": 1,
+      "mean_max_radius": 6.117498934268951,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15105,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 13,
+      "returning_individuals": 8,
+      "exhausted": 0,
+      "mean_max_radius": 15.901741981506348,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15106,
+      "sampled": true,
+      "task": "food",
+      "steps": 212,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 2.989840179681778,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15106,
+      "sampled": true,
+      "task": "food",
+      "steps": 248,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 2.7824611365795135,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15106,
+      "sampled": true,
+      "task": "food",
+      "steps": 218,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 3.599379241466522,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15106,
+      "sampled": null,
+      "task": "food",
+      "steps": 208,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 7.293498992919922,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15106,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 5,
+      "returning_individuals": 5,
+      "exhausted": 3,
+      "mean_max_radius": 2.403464153409004,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15106,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 3,
+      "returning_individuals": 3,
+      "exhausted": 4,
+      "mean_max_radius": 2.749161332845688,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15106,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 8,
+      "returning_individuals": 5,
+      "exhausted": 1,
+      "mean_max_radius": 5.9260449558496475,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15106,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 12,
+      "returning_individuals": 8,
+      "exhausted": 0,
+      "mean_max_radius": 15.371426343917847,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15107,
+      "sampled": true,
+      "task": "food",
+      "steps": 190,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 2.826732784509659,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15107,
+      "sampled": true,
+      "task": "food",
+      "steps": 204,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 2.3384453654289246,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15107,
+      "sampled": true,
+      "task": "food",
+      "steps": 197,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 3.1091435253620148,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15107,
+      "sampled": null,
+      "task": "food",
+      "steps": 197,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 7.57085058093071,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15107,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 7,
+      "returning_individuals": 5,
+      "exhausted": 3,
+      "mean_max_radius": 2.5099071487784386,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15107,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 2,
+      "returning_individuals": 2,
+      "exhausted": 6,
+      "mean_max_radius": 3.0819898694753647,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15107,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 6,
+      "returning_individuals": 4,
+      "exhausted": 2,
+      "mean_max_radius": 5.537510633468628,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15107,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 13,
+      "returning_individuals": 8,
+      "exhausted": 0,
+      "mean_max_radius": 15.425179719924927,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15108,
+      "sampled": true,
+      "task": "food",
+      "steps": 244,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 3.3193633556365967,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15108,
+      "sampled": true,
+      "task": "food",
+      "steps": 472,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 4,
+      "mean_max_radius": 4.4773498475551605,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15108,
+      "sampled": true,
+      "task": "food",
+      "steps": 227,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 0,
+      "returning_individuals": 0,
+      "exhausted": 0,
+      "mean_max_radius": 3.8492475152015686,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15108,
+      "sampled": null,
+      "task": "food",
+      "steps": 226,
+      "deliveries": 16,
+      "pickups": 16,
+      "budget_returns": 1,
+      "returning_individuals": 1,
+      "exhausted": 0,
+      "mean_max_radius": 8.896227478981018,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-before",
+      "seed": 15108,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 6,
+      "returning_individuals": 4,
+      "exhausted": 4,
+      "mean_max_radius": 2.345407649874687,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "recurrent-after",
+      "seed": 15108,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 2,
+      "returning_individuals": 2,
+      "exhausted": 7,
+      "mean_max_radius": 2.6648350954055786,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "mlp",
+      "seed": 15108,
+      "sampled": true,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 11,
+      "returning_individuals": 7,
+      "exhausted": 2,
+      "mean_max_radius": 5.98260235786438,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "model": "rules",
+      "seed": 15108,
+      "sampled": null,
+      "task": "empty",
+      "steps": 512,
+      "deliveries": 0,
+      "pickups": 0,
+      "budget_returns": 12,
+      "returning_individuals": 8,
+      "exhausted": 0,
+      "mean_max_radius": 16.08110797405243,
+      "updates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "model": "recurrent-before",
+      "delivery_fraction": {
+        "mean": 1.0,
+        "minimum": 1.0,
+        "maximum": 1.0
+      },
+      "complete_food_worlds": 8,
+      "completion_steps": {
+        "mean": 243.375,
+        "minimum": 190.0,
+        "maximum": 312.0
+      },
+      "returning_fraction": {
+        "mean": 0.5625,
+        "minimum": 0.375,
+        "maximum": 0.75
+      },
+      "exhausted_fraction": {
+        "mean": 0.4375,
+        "minimum": 0.25,
+        "maximum": 0.625
+      },
+      "exploration_radius": {
+        "mean": 2.5283518549986184,
+        "minimum": 2.2327553555369377,
+        "maximum": 2.806318551301956
+      }
+    },
+    {
+      "model": "recurrent-after",
+      "delivery_fraction": {
+        "mean": 0.984375,
+        "minimum": 0.875,
+        "maximum": 1.0
+      },
+      "complete_food_worlds": 7,
+      "completion_steps": {
+        "mean": 344.42857142857144,
+        "minimum": 204.0,
+        "maximum": 477.0
+      },
+      "returning_fraction": {
+        "mean": 0.296875,
+        "minimum": 0.125,
+        "maximum": 0.5
+      },
+      "exhausted_fraction": {
+        "mean": 0.6875,
+        "minimum": 0.5,
+        "maximum": 0.875
+      },
+      "exploration_radius": {
+        "mean": 2.7571484614163637,
+        "minimum": 2.2234854102134705,
+        "maximum": 3.3390192091464996
+      }
+    },
+    {
+      "model": "mlp",
+      "delivery_fraction": {
+        "mean": 1.0,
+        "minimum": 1.0,
+        "maximum": 1.0
+      },
+      "complete_food_worlds": 8,
+      "completion_steps": {
+        "mean": 232.875,
+        "minimum": 197.0,
+        "maximum": 279.0
+      },
+      "returning_fraction": {
+        "mean": 0.765625,
+        "minimum": 0.5,
+        "maximum": 0.875
+      },
+      "exhausted_fraction": {
+        "mean": 0.15625,
+        "minimum": 0.125,
+        "maximum": 0.25
+      },
+      "exploration_radius": {
+        "mean": 5.982935312204063,
+        "minimum": 5.498642839491367,
+        "maximum": 6.603328853845596
+      }
+    },
+    {
+      "model": "rules",
+      "delivery_fraction": {
+        "mean": 1.0,
+        "minimum": 1.0,
+        "maximum": 1.0
+      },
+      "complete_food_worlds": 8,
+      "completion_steps": {
+        "mean": 249.25,
+        "minimum": 197.0,
+        "maximum": 339.0
+      },
+      "returning_fraction": {
+        "mean": 0.9375,
+        "minimum": 0.75,
+        "maximum": 1.0
+      },
+      "exhausted_fraction": {
+        "mean": 0.0625,
+        "minimum": 0.0,
+        "maximum": 0.25
+      },
+      "exploration_radius": {
+        "mean": 15.755809485912323,
+        "minimum": 15.371426343917847,
+        "maximum": 16.218968629837036
+      }
+    }
+  ],
+  "after_minus_before": {
+    "delivery_fraction": {
+      "mean": -0.015625,
+      "minimum": -0.125,
+      "maximum": 0.0
+    },
+    "returning_fraction": {
+      "mean": -0.265625,
+      "minimum": -0.5,
+      "maximum": 0.0
+    },
+    "exhausted_fraction": {
+      "mean": 0.25,
+      "minimum": 0.0,
+      "maximum": 0.5
+    },
+    "exploration_radius": {
+      "mean": 0.22879660641774535,
+      "minimum": -0.5828331410884857,
+      "maximum": 0.6219852641224861
+    },
+    "completion_steps": {
+      "mean": 100.42857142857143,
+      "minimum": -22.0,
+      "maximum": 228.0
+    },
+    "complete_pairs": 7
+  },
+  "parameter_changes": [
+    {
+      "ant": 0,
+      "final_updates": 349,
+      "change_norm": 0.33152790219045625
+    },
+    {
+      "ant": 1,
+      "final_updates": 435,
+      "change_norm": 0.6867181540100842
+    },
+    {
+      "ant": 2,
+      "final_updates": 385,
+      "change_norm": 0.4428275899444949
+    },
+    {
+      "ant": 3,
+      "final_updates": 414,
+      "change_norm": 0.4724062033475521
+    },
+    {
+      "ant": 4,
+      "final_updates": 385,
+      "change_norm": 0.3437624330519104
+    },
+    {
+      "ant": 5,
+      "final_updates": 368,
+      "change_norm": 0.4105980332537567
+    },
+    {
+      "ant": 6,
+      "final_updates": 368,
+      "change_norm": 0.3844853460269073
+    },
+    {
+      "ant": 7,
+      "final_updates": 369,
+      "change_norm": 0.41135487427566336
+    }
+  ],
+  "retain_food": true,
+  "retain_return": false,
+  "exploration_ready": false,
+  "adopt_final": false
+}

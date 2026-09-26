@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [无线索课程最终评价](exploration-course/README.md) - 首次计划，固定32回合模型，不挑中间结果。
+- [无线索课程最终评价](exploration-course/README.md) - 已完成；返回退步，未采用最终模型，不续训。
 
 - [三组基础能力](foundation-qualification/README.md) - 已完成；三组搬运均完成，循环无线索探索未达开发门槛。
 
