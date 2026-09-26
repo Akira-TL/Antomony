@@ -1,0 +1,54 @@
+{
+  "seeds": [
+    19901,
+    19902
+  ],
+  "conditions": [
+    "benign"
+  ],
+  "pairs_per_world": 32,
+  "branch_horizon": 64,
+  "candidate_kind": "trust",
+  "environment": {
+    "ants": 8,
+    "horizon": 512,
+    "trail_profile": "bounded-local-v2",
+    "nest_signal_strength": 1
+  },
+  "adaptation": {
+    "window": 4,
+    "learning_rate": 1,
+    "maximum_step_norm": 4,
+    "maximum_residual_norm": 4,
+    "maximum_mean_kl": 0.02,
+    "maximum_state_kl": 0.08,
+    "damping": 0.01,
+    "backtracks": 12,
+    "feedback_mode": "observed-window",
+    "feedback_trigger": "window",
+    "credit_horizon": 16
+  },
+  "sample_interval": 16,
+  "include_action_features": true,
+  "disturbance": {
+    "center_fraction": 1,
+    "response": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "injury_per_step": 0
+  },
+  "initial_residual_pattern": "coherent-fourth",
+  "policy_kind": "mlp-memory",
+  "policy_episode": 0,
+  "policy_directory": "logs/memory-check/20260926T112254-2",
+  "motor_path": "logs/direction-motor/20260926T053106-2/seed-41/update-001200.npz",
+  "initial_residual_norm": 0.75,
+  "include_zero_candidates": true
+}
