@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [无线索探索课程](exploration-course/README.md) - 已完成32训练与64评价世界。
+
 - [三组基础采样](foundation-qualification/README.md) - 已完成固定48世界。
 
 - [反馈时间范围采样](feedback-window/README.md) - 已完成两种子、28条候选记录。
@@ -14,6 +16,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [探索课程](exploration-course/README.md) → [冻结设计](../designs/exploration-course.md)、[原始数据](../data/exploration-course/README.md)。
 
 - [基础采样](foundation-qualification/README.md) → [冻结设计](../designs/foundation-qualification.md)、[原始数据](../data/foundation-qualification/README.md)。
 

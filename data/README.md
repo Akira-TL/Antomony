@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [探索课程数据](exploration-course/README.md) - 245文件，含72组参数快照。
+
 - [三组基础轨迹](foundation-qualification/README.md) - 48世界、52份原始文件。
 
 - [反馈窗口配对数据](feedback-window/README.md) - 28条记录、588份文件。
@@ -14,6 +16,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [探索课程数据](exploration-course/README.md) → [实际实施](../study/exploration-course/README.md)。
 
 - [基础轨迹](foundation-qualification/README.md) → [实际采样](../study/foundation-qualification/README.md)、[描述分析](../analysis/foundation-qualification/README.md)。
 
