@@ -28,6 +28,7 @@ from mathhackson.training.foraging.trust_candidate import TrustConfig
 from mathhackson.training.foraging.update_decision import UpdateDecision
 from .actors import NeuralForager
 from .online_actor import OnlineForager
+from .feedback import FeedbackProfile, learning_feedback
 from .run import SourceRecord
 
 Arm = Literal["learned", "skip", "always", "mlp", "rules"]
@@ -53,6 +54,8 @@ class ContinuousPlan(BaseModel):
     mlp_directory: str = "logs/matched-foundation/20260926T121232-2"
     motor: str = "logs/direction-motor/20260926T053106-2/seed-41/update-001200.npz"
     respawn: bool = False
+    arms: tuple[Arm, ...] = ARMS
+    feedback_profile: FeedbackProfile = "legacy"
 
     @model_validator(mode="after")
     def validate_plan(self) -> ContinuousPlan:
@@ -62,6 +65,10 @@ class ContinuousPlan(BaseModel):
             raise ValueError("条件须非空且唯一")
         if self.adaptation.feedback_mode != "observed-window":
             raise ValueError("当前模型只能使用已发生反馈")
+        if not self.arms or len(set(self.arms)) != len(self.arms):
+            raise ValueError("比较组须非空且唯一")
+        if self.feedback_profile != "legacy" and "learned" in self.arms:
+            raise ValueError("旧接受模型未按生存目标训练，不能用于新反馈")
         return self
 
     def policy_path(self, index: int) -> Path:
@@ -97,6 +104,8 @@ class AntFrame(BaseModel):
     cumulative_deaths: int = 0
     cumulative_terminations: int = 0
     revivals: int = 0
+    learning_reward: float | None = None
+    injury_delta: float | None = None
 
 
 class Frame(BaseModel):
@@ -141,6 +150,10 @@ class Execution(BaseModel):
 
 
 def make_actors(plan: ContinuousPlan, seed: int, arm: Arm) -> list[Actor]:
+    if arm not in plan.arms:
+        raise ValueError("比较组不在执行协议内")
+    if plan.feedback_profile != "legacy" and arm == "learned":
+        raise ValueError("旧接受模型未按生存目标训练，不能用于新反馈")
     if arm == "rules":
         return [LocalRuleController(seed * 32 + i) for i in range(plan.environment.ants)]
     motor, _ = load_motor(Path(plan.motor))
@@ -209,10 +222,15 @@ def run_world(plan: ContinuousPlan, seed: int, condition: Condition, arm: Arm, d
                 else:
                     action = actor.act(observation)
                 actions.append(action)
+            injury_before = env.injuries.copy()
             events = env.step(actions)
+            injury_delta = env.injuries - injury_before
+            feedback = [learning_feedback(plan.feedback_profile, event, active=active[i],
+                injury_delta=float(injury_delta[i]), injury_limit=condition.disturbance.injury_limit)
+                for i, event in enumerate(events)]
             for i, actor in enumerate(actors):
                 if isinstance(actor, OnlineForager) and active[i]:
-                    record = actor.feedback(events[i].reward, env.observation(i), terminal=env.done or env.ants[i].exhausted,
+                    record = actor.feedback(feedback[i], env.observation(i), terminal=env.done or env.ants[i].exhausted,
                                             tick=env.steps, individual=i,
                                             continuing_after_death=plan.respawn and env.ants[i].exhausted and not env.done)
                     if record is not None:
@@ -229,6 +247,8 @@ def run_world(plan: ContinuousPlan, seed: int, condition: Condition, arm: Arm, d
                     exploration_left=ant.exploration_left, reserve_left=ant.reserve_left, picked_up=events[i].picked_up,
                     delivered=events[i].delivered, budget_return=events[i].budget_return, exhausted=ant.exhausted,
                     killed=bool(env.killed[i]), injury=float(env.injuries[i]), reward=events[i].reward,
+                    learning_reward=feedback[i] if plan.feedback_profile != "legacy" else None,
+                    injury_delta=float(injury_delta[i]) if plan.feedback_profile != "legacy" else None,
                     writes=actors[i].agent.writes if isinstance(actors[i], OnlineForager) else 0,
                     pending=bool(env.pending[i]) if isinstance(env, RevivingColony) else False,
                     respawned=i in revived,
@@ -278,7 +298,7 @@ def run(plan: ContinuousPlan, directory: Path, *, protocol_sha256: str, smoke: b
     torch.set_num_threads(1)
     (directory / "execution.json").write_text(execution.model_dump_json(indent=2))
     jobs = [(plan, seed, condition, arm, directory / f"{condition.name}-{seed}-{arm}")
-            for seed in plan.seeds for condition in plan.conditions for arm in ARMS]
+            for seed in plan.seeds for condition in plan.conditions for arm in plan.arms]
     with (directory / "worlds.jsonl").open("x") as output:
         if workers == 1:
             for job in jobs:

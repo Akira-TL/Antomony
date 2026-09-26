@@ -269,6 +269,33 @@ def test_revival_rule_world_never_uses_a_neural_network(plan, tmp_path, monkeypa
     assert result.decisions == 0 and not list((tmp_path / "rules-revival").glob("*.npz"))
 
 
+def test_survival_feedback_reaches_updates_and_keeps_environment_reward(plan, tmp_path):
+    condition = Condition(name="moving-danger", disturbance=DisturbanceConfig(
+        contact_radius=20., injury_per_step=1., signal_radius=20.))
+    plan = ContinuousPlan.model_validate({**plan.model_dump(), "respawn": True,
+        "arms": ("skip", "always"), "feedback_profile": "survival-v1",
+        "environment": plan.environment.model_copy(update={"horizon": 6}), "conditions": (condition,)})
+    directory = tmp_path / "survival"
+    result = run_world(plan, 18999, condition, "always", directory)
+    trace = frames(directory)
+    assert result.deaths == result.exhausted == 12 and result.revivals == 10
+    assert all(a.learning_reward == -2. and a.injury_delta == 1. for f in trace for a in f.ants)
+    assert all(a.reward <= -2.99 for f in trace for a in f.ants)
+    records = [UpdateRecord.model_validate_json(line) for line in (directory / "updates.jsonl").read_text().splitlines()]
+    assert len(records) == 12 and all(r.proposal.mean_reward == -2. for r in records)
+    assert result.reward == pytest.approx(sum(a.reward for f in trace for a in f.ants))
+
+
+def test_selected_arms_run_without_accidentally_using_old_gate(plan, tmp_path):
+    from mathhackson.training.comparison.continuous import WorldResult, run
+    plan = ContinuousPlan.model_validate({**plan.model_dump(), "arms": ("skip", "always"),
+        "feedback_profile": "survival-v1", "environment": plan.environment.model_copy(update={"horizon": 4})})
+    run(plan, tmp_path / "selected", protocol_sha256="unit-test")
+    rows = [WorldResult.model_validate_json(line) for line in (tmp_path / "selected/worlds.jsonl").read_text().splitlines()]
+    assert [r.arm for r in rows] == ["skip", "always"]
+    assert not (tmp_path / "selected/reference-18999-learned").exists()
+
+
 def test_expanded_population_has_independent_parameters_and_random_streams(plan):
     expanded = plan.model_copy(update={"environment": plan.environment.model_copy(update={"ants": 32}), "respawn": True})
     actors = make_actors(expanded, 18999, "learned")
