@@ -1,0 +1,25 @@
+{
+  "slug": "update-constraints",
+  "title": "四步实际写入的约束与动作响应诊断",
+  "analysis_mode": "exploratory",
+  "status": "completed",
+  "target_uncertainty": "既有写入的实际动作变化是否主要消失在约束或角度饱和中。",
+  "estimand": "既有两个四步世界全部实际写入在相同窗口观察上的参数约束余量、角度导数、数值秩和实际动作分布变化。",
+  "unit_of_inference": "整巢世界种子；同巢个体、窗口与生命相关，不将写入次数作独立推断。",
+  "primary_analysis": "逐种子描述全部写入的分布约束、参数约束、饱和、矩阵秩及动作变化，先核验身份和完整随机轨迹，不作因果或显著性推断。",
+  "analysis_path": "analysis/update-constraints/README.md",
+  "code_path": "scripts/analyses/update_constraints.py",
+  "dataset_slugs": ["window-cadence"],
+  "artifacts": [
+    {"path": "analysis/update-constraints/summary.json", "role": "table", "timing_role": "result"},
+    {"path": ".research/analysis/update-constraints/A002/outputs/summary.json", "role": "diagnostic", "timing_role": "result", "git_tracking": "not_required", "tracking_reason": "完整154条逐次结果可由固定输入和提交重建；规范汇总及散列进入Git。"},
+    {"path": "logs/analysis/update-constraints-A001.log", "role": "log", "timing_role": "result", "git_tracking": "not_required", "tracking_reason": "保留首次执行数值校验失败原文，实际时间及错误在规范记录登记。"},
+    {"path": "logs/analysis/update-constraints-A002.log", "role": "log", "timing_role": "result", "git_tracking": "not_required", "tracking_reason": "原始环境、开始结束时点和完整汇总输出，规范结果另入Git。"}
+  ],
+  "observations": [{
+    "statement": "全部154次写入重建一致，其中152次实际动作分布总变差至少0.01；没有角度饱和，单步参数范数接近上限1次、累计残差接近上限5次。两世界动作总变差中位数0.06449和0.05948，不能把所有负结果解释成更新几乎不影响动作。",
+    "source_path": "analysis/update-constraints/summary.json",
+    "source_locator": "worlds及总体计数",
+    "scope": "两个已知开发种子、相关实际写入上的固定观察分析，不是未来生存因果效果，不识别最优步长或架构充分性。"
+  }]
+}

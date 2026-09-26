@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [四步写入约束与动作响应](update-constraints/README.md) - planned；只诊断已发生写入，不训练或增加参数搜索。
+- [四步写入约束与动作响应](update-constraints/README.md) - completed；152/154写入实际动作总变差至少0.01，无角度饱和，不支持更新普遍不起作用的解释。
 
 - [后到反馈动作归因](credit-history/README.md) - completed；54共同状态中新配置无有益候选，未通过，停止本路线。
 

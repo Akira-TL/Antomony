@@ -3,7 +3,7 @@
   "kind": "analysis",
   "label": "四步实际写入的约束与动作响应",
   "scientific_scope": "只重建既有四步轨迹，描述约束余量、饱和、数值秩及实际动作变化；不生成未来分支，不训练或调整在线模型。",
-  "workflow_status": "active",
+  "workflow_status": "resolved",
   "branch_priority": "secondary",
   "parent_slug": "credit-history-analysis",
   "canonical_entity_type": "analysis",

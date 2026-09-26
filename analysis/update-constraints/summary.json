@@ -1,0 +1,36 @@
+{
+  "source": ".research/analysis/update-constraints/A002/outputs/summary.json",
+  "source_sha256": "31557b894444daeb38b777b00ccaabc15db5528aa4eb54d19e260eca42c0fbcf",
+  "files_verified": 4470,
+  "actions_verified": 65536,
+  "memory_snapshots_verified": 512,
+  "writes": 154,
+  "motor_tv_at_least_one_percent": 152,
+  "saturated_writes": 0,
+  "step_near_bound": 1,
+  "residual_near_bound": 5,
+  "worlds": [
+    {
+      "seed": 19701,
+      "writes": 60,
+      "motor_tv_median": 0.06448857113718987,
+      "angle_change_degrees_median": 4.213312398856301,
+      "absolute_turn_change_degrees_median": 0.23154234685690034,
+      "mean_kl_fraction_median": 0.9026914834976196,
+      "feature_rank_median": 4,
+      "probability_jacobian_rank_median": 4,
+      "zero_backtrack_exhausted": 0
+    },
+    {
+      "seed": 19702,
+      "writes": 94,
+      "motor_tv_median": 0.059477439150214195,
+      "angle_change_degrees_median": 4.089329409249185,
+      "absolute_turn_change_degrees_median": 0.13814896955891426,
+      "mean_kl_fraction_median": 0.9138369467109442,
+      "feature_rank_median": 4,
+      "probability_jacobian_rank_median": 4,
+      "zero_backtrack_exhausted": 0
+    }
+  ]
+}
