@@ -33,7 +33,7 @@
 
 ## Relations
 
-- [生存反馈](survival-feedback/README.md) → [实施](../study/survival-feedback/README.md)、[分析](../analysis/survival-feedback/README.md)。
+- [生存反馈](survival-feedback/README.md) → [实施](../study/survival-feedback/README.md)、[配对分析](../analysis/survival-feedback/README.md)、[时序诊断](../analysis/survival-timing/README.md)。
 
 - [历史基线数据](historical-baseline/README.md) → [实施](../study/historical-baseline/README.md)、[分析](../analysis/historical-baseline/README.md)。
 

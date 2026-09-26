@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [受伤与写入时序](survival-timing/README.md) - planned；既有16世界的结果后诊断，不新增训练。
+
 - [生存反馈配对](survival-feedback/README.md) - completed；相对不更新少失败6/58次，相对旧反馈多7/少21次，未通过采用。
 
 - [历史基线配对后果](historical-baseline/README.md) - 未通过采用条件；出现零交付但总奖励提高，需重新明确目标取舍。
@@ -30,6 +32,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [受伤与写入时序](survival-timing/README.md) → [数据](../data/survival-feedback/README.md)、[此前结果](survival-feedback/README.md)。
 
 - [生存反馈](survival-feedback/README.md) → [设计](../designs/survival-feedback.md)、[数据](../data/survival-feedback/README.md)。
 
