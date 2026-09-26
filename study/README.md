@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [四步动作输入基础采样](action-update-learning/README.md) - completed；12世界39配对，约68秒。
+
 - [四步与十六步窗口](window-cadence/README.md) - completed，16世界约65秒。
 
 - [负反馈提前判断](feedback-trigger/README.md) - completed，16世界约64秒。
@@ -34,6 +36,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [动作输入采样](action-update-learning/README.md) → [设计](../designs/action-update-learning.md)、[数据](../data/action-update-learning/README.md)。
 
 - [窗口连续采样](window-cadence/README.md) → [设计](../designs/window-cadence.md)、[数据](../data/window-cadence/README.md)。
 

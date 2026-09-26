@@ -38,6 +38,8 @@
 
 ## Relations
 
+- [动作输入课程](action-update-learning.md) → [实施](../study/action-update-learning/README.md)。
+
 - [四步与十六步窗口](window-cadence.md) → [实施](../study/window-cadence/README.md)、[分析](../analysis/window-cadence/README.md)。
 
 - [负反馈提前判断](feedback-trigger.md) → [实施](../study/feedback-trigger/README.md)、[分析](../analysis/feedback-trigger/README.md)。
