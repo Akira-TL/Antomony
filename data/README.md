@@ -17,7 +17,7 @@
 
 ## Relations
 
-- [探索课程数据](exploration-course/README.md) → [实际实施](../study/exploration-course/README.md)。
+- [探索课程数据](exploration-course/README.md) → [实际实施](../study/exploration-course/README.md)、[配对评价](../analysis/exploration-course/README.md)。
 
 - [基础轨迹](foundation-qualification/README.md) → [实际采样](../study/foundation-qualification/README.md)、[描述分析](../analysis/foundation-qualification/README.md)。
 

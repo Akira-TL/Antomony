@@ -1,0 +1,6 @@
+{
+  "input_directory":"logs/exploration-course/20260926T110225-2",
+  "manifest":"data/exploration-course/manifest.sha256",
+  "protocol":".research/protocols/exploration-course.json",
+  "output":".research/analysis/exploration-course/A001/outputs/summary.json"
+}

@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [无线索课程最终评价](exploration-course/README.md) - 首次计划，固定32回合模型，不挑中间结果。
+
 - [三组基础能力](foundation-qualification/README.md) - 已完成；三组搬运均完成，循环无线索探索未达开发门槛。
 
 - [反馈时间范围比较](feedback-window/README.md) - 已完成；64步没有通过开发条件，保留16步，不追加窗口搜索。
@@ -14,6 +16,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [探索课程评价](exploration-course/README.md) → [冻结设计](../designs/exploration-course.md)、[原始数据](../data/exploration-course/README.md)。
 
 - [基础能力分析](foundation-qualification/README.md) → [冻结设计](../designs/foundation-qualification.md)、[原始数据](../data/foundation-qualification/README.md)。
 
