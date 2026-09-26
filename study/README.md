@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [可塑方向基础课程实施](feedback-plasticity-course/README.md) - 已真实启动，尚未取得完成记录，不读取评价效果。
+- [可塑方向基础课程实施](feedback-plasticity-course/README.md) - 两初始化完整执行，内部125.33秒，尚未计算评价效果。
 
 - [首步方向分支](first-action-outcomes/README.md) - 8状态128分支完成，未训练。
 

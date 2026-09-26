@@ -1,0 +1,62 @@
+{
+  "slug": "feedback-plasticity-course",
+  "title": "直接行动反馈驱动的可塑方向基础课程实施",
+  "design_slug": "feedback-plasticity-course",
+  "study_type": "本地合成方向反馈可行性课程",
+  "status": "completed",
+  "started_at": "2026-09-26T20:41:23Z",
+  "provenance_path": "study/feedback-plasticity-course/README.md",
+  "samples": [
+    {
+      "sample_key": "1701",
+      "source_identity": "logs/feedback-plasticity/20260926T204123-2/seed-1701",
+      "experimental_unit_identity": "外层初始化1701",
+      "sample_type": "合成方向反馈课程",
+      "status": "collected"
+    },
+    {
+      "sample_key": "1702",
+      "source_identity": "logs/feedback-plasticity/20260926T204123-2/seed-1702",
+      "experimental_unit_identity": "外层初始化1702",
+      "sample_type": "合成方向反馈课程",
+      "status": "collected"
+    }
+  ],
+  "artifacts": [
+    {
+      "location": ".research/protocols/feedback-plasticity-course.json",
+      "role": "protocol",
+      "storage_kind": "local",
+      "git_tracking": "required"
+    },
+    {
+      "location": "logs/feedback-plasticity/20260926T204123-2/protocol.json",
+      "role": "protocol",
+      "storage_kind": "local",
+      "git_tracking": "not_required",
+      "tracking_reason": "正式进程保存的原协议副本，已与入Git冻结协议逐字节核对；运行结束后完整文件清单另登记。"
+    },
+    {
+      "location": "logs/feedback-plasticity/20260926T204123-2/commits.txt",
+      "role": "assay_metadata",
+      "storage_kind": "local",
+      "git_tracking": "not_required",
+      "tracking_reason": "真实进程代码与冻结提交记录；规范正文同时保存身份，运行后交完整数据清单固定。"
+    },
+    {
+      "location": "logs/feedback-plasticity/20260926T204123-2/completion.json",
+      "role": "assay_metadata",
+      "storage_kind": "local",
+      "git_tracking": "not_required",
+      "tracking_reason": "程序实际完成记录；时间字段采用该文件mtime而非精确退出时点，父Agent已报告进程退出码0。"
+    },
+    {
+      "location": "logs/feedback-plasticity/20260926T204123-2.log",
+      "role": "execution_log",
+      "storage_kind": "local",
+      "git_tracking": "not_required",
+      "tracking_reason": "实际运行原始控制台日志，保留本地，不据训练日志声称正式评价收益。"
+    }
+  ],
+  "completed_at": "2026-09-26T20:43:37.447713+00:00"
+}

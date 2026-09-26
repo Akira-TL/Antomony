@@ -10,7 +10,7 @@
 
 ## Current Loop
 
-STUDY
+DATA
 
 ## Active Uncertainty
 
@@ -26,7 +26,7 @@ STUDY
 
 ## Active Work
 
-[可塑方向连接基础课程](designs/feedback-plasticity-course.md)的Design 22已在`9aded454553027378580f2034182d3b0ef55fba2`固定正文、唯一协议和预分析计划。[正式实施](study/feedback-plasticity-course/README.md)于UTC 2026-09-26T20:41:23Z真实启动，代码提交`5c9a338603dac0c206b2c74fb2ab5212b4769e36`，批次`20260926T204123-2`；Study 20登记为`in_progress`。本次只读取协议与提交身份，不读评价或计算效果。正式Dataset和Analysis尚未登记，启动不等于完成或通过。
+[可塑方向连接基础课程](designs/feedback-plasticity-course.md)的Design 22已在`9aded454553027378580f2034182d3b0ef55fba2`固定正文、唯一协议和预分析计划。[正式实施](study/feedback-plasticity-course/README.md)批次`20260926T204123-2`退出码0，完成记录声明两个初始化完整执行、内部用时125.3257秒，Study 20推进`completed`。开始状态是在结束通知之后补记，真实时序保留，不冒充训练前已登记。已读协议、提交和完成身份，未读取评价指标或计算效果；下一步先登记129项固定原始数据，再登记预分析计划，不把完成当通过。
 
 研究树节点29保留首次登记时的草案标签和范围描述，数据库不允许把科学身份字段当工作进度覆盖；其当前可执行状态以所关联Design 22为准。这次没有因冻结状态变化创建重复研究节点。
 
