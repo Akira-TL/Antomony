@@ -26,6 +26,7 @@ flowchart TD
         N13["历史奖励基线的单变量连续对照<br/>design · resolved"]
         N16["生存优先的反馈有限对照<br/>design · resolved"]
         N19["仅提前负反馈候选时机的有限对照<br/>design · resolved"]
+        N21["固定四步与十六步窗口的生存对照<br/>design · resolved"]
     end
     N1 --> N2
     N2 --> N3
@@ -46,6 +47,7 @@ flowchart TD
     N17 --> N18
     N5 --> N19
     N19 --> N20
+    N5 --> N21
 ```
 
 ## Node Index
@@ -72,3 +74,4 @@ flowchart TD
 | N18 | analysis | resolved | 多数死亡前已写入但仍未形成稳定避险 | [打开](../analysis/survival-timing/README.md) |
 | N19 | design | resolved | 仅提前负反馈候选时机的有限对照 | [打开](../designs/feedback-trigger.md) |
 | N20 | analysis | resolved | 提前触发增加写入但未减少失败 | [打开](../analysis/feedback-trigger/README.md) |
+| N21 | design | resolved | 固定四步与十六步窗口的生存对照 | [打开](../designs/window-cadence.md) |
