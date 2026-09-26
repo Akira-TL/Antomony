@@ -4,7 +4,7 @@ import hashlib
 from pathlib import Path
 
 from mathhackson.training.comparison.first_action import Plan, run
-from mathhackson.training.comparison.first_action_audit import audit
+from mathhackson.training.comparison.first_action_audit import audit, verify_relative_manifest
 
 
 parser = argparse.ArgumentParser()
@@ -20,10 +20,9 @@ if args.phase == 'sample':
     Path('data/first-action-outcomes/manifest.sha256').write_text(manifest)
     print(result.model_dump_json(indent=2))
 else:
-    from mathhackson.training.comparison.auditing import verify_manifest
-    verify_manifest(raw, Path('data/first-action-outcomes/manifest.sha256'))
+    verify_relative_manifest(raw, Path('data/first-action-outcomes/manifest.sha256'))
     result = audit(raw)
-    output = Path('.research/analysis/first-action-outcomes/A001/outputs/summary.json')
+    output = args.config.parent / 'outputs/summary.json'
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open('x') as stream:
         stream.write(result.model_dump_json(indent=2))

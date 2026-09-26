@@ -76,3 +76,21 @@ def test_parent_reconstruction_matches_real_online_frames(plan, tmp_path):
     result = replay_parent(diagnostic, TapeStore(original), 18999, tmp_path/'branches')
     assert result.points == [(0, 0), (0, 1)]
     assert result.steps_verified == 1 and result.actions_verified == 2
+
+
+def test_relative_manifest_rejects_escape_duplicate_missing_and_unlisted(tmp_path):
+    import hashlib
+    from mathhackson.training.comparison.first_action_audit import verify_relative_manifest
+    root = tmp_path / 'raw'
+    root.mkdir()
+    target = root / 'data'
+    target.write_bytes(b'known')
+    sha = hashlib.sha256(b'known').hexdigest()
+    manifest = tmp_path / 'manifest'
+    line = f'{sha}  data\n'
+    manifest.write_text(line)
+    assert verify_relative_manifest(root, manifest) == 1
+    for contents in (line + line, f'{sha}  ../manifest\n', f'{sha}  missing\n', ''):
+        manifest.write_text(contents)
+        with pytest.raises(ValueError):
+            verify_relative_manifest(root, manifest)

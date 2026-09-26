@@ -1,0 +1,11 @@
+{
+  "analysis_slug": "first-action-outcomes",
+  "attempt_key": "A001",
+  "status": "invalid",
+  "git_commit": "99c7456",
+  "config_path": ".research/analysis/first-action-outcomes/A001/config.json",
+  "reason": "专用清单使用相对原始目录路径，共用校验器按仓库路径解析而拒绝，未生成汇总。",
+  "started_at": "2026-09-26T19:50:27.971625+00:00",
+  "completed_at": "2026-09-26T19:50:29.126823+00:00",
+  "decision_reason": "保留失败，时点取日志创建与末次写入，非精确进程边界。耗时计2秒，A002最多58秒且不得第三次重试；不重做采样。"
+}

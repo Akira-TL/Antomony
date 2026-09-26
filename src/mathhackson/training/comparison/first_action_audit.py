@@ -12,6 +12,22 @@ from .continuous import Frame
 from .first_action import Execution, Outcome, Point
 
 
+def verify_relative_manifest(directory: Path, manifest: Path) -> int:
+    root = directory.resolve()
+    seen: set[Path] = set()
+    for line in manifest.read_text().splitlines():
+        expected, name = line.split('  ', 1)
+        path = (root / name).resolve()
+        if path in seen or not path.is_relative_to(root):
+            raise ValueError('重复或越界的文件')
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+            raise ValueError('文件缺失或散列改变')
+        seen.add(path)
+    if seen != {path.resolve() for path in root.rglob('*') if path.is_file()}:
+        raise ValueError('清单不完整')
+    return len(seen)
+
+
 class Contrast(BaseModel):
     current: float
     best_direction: float

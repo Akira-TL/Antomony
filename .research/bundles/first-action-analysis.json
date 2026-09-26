@@ -11,7 +11,9 @@
   "analysis_path": "analysis/first-action-outcomes/README.md",
   "code_path": "scripts/analyses/first_action_outcomes.py",
   "dataset_slugs": ["window-cadence", "first-action-outcomes"],
+  "amendments": [{"timing": "pre_result", "description": "A001因清单路径约定不一致失败，A002仅在专用模块将路径相对于原始目录解析，拒绝越界、重复、缺失与未列文件。原209文件和清单不变。", "reason": "机械兼容修正，经父Agent批准一次；首次耗时计2秒，A002硬上限58秒，再失败即停止，无第三次重试。", "commit_ref": "99c7456"}],
   "artifacts": [
+    {"path": ".research/analysis/first-action-outcomes/A002/config.json", "role": "other", "timing_role": "pre_result_support"},
     {"path": "scripts/analyses/first-action-outcomes.sh", "role": "other", "timing_role": "pre_result_support"},
     {"path": ".research/analysis/first-action-outcomes/A001/config.json", "role": "other", "timing_role": "pre_result_support"},
     {"path": "src/mathhackson/training/comparison/first_action.py", "role": "other", "timing_role": "pre_result_support"},
