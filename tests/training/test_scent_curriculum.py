@@ -1,9 +1,14 @@
 from pathlib import Path
 
+import numpy as np
 import torch
 
 from mathhackson.training.roundtrip_policy import RoundTripPolicy
-from mathhackson.training.scent_curriculum import evaluate_scent_reader, pretrain_scent_reader
+from mathhackson.training.scent_curriculum import (_memory_examples,
+                                                   evaluate_scent_memory,
+                                                   evaluate_scent_reader,
+                                                   pretrain_scent_memory,
+                                                   pretrain_scent_reader)
 
 FOUNDATION = Path(__file__).resolve().parents[2] / "checkpoints/recurrent/foundation-episode-002570.npz"
 
@@ -28,3 +33,31 @@ def test_scent_curriculum_learns_conflicting_local_signals_without_unfreezing_mo
     assert torch.equal(model.input_weights[:, :8], input_weights[:, :8])
     assert torch.equal(model.input_weights[:, 14:16], input_weights[:, 14:16])
     assert not torch.equal(model.input_weights[:, 8:14], input_weights[:, 8:14])
+
+
+def test_memory_examples_have_identical_current_inputs_with_opposite_targets():
+    observations, targets, queries = _memory_examples(np.random.default_rng(4), 32, 20)
+    assert torch.equal(observations[1:, :16], observations[1:, 16:])
+    assert torch.all(torch.sign(targets[queries].reshape(4, 2, 16)[:, 0]) !=
+                     torch.sign(targets[queries].reshape(4, 2, 16)[:, 1]))
+    assert not torch.equal(observations[0, :16], observations[0, 16:])
+
+
+def test_memory_curriculum_requires_recurrence_and_keeps_motor_frozen():
+    model = RoundTripPolicy(91, FOUNDATION)
+    pretrain_scent_reader(model)
+    before = evaluate_scent_memory(model)
+    motor = model.motor.detach().clone()
+    release = model.release_weights.detach().clone()
+    hidden = model.hidden_weights.detach().clone()
+    saved = []
+    after = pretrain_scent_memory(model, steps=100, checkpoint_every=50,
+                                  checkpoint=lambda step, metrics: saved.append((step, metrics)))
+    assert before.full.direction_accuracy < .65
+    assert after.full.direction_accuracy > .95
+    assert after.without_memory.direction_accuracy == .5
+    assert after.full.turn_error < before.full.turn_error - .5
+    assert [step for step, _ in saved] == [50, 100]
+    assert torch.equal(model.motor, motor)
+    assert torch.equal(model.release_weights, release)
+    assert not torch.equal(model.hidden_weights, hidden)
