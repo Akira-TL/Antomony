@@ -1,89 +1,57 @@
-# MathHackson 视频工作流
+# Learning While Acting：动态蚂蚁版
 
-## 当前内容入口
+## 当前版本
 
-- [三分钟英文完整分镜](storyboard-v3-self-learning.md)：以局部自学习、学习更新许可、快速适应和实时响应为主线；不再从 Transformer/KV cache 讲起。
-- [英文配音稿](narration-v3.en.txt)：10段，379词，对应180秒分镜；尚未实际录音校时。
+本版以持续运动的关节蚂蚁、相同扰动下的轨迹对照、参数数轴、局部预测图和后果时间关系解释自学习。制作约定见[重制镜头说明](visual-redesign-v4.md)，配音见[英文旁白](narration-v4.en.txt)。上一版的静态流程框、章节开场和烧录字幕不再使用。
 
-当前是架构提案的分镜阶段，不扩写动画、不修改科研状态。`storyboard-v0.md` 与 `scenes/story_prototype.py` 仅保留为早期草案/工具冒烟，不作为当前内容方向。被否定的Transformer分镜仅留于忽略目录的历史副本。
-
-## 工具说明
-
-本目录用于把当前科研主线转成可解释动画。当前阶段采用 3Blue1Brown 的 ManimGL 交互式工作流，而不是先写完整视频再整段渲染。
-
-## 为什么用 ManimGL
-
-3Blue1Brown 当前公开工作流的核心是：把 Scene 跑到指定代码行进入交互式 IPython，在窗口中直接操作已有对象；选中一段代码复制到剪贴板后调用 `checkpoint_paste()`，即可从该 checkpoint 反复试同一段动画。满意后再记录或整段导出。
-
-这里不把 ManimGL 加进主科研依赖，避免污染训练环境。脚本固定使用 3b1b/manim 的指定 Git 提交，通过 `uvx` 启动。
-
-## 直接预览
-
-在项目根目录：
+完整生成命令：
 
 ```bash
-bash scripts/video-preview.sh communication/video/scenes/story_prototype.py StoryPrototype
+bash scripts/video/prepare-toy.sh
+bash scripts/video/audio.sh
+bash scripts/video/retime-audio.sh
+bash scripts/video/render.sh render all hd
+bash scripts/video/assemble.sh
+bash scripts/video/open-review.sh
 ```
 
-WSLg 已可用时会直接弹出 ManimGL 预览窗口。
+`hd`为1920×1080、60fps；`draft`为1280×720、30fps。总时长180秒。输出在`communication/video/rendered/v2/`，其中`Learning_While_Acting_v2_1080p60.mp4`仅有画面与旁白，`Learning_While_Acting.en.srt`为独立文件，不烧录也不嵌入视频。`index.html`提供九段跳转，字幕不会默认显示。
 
-## Grant 风格的交互式编辑
-
-先找到你想停下的位置行号，然后：
+## 单幕调试与检查点
 
 ```bash
-bash scripts/video-preview.sh communication/video/scenes/story_prototype.py StoryPrototype -se 70
+bash scripts/video/render.sh preview A04LearnFromTheGap draft
+bash scripts/video/render.sh render A05NoiseOrChange hd
 ```
 
-此时会在对应行附近进入 IPython，同时保留动画窗口。
-
-在编辑器中复制一个以 checkpoint 注释开头的代码块，例如：
-
-```python
-# checkpoint: update-question
-self.play(...)
-self.wait(...)
-```
-
-然后在 IPython 输入：
-
-```python
-checkpoint_paste()
-```
-
-再次修改并复制同一块，再执行同一个命令，会先回到该 checkpoint 的初始状态，再重新播放。
-
-常用变体：
-
-```python
-checkpoint_paste(skip=True)    # 不播动画，直接看结果状态
-checkpoint_paste(record=True)  # 把这次交互动画写入文件
-reload()                       # 修改源文件后重新加载
-```
-
-## 导出低清样片
+源场景在`scenes/ants_learning.py`。查询需要停下的检查点行号：
 
 ```bash
-bash scripts/video-render.sh communication/video/scenes/story_prototype.py StoryPrototype
+grep -n 'checkpoint:' communication/video/scenes/ants_learning.py
 ```
 
-输出目录：
-
-```text
-communication/video/rendered/
-```
-
-在 WSL 中可直接：
+用实际行号进入ManimGL交互环境：
 
 ```bash
-explorer.exe communication/video/rendered
+bash scripts/video/render.sh interactive A04LearnFromTheGap draft LINE_NUMBER
 ```
 
-## 写 Scene 的原则
+在编辑器复制一个以稳定注释开头的动画片段，然后在交互终端调用`checkpoint_paste()`。可反复回到相同检查点重放；`checkpoint_paste(skip=True)`看末状态，`checkpoint_paste(record=True)`记录小段。单Scene交互主要检查图形；完整配音由后续合成对齐。
 
-- 一个 Scene 只承担一个清晰的认知推进。
-- 一个 checkpoint 对应一个“观众刚刚理解了什么”的最小动画单元。
-- 尽量通过同一对象的移动、变形和重新解释推进叙事，不频繁切成 PPT 式新页面。
-- 屏幕文字只保留关键词；完整论证交给旁白。
-- 颜色语义固定：蓝色表示已有模型/能力，黄色表示候选修改，绿色表示有利后果，红色表示伤害或失败，灰色表示冻结/对照。
-- 正式研究尚未得到的结论不得画成已经成功；当前视频首先表达问题、机制和判别实验。
+`film_plan.py`保存九段时长和旁白句子出场时间。不要用整段画面速度调整来迁就配音，也不要重新加入字幕渲染滤镜。
+
+## 验证
+
+```bash
+bash scripts/video/check-artwork.sh
+```
+
+检查六条腿确实相对身体改变姿态、角色平移保留几何、所有策略持续前进、比较组受到相同扰动、固定组不改参数以及轨迹实际不同。合成入口还检查逐幕帧数、最终时长、音轨长度、无字幕轨和完整解码。视觉检查应取连续运动帧，不只看尾帧。
+
+## 说明性模拟的边界
+
+`production/toy_motion.py`是视频专用的小型跟踪模型，不调用或修改研究模型。三条轨迹来自共同的局部控制律和外部扰动，区别是更新策略。选择性更新采用单独合成流上的局部门校准，仅为教学替身；不把其表现称作MathHackson的算法胜利。门的后到信用图仍是拟议机制，不冒充已经完成的正式在线训练。
+
+片中所有英文句子、角色和场景为本项目重新编写；使用ManimGL固定提交`fafa083a4fb274bba9cabde0b6e2f50ba6da0622`。公式使用LaTeX basic模板，英文合成旁白使用Microsoft en-US-AndrewNeural，不克隆任何人的声音。不分发字体、科研数据或模型。
+
+旧的`storyboard-v0.md`、`storyboard-v3-self-learning.md`及`story_prototype.py`仅为历史说明。被否定的第一版实现已从当前提交链回退，原媒体与忽略目录中的源码备份保留，主checkout和V2V不变。
