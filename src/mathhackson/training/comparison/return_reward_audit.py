@@ -71,7 +71,8 @@ def behavior_equal(left: Frame, right: Frame) -> bool:
     return (left.tick == right.tick and left.source_position == right.source_position
             and left.source_active == right.source_active and left.food_stock == right.food_stock
             and len(left.ants) == len(right.ants)
-            and all(a.model_copy(update={'reward': 0., 'writes': 0}) == b.model_copy(update={'reward': 0., 'writes': 0})
+            and all(a.model_copy(update={'reward': 0., 'writes': 0, 'learning_reward': None, 'injury_delta': None})
+                    == b.model_copy(update={'reward': 0., 'writes': 0, 'learning_reward': None, 'injury_delta': None})
                     for a, b in zip(left.ants, right.ants, strict=True)))
 
 
@@ -112,6 +113,15 @@ def audit_world(path: Path, world: WorldResult, plan: ContinuousPlan) -> Totals:
             injury = ant.injury - (prior.injury if prior and not ant.respawned else 0.)
             if injury < -1e-6 or ant.respawned and ant.budget_return:
                 raise ValueError('伤害回退或复活误计返巢')
+            feedback = ant.reward
+            if plan.feedback_profile == 'survival-v1':
+                expected = -float(terminal) - min(max(injury, 0.) / condition.disturbance.injury_limit, 1.)
+                if (ant.learning_reward is None or ant.injury_delta is None
+                        or not math.isfinite(ant.learning_reward) or not math.isfinite(ant.injury_delta)
+                        or abs(ant.learning_reward - expected) > 1e-7
+                        or abs(ant.injury_delta - injury) > 1e-7):
+                    raise ValueError('生存反馈与真实伤害/失败不符')
+                feedback = ant.learning_reward
             known = known_reward(ant, plan.environment.return_reward, injury, deaths, terminal - deaths,
                                  condition.disturbance.death_cost, plan.environment.exhaustion_cost)
             exploration = ant.reward - known
@@ -127,7 +137,7 @@ def audit_world(path: Path, world: WorldResult, plan: ContinuousPlan) -> Totals:
             result.reward += ant.reward
             result.exploration_reward += exploration
             if world.arm in ('learned', 'always', 'skip') and ant.active:
-                pending_rewards[i].append(ant.reward)
+                pending_rewards[i].append(feedback)
                 pending_returns[i] += ant.budget_return and not ant.delivered
                 pending_novel[i] = max(pending_novel[i], max(ant.observation[j] for j in range(72) if j % 8 >= 3))
             record = by_key.get((tick, i))

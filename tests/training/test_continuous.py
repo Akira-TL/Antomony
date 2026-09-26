@@ -270,6 +270,7 @@ def test_revival_rule_world_never_uses_a_neural_network(plan, tmp_path, monkeypa
 
 
 def test_survival_feedback_reaches_updates_and_keeps_environment_reward(plan, tmp_path):
+    from mathhackson.training.comparison.return_reward_audit import audit_world
     condition = Condition(name="moving-danger", disturbance=DisturbanceConfig(
         contact_radius=20., injury_per_step=1., signal_radius=20.))
     plan = ContinuousPlan.model_validate({**plan.model_dump(), "respawn": True,
@@ -284,9 +285,16 @@ def test_survival_feedback_reaches_updates_and_keeps_environment_reward(plan, tm
     records = [UpdateRecord.model_validate_json(line) for line in (directory / "updates.jsonl").read_text().splitlines()]
     assert len(records) == 12 and all(r.proposal.mean_reward == -2. for r in records)
     assert result.reward == pytest.approx(sum(a.reward for f in trace for a in f.ants))
+    assert audit_world(directory, result, plan).deaths == 12
+    trace[0].ants[0].learning_reward = 2.
+    with gzip.open(directory / "trajectory.jsonl.gz", "wt") as stream:
+        stream.write("\n".join(f.model_dump_json() for f in trace) + "\n")
+    with pytest.raises(ValueError, match="生存反馈"):
+        audit_world(directory, result, plan)
 
 
 def test_selected_arms_run_without_accidentally_using_old_gate(plan, tmp_path):
+    from mathhackson.training.comparison.acceptance import TapeStore
     from mathhackson.training.comparison.continuous import WorldResult, run
     plan = ContinuousPlan.model_validate({**plan.model_dump(), "arms": ("skip", "always"),
         "feedback_profile": "survival-v1", "environment": plan.environment.model_copy(update={"horizon": 4})})
@@ -294,6 +302,7 @@ def test_selected_arms_run_without_accidentally_using_old_gate(plan, tmp_path):
     rows = [WorldResult.model_validate_json(line) for line in (tmp_path / "selected/worlds.jsonl").read_text().splitlines()]
     assert [r.arm for r in rows] == ["skip", "always"]
     assert not (tmp_path / "selected/reference-18999-learned").exists()
+    assert len(TapeStore(tmp_path / "selected").worlds) == 2
 
 
 def test_expanded_population_has_independent_parameters_and_random_streams(plan):

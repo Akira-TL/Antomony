@@ -72,7 +72,7 @@ class TapeStore:
         if len(self.worlds) != len(rows):
             raise ValueError("世界身份重复")
         expected = {(c.name, seed, arm) for c in self.execution.plan.conditions
-                    for seed in self.execution.plan.seeds for arm in ARMS}
+                    for seed in self.execution.plan.seeds for arm in self.execution.plan.arms}
         if set(self.worlds) != expected:
             raise ValueError("批次世界不完整或出现未登记身份")
 

@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [生存反馈配对](survival-feedback/README.md) - planned，先审计后按冻结判据计算。
+
 - [历史基线配对后果](historical-baseline/README.md) - 未通过采用条件；出现零交付但总奖励提高，需重新明确目标取舍。
 
 - [伤害候选与接受判断](injury-candidate/README.md) - 已完成；两世界未一致出现有益候选被拒绝，候选质量及接受判断均有不足。
@@ -28,6 +30,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [生存反馈](survival-feedback/README.md) → [设计](../designs/survival-feedback.md)、[数据](../data/survival-feedback/README.md)。
 
 - [历史基线分析](historical-baseline/README.md) → [设计](../designs/historical-baseline.md)、[数据](../data/historical-baseline/README.md)。
 
