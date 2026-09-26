@@ -36,6 +36,8 @@
 
 ## Relations
 
+- [四步与十六步窗口](window-cadence.md) → [实施](../study/window-cadence/README.md)。
+
 - [负反馈提前判断](feedback-trigger.md) → [实施](../study/feedback-trigger/README.md)、[分析](../analysis/feedback-trigger/README.md)。
 
 - [生存反馈](survival-feedback.md) → [实施](../study/survival-feedback/README.md)、[分析](../analysis/survival-feedback/README.md)。

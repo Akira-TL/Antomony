@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [四步与十六步窗口](window-cadence/README.md) - completed，16世界约65秒。
+
 - [负反馈提前判断](feedback-trigger/README.md) - completed，16世界约64秒。
 
 - [生存反馈连续采样](survival-feedback/README.md) - completed，两个种子16世界。
@@ -32,6 +34,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [窗口连续采样](window-cadence/README.md) → [设计](../designs/window-cadence.md)、[数据](../data/window-cadence/README.md)。
 
 - [负反馈提前判断](feedback-trigger/README.md) → [设计](../designs/feedback-trigger.md)、[数据](../data/feedback-trigger/README.md)。
 

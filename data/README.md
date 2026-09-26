@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [四步与十六步窗口](window-cadence/README.md) - 16世界轨迹与参数，完整清单固定。
+
 - [负反馈提前判断](feedback-trigger/README.md) - 16世界原始轨迹与参数，完整清单固定。
 
 - [生存反馈轨迹](survival-feedback/README.md) - 16世界原始轨迹及参数，完整清单冻结。
@@ -34,6 +36,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [窗口数据](window-cadence/README.md) → [实施](../study/window-cadence/README.md)。
 
 - [负反馈提前判断](feedback-trigger/README.md) → [实施](../study/feedback-trigger/README.md)、[分析](../analysis/feedback-trigger/README.md)。
 
