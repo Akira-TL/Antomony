@@ -1,8 +1,21 @@
-# MathHackson
+# Antomony
 
-Math Hackathon 2026 的独立工程与研究工作区。项目名称和路径按用户指定为 `/home/Akira/Projects/MathHackson`。
+Math Hackathon 2026 的独立工程与研究工作区。公开仓库为 [Akira-TL/Antomony](https://github.com/Akira-TL/Antomony)，本机目录保留 `/home/Akira/Projects/MathHackson`，Python包名仍为 `mathhackson`。
 
 当前重点是蚁群模型能否学会控制在线参数更新，并在基础能力相当时适应未见环境。已有纯方向动作底座、局部信息素、多蚁独立模型及受限更新，尚未证明自训练优势。见[当前科研状态](RESEARCH.md)和[对照设计草案](designs/ant-self-training-adaptation.md)。旧预测草案保留为历史分支，不再作为当前规格。
+
+## 实时验收
+
+三组独立世界实时运行：固定接受的在线方向修正、冻结普通MLP、纯代码规则。支持同步编辑墙体、食物与非即死作用区、真实双信息素、参数趋势、暂停回看及记录导出。当前**尚未证明模型学会控制更新时机**，页面不预设自训练组获胜。
+
+```bash
+uv sync --locked
+npm --prefix web ci
+npm --prefix web run build
+bash scripts/interactive/start.sh
+```
+
+打开 `http://localhost:8775/interactive.html`，初始暂停。所需[最小模型包](models/interactive/README.md)已随代码提供；训练日志和原始附件未上传。停止使用 `bash scripts/interactive/stop.sh`。完整操作、保存范围与资格限制见[三组实时验收说明](docs/engineering/interactive-acceptance.md)。旧8774只读验收与8765早期演示保持独立。
 
 ## 阅读入口
 
@@ -86,4 +99,4 @@ Windows 下载目录中的原始下载副本保持原样，不在本次迁移范
 
 V2V 仍位于 `/home/Akira/Projects/v2v`，保持只读。本仓库仅从明确提交提取一个参数模块及其测试，来源见 `docs/competition/v2v-source-manifest.csv`。提取后的边界修复只发生在本仓库；没有复制完整模型、研究数据库、检查点或实验结果，也不改变原项目的科研状态。
 
-当前 Git 分支为 `main`，未配置远端。正式提交使用 Akira Guard；远程仓库创建、推送与发布须另有用户授权。
+当前Git分支为 `main`，远端为用户授权公开的 `Akira-TL/Antomony`，包含已跟踪研究记录及历史；不包含忽略目录中的原始资料。正式提交使用Akira Guard；发布标签与软件发布仍须另行授权。
