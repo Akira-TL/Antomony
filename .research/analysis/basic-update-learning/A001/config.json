@@ -1,0 +1,5 @@
+{
+  "input_directory": "logs/basic-update-learning/20260926T094431-2",
+  "manifest": "data/basic-update-learning/manifest.sha256",
+  "output_directory": ".research/analysis/basic-update-learning/A001/outputs"
+}

@@ -10,7 +10,7 @@
 
 ## Relations
 
-- [基础更新学习](basic-update-learning.md) → [实际采样](../study/basic-update-learning/README.md)、[既有候选诊断](../analysis/trust-candidate-value/README.md)。后者仅作为开发动机，不将其危险数据用于训练。
+- [基础更新学习](basic-update-learning.md) → [实际采样](../study/basic-update-learning/README.md)、[本次分析](../analysis/basic-update-learning/README.md)、[既有候选诊断](../analysis/trust-candidate-value/README.md)。后者仅作为开发动机，不将其危险数据用于训练。
 - [概率约束诊断](trust-candidate-value.md) → [实际采样](../study/trust-candidate-value/README.md)、[描述分析](../analysis/trust-candidate-value/README.md)。
 - [候选更新诊断](candidate-update-value.md) → [适应性总设计](ant-self-training-adaptation.md)、[实际采样](../study/candidate-update-value/README.md)、[描述分析](../analysis/candidate-update-value/README.md)。
 - [蚁群对照设计](ant-self-training-adaptation.md) → [当前研究状态](../RESEARCH.md)。问题直接驱动，尚无正式实施或分析对象。
