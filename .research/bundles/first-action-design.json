@@ -1,0 +1,12 @@
+{
+  "slug": "first-action-outcomes",
+  "title": "首次受伤前单次方向选择的32步后果",
+  "question_node_slug": "ant-learned-update-adaptation",
+  "status": "draft",
+  "feasibility_status": "ready",
+  "feasibility_summary": "来源可读，四项机械测试覆盖分支隔离、随机流、逐帧核验及解析上界；仅两种子最多4096分支世界步。",
+  "target_estimand": "既有19701、19702首次受伤前各前四个不同个体状态中，16种首步方向后冻结推理32步的焦点失败、伤害、交付和实际生存反馈差异。",
+  "primary_outcome": "焦点32步失败次数，伤害及交付并列，实际生存反馈另报。",
+  "experimental_unit": "整巢种子，个体、时间点和16分支相关。",
+  "artifact_path": "designs/first-action-outcomes.md"
+}

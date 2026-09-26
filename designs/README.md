@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [首步方向32步后果](first-action-outcomes.md) - 既有两世界最多8点，只改变一次方向，不训练。
+
 - [四步判断的后到反馈归因](credit-history.md) - 两新种子4世界，同状态保留零候选，仅改变动作保留范围。
 
 - [四步候选动作输入接受学习](action-update-learning.md) - 新种子12世界，固定同一批数据比较新旧输入，不宣称生存迁移。
@@ -39,6 +41,8 @@
 - [小型神经预测器的近期更新选择性回退](neural-readout-selective-rollback.md) — draft；固定特征、线性输出层、解析回退候选与后到反馈确认。生成参数和最终判据尚待固定，未执行。
 
 ## Relations
+
+- [首步方向设计](first-action-outcomes.md) → [实施](../study/first-action-outcomes/README.md)、[分析](../analysis/first-action-outcomes/README.md)。
 
 - [后到反馈归因](credit-history.md) → [实施](../study/credit-history/README.md)、[分析](../analysis/credit-history/README.md)。
 

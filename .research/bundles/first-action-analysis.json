@@ -1,0 +1,21 @@
+{
+  "slug": "first-action-outcomes",
+  "title": "首次受伤前单次方向选择的32步后果",
+  "analysis_mode": "exploratory",
+  "status": "planned",
+  "design_slug": "first-action-outcomes",
+  "target_uncertainty": "仅改变一次方向选择，是否存在更好的32步生存后果。",
+  "estimand": "既有19701、19702首次受伤前各前四个不同个体状态中，16种首步方向后冻结推理32步的焦点失败、伤害、交付和实际生存反馈差异。",
+  "unit_of_inference": "整巢种子；个体、时点与16分支相关，不作独立重复。",
+  "primary_analysis": "逐点16方向完整描述；负失败和实际反馈报告当前分布加权值及20%混合放宽上界，不求旋转分布最优。",
+  "analysis_path": "analysis/first-action-outcomes/README.md",
+  "code_path": "scripts/analyses/first_action_outcomes.py",
+  "dataset_slugs": ["window-cadence"],
+  "artifacts": [
+    {"path": "scripts/analyses/first-action-outcomes.sh", "role": "other", "timing_role": "pre_result_support"},
+    {"path": ".research/analysis/first-action-outcomes/A001/config.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/comparison/first_action.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/comparison/first_action_audit.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "tests/training/test_first_action.py", "role": "other", "timing_role": "pre_result_support"}
+  ]
+}

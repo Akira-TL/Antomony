@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [首步方向32步后果](first-action-outcomes/README.md) - 结果前固定规范，最多8状态16方向。
+
 - [四步写入约束与动作响应](update-constraints/README.md) - completed；152/154写入实际动作总变差至少0.01，无角度饱和，不支持更新普遍不起作用的解释。
 
 - [后到反馈动作归因](credit-history/README.md) - completed；54共同状态中新配置无有益候选，未通过，停止本路线。
@@ -44,6 +46,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [首步方向诊断](first-action-outcomes/README.md) → [设计](../designs/first-action-outcomes.md)、[原父轨迹](../data/window-cadence/README.md)、[分支数据](../data/first-action-outcomes/README.md)。
 
 - [写入约束诊断](update-constraints/README.md) → [窗口原始数据](../data/window-cadence/README.md)。
 

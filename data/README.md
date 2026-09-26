@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [首步方向数据](first-action-outcomes/README.md) - 待真实生成后登记，不提前假称已接收。
+
 - [后到反馈归因数据](credit-history/README.md) - 四世界、54个共同状态，完整清单固定。
 
 - [四步动作输入配对](action-update-learning/README.md) - 12世界39配对，训练25、留出14。
@@ -40,6 +42,9 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [首步方向数据](first-action-outcomes/README.md) → [实施](../study/first-action-outcomes/README.md)、[分析](../analysis/first-action-outcomes/README.md)。
+- [窗口父轨迹](window-cadence/README.md) → [首步方向诊断](../analysis/first-action-outcomes/README.md)。
 
 - [窗口原始数据](window-cadence/README.md) → [写入约束诊断](../analysis/update-constraints/README.md)。
 

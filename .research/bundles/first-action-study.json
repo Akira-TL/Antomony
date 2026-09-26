@@ -1,0 +1,9 @@
+{
+  "slug": "first-action-outcomes",
+  "title": "首次受伤前单次方向选择的32步后果",
+  "design_slug": "first-action-outcomes",
+  "study_type": "本地模拟单步干预",
+  "status": "in_progress",
+  "provenance_path": "study/first-action-outcomes/README.md",
+  "artifacts": [{"location": ".research/analysis/first-action-outcomes/A001/config.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"}]
+}

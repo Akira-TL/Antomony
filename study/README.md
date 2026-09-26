@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [首步方向分支](first-action-outcomes/README.md) - 实施准备，最多128分支。
+
 - [后到反馈归因采样](credit-history/README.md) - completed；四世界108条配对记录。
 
 - [四步动作输入基础采样](action-update-learning/README.md) - completed；12世界39配对，约68秒。
@@ -38,6 +40,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [首步方向实施](first-action-outcomes/README.md) → [设计](../designs/first-action-outcomes.md)、[数据](../data/first-action-outcomes/README.md)。
 
 - [后到归因采样](credit-history/README.md) → [设计](../designs/credit-history.md)、[数据](../data/credit-history/README.md)。
 
