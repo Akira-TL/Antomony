@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [生存反馈连续采样](survival-feedback/README.md) - completed，两个种子16世界。
+
 - [历史基线连续采样](historical-baseline/README.md) - 两配置共20世界完成。
 
 - [伤害候选分支](injury-candidate/README.md) - 已完成两个世界32对。
@@ -28,6 +30,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [生存反馈](survival-feedback/README.md) → [设计](../designs/survival-feedback.md)、[数据](../data/survival-feedback/README.md)。
 
 - [历史基线采样](historical-baseline/README.md) → [设计](../designs/historical-baseline.md)、[数据](../data/historical-baseline/README.md)。
 
