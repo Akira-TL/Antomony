@@ -1,0 +1,65 @@
+{
+  "files_verified": 4470,
+  "worlds": [
+    {
+      "seed": 19701,
+      "arm": "skip",
+      "active_actions_verified": 16384,
+      "memory_snapshots_verified": 128,
+      "writes": 0,
+      "injured_writes": 0,
+      "injured_gradient_writes": 0,
+      "heading_more_away": 0,
+      "heading_less_away": 0,
+      "desired_better_heading_worse": 0,
+      "reduced_move_probability": 0,
+      "mean_move_probability_change": null,
+      "mean_heading_away_change": null
+    },
+    {
+      "seed": 19701,
+      "arm": "always",
+      "active_actions_verified": 16384,
+      "memory_snapshots_verified": 128,
+      "writes": 60,
+      "injured_writes": 60,
+      "injured_gradient_writes": 60,
+      "heading_more_away": 36,
+      "heading_less_away": 24,
+      "desired_better_heading_worse": 8,
+      "reduced_move_probability": 24,
+      "mean_move_probability_change": 0.007305764214187447,
+      "mean_heading_away_change": 0.0007633429902723306
+    },
+    {
+      "seed": 19702,
+      "arm": "skip",
+      "active_actions_verified": 16384,
+      "memory_snapshots_verified": 128,
+      "writes": 0,
+      "injured_writes": 0,
+      "injured_gradient_writes": 0,
+      "heading_more_away": 0,
+      "heading_less_away": 0,
+      "desired_better_heading_worse": 0,
+      "reduced_move_probability": 0,
+      "mean_move_probability_change": null,
+      "mean_heading_away_change": null
+    },
+    {
+      "seed": 19702,
+      "arm": "always",
+      "active_actions_verified": 16384,
+      "memory_snapshots_verified": 128,
+      "writes": 94,
+      "injured_writes": 92,
+      "injured_gradient_writes": 92,
+      "heading_more_away": 46,
+      "heading_less_away": 46,
+      "desired_better_heading_worse": 15,
+      "reduced_move_probability": 61,
+      "mean_move_probability_change": -0.009126346819845123,
+      "mean_heading_away_change": 0.0001400653172820928
+    }
+  ]
+}

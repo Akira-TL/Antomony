@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [四步候选动作影响](candidate-steering/README.md) - planned，只读重建真实方向采样与实际动作概率。
+- [四步候选动作影响](candidate-steering/README.md) - completed，重建65536次动作；152次含受伤写入中70次即时朝向投影恶化，23次与目标方向变化相反。
 
 - [四步与十六步窗口](window-cadence/README.md) - completed，四步比十六步少失败21/23次，但相对不更新多2/少50次，未通过两参照门槛。
 
