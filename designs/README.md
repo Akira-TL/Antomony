@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [负反馈提前判断](feedback-trigger.md) - 固定新种子16世界，仅改变候选触发时机。
+
 - [生存反馈有限对照](survival-feedback.md) - 固定两个新种子16世界，先验证固定接受；生存优先、搬运次要。
 
 - [历史奖励基线对照](historical-baseline.md) - 固定两个新种子20世界，只比较0与0.1，不搜索更多速率。
