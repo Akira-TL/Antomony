@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [恢复参照后果描述](restoration-control/README.md) - 结果前计划，待首次计算。
+- [恢复参照后果描述](restoration-control/README.md) - 已完成；同向扰动有可修正偏差，现有候选很少取得相应改善。
 
 - [无危险基础更新学习](basic-update-learning/README.md) - 已完成，两个留出种子均不如全部跳过；保留全部模型及负结果。
 

@@ -1,0 +1,438 @@
+{
+  "verified_files": 594,
+  "verified_snapshots": 288,
+  "worlds": [
+    {
+      "arm": "zero",
+      "seed": 12101,
+      "count": 11,
+      "absolute_rotation_degrees": {
+        "count": 11,
+        "positive": 0,
+        "negative": 0,
+        "tied": 11,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "candidate": {
+        "focal_reward": {
+          "count": 11,
+          "positive": 1,
+          "negative": 2,
+          "tied": 8,
+          "mean": -0.45454545454545453,
+          "minimum": -5.0,
+          "maximum": 4.0
+        },
+        "focal_deliveries": {
+          "count": 11,
+          "positive": 1,
+          "negative": 2,
+          "tied": 8,
+          "mean": -0.09090909090909091,
+          "minimum": -1.0,
+          "maximum": 1.0
+        },
+        "colony_deliveries": {
+          "count": 11,
+          "positive": 0,
+          "negative": 3,
+          "tied": 8,
+          "mean": -0.36363636363636365,
+          "minimum": -2.0,
+          "maximum": 0.0
+        }
+      },
+      "restoration": {
+        "focal_reward": {
+          "count": 11,
+          "positive": 0,
+          "negative": 0,
+          "tied": 11,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "focal_deliveries": {
+          "count": 11,
+          "positive": 0,
+          "negative": 0,
+          "tied": 11,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "colony_deliveries": {
+          "count": 11,
+          "positive": 0,
+          "negative": 0,
+          "tied": 11,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        }
+      }
+    },
+    {
+      "arm": "zero",
+      "seed": 12102,
+      "count": 12,
+      "absolute_rotation_degrees": {
+        "count": 12,
+        "positive": 0,
+        "negative": 0,
+        "tied": 12,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "candidate": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 1,
+          "negative": 4,
+          "tied": 7,
+          "mean": -1.4166666666666667,
+          "minimum": -5.0,
+          "maximum": 1.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 0,
+          "negative": 4,
+          "tied": 8,
+          "mean": -0.3333333333333333,
+          "minimum": -1.0,
+          "maximum": 0.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 1,
+          "negative": 5,
+          "tied": 6,
+          "mean": -0.4166666666666667,
+          "minimum": -2.0,
+          "maximum": 1.0
+        }
+      },
+      "restoration": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 0,
+          "negative": 0,
+          "tied": 12,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 0,
+          "negative": 0,
+          "tied": 12,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 0,
+          "negative": 0,
+          "tied": 12,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        }
+      }
+    },
+    {
+      "arm": "random",
+      "seed": 12101,
+      "count": 11,
+      "absolute_rotation_degrees": {
+        "count": 11,
+        "positive": 7,
+        "negative": 0,
+        "tied": 4,
+        "mean": 5.1974060352990215,
+        "minimum": 0.0,
+        "maximum": 24.88218790105969
+      },
+      "candidate": {
+        "focal_reward": {
+          "count": 11,
+          "positive": 0,
+          "negative": 2,
+          "tied": 9,
+          "mean": -0.7272727272727273,
+          "minimum": -4.0,
+          "maximum": 0.0
+        },
+        "focal_deliveries": {
+          "count": 11,
+          "positive": 0,
+          "negative": 2,
+          "tied": 9,
+          "mean": -0.18181818181818182,
+          "minimum": -1.0,
+          "maximum": 0.0
+        },
+        "colony_deliveries": {
+          "count": 11,
+          "positive": 1,
+          "negative": 2,
+          "tied": 8,
+          "mean": -0.18181818181818182,
+          "minimum": -2.0,
+          "maximum": 1.0
+        }
+      },
+      "restoration": {
+        "focal_reward": {
+          "count": 11,
+          "positive": 0,
+          "negative": 0,
+          "tied": 11,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "focal_deliveries": {
+          "count": 11,
+          "positive": 0,
+          "negative": 0,
+          "tied": 11,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "colony_deliveries": {
+          "count": 11,
+          "positive": 0,
+          "negative": 2,
+          "tied": 9,
+          "mean": -0.18181818181818182,
+          "minimum": -1.0,
+          "maximum": 0.0
+        }
+      }
+    },
+    {
+      "arm": "random",
+      "seed": 12102,
+      "count": 12,
+      "absolute_rotation_degrees": {
+        "count": 12,
+        "positive": 9,
+        "negative": 0,
+        "tied": 3,
+        "mean": 3.536106923054818,
+        "minimum": 0.0,
+        "maximum": 12.287230279096969
+      },
+      "candidate": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 0,
+          "negative": 2,
+          "tied": 10,
+          "mean": -0.8333333333333334,
+          "minimum": -5.0,
+          "maximum": 0.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 0,
+          "negative": 2,
+          "tied": 10,
+          "mean": -0.16666666666666666,
+          "minimum": -1.0,
+          "maximum": 0.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 2,
+          "negative": 2,
+          "tied": 8,
+          "mean": 0.0,
+          "minimum": -1.0,
+          "maximum": 1.0
+        }
+      },
+      "restoration": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 0,
+          "negative": 0,
+          "tied": 12,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 0,
+          "negative": 0,
+          "tied": 12,
+          "mean": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 2,
+          "negative": 0,
+          "tied": 10,
+          "mean": 0.16666666666666666,
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      }
+    },
+    {
+      "arm": "coherent",
+      "seed": 12101,
+      "count": 12,
+      "absolute_rotation_degrees": {
+        "count": 12,
+        "positive": 12,
+        "negative": 0,
+        "tied": 0,
+        "mean": 49.412029679318096,
+        "minimum": 4.918934900608518,
+        "maximum": 72.65604850355143
+      },
+      "candidate": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 1,
+          "negative": 2,
+          "tied": 9,
+          "mean": -0.08333333333333333,
+          "minimum": -5.0,
+          "maximum": 5.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 1,
+          "negative": 1,
+          "tied": 10,
+          "mean": 0.0,
+          "minimum": -1.0,
+          "maximum": 1.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 2,
+          "negative": 3,
+          "tied": 7,
+          "mean": -0.08333333333333333,
+          "minimum": -1.0,
+          "maximum": 1.0
+        }
+      },
+      "restoration": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 10,
+          "negative": 0,
+          "tied": 2,
+          "mean": 3.6666666666666665,
+          "minimum": 0.0,
+          "maximum": 6.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 8,
+          "negative": 0,
+          "tied": 4,
+          "mean": 0.6666666666666666,
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 5,
+          "negative": 4,
+          "tied": 3,
+          "mean": 0.08333333333333333,
+          "minimum": -1.0,
+          "maximum": 1.0
+        }
+      }
+    },
+    {
+      "arm": "coherent",
+      "seed": 12102,
+      "count": 12,
+      "absolute_rotation_degrees": {
+        "count": 12,
+        "positive": 12,
+        "negative": 0,
+        "tied": 0,
+        "mean": 50.27861632022559,
+        "minimum": 0.04698129612337403,
+        "maximum": 76.11603109178313
+      },
+      "candidate": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 2,
+          "negative": 2,
+          "tied": 8,
+          "mean": 0.0,
+          "minimum": -5.0,
+          "maximum": 5.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 1,
+          "negative": 1,
+          "tied": 10,
+          "mean": 0.0,
+          "minimum": -1.0,
+          "maximum": 1.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 1,
+          "negative": 1,
+          "tied": 10,
+          "mean": 0.08333333333333333,
+          "minimum": -1.0,
+          "maximum": 2.0
+        }
+      },
+      "restoration": {
+        "focal_reward": {
+          "count": 12,
+          "positive": 7,
+          "negative": 1,
+          "tied": 4,
+          "mean": 2.4166666666666665,
+          "minimum": -2.0,
+          "maximum": 5.0
+        },
+        "focal_deliveries": {
+          "count": 12,
+          "positive": 6,
+          "negative": 0,
+          "tied": 6,
+          "mean": 0.5,
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "colony_deliveries": {
+          "count": 12,
+          "positive": 6,
+          "negative": 0,
+          "tied": 6,
+          "mean": 0.5833333333333334,
+          "minimum": 0.0,
+          "maximum": 2.0
+        }
+      }
+    }
+  ]
+}
