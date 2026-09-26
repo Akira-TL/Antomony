@@ -92,6 +92,9 @@ class ColonyEnvironment:
         return (self.steps >= self.config.horizon or all(ant.exhausted for ant in self.ants)
                 or sum(ant.deliveries for ant in self.ants) >= self.config.stock)
 
+    def movement_scale(self, index: int) -> float:
+        return 1.
+
     def step(self, actions: list[DirectionAction]) -> list[ColonyInteraction]:
         if self.done:
             raise ValueError("回合已结束")
@@ -103,7 +106,7 @@ class ColonyEnvironment:
         for i in active:
             ant, action = self.ants[i], actions[i]
             ant.heading = wrap_angle(ant.heading + MAX_TURN * action.turn)
-            displacement.append(unit(ant.heading) * (STEP_DISTANCE if action.move else 0.))
+            displacement.append(unit(ant.heading) * (STEP_DISTANCE * self.movement_scale(i) if action.move else 0.))
         moved, contacts = move_discs(positions, np.stack(displacement), .18, [], self.signals.trails.half)
         for row, i in enumerate(active):
             ant, action = self.ants[i], actions[i]
