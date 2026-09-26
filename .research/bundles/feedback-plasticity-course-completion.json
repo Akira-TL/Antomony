@@ -1,0 +1,43 @@
+{
+  "slug": "feedback-plasticity-course",
+  "title": "反馈驱动的可塑方向基础课程配对评价",
+  "analysis_mode": "exploratory",
+  "status": "completed",
+  "design_slug": "feedback-plasticity-course",
+  "target_uncertainty": "合成局部线索课程中，实际写入和接受时机能否在两个外层初始化分别通过固定可行性门槛。",
+  "estimand": "每外层初始化、每条件的第5至96帧及末24帧平均方向奖励配对差；持续关联和短暂变化等权平均比较学得接受与全部接受及等次数随机接受。",
+  "unit_of_inference": "外层训练初始化；64回合、三条件及四组在初始化内相关，不能当独立模型重复。",
+  "primary_analysis": "先核验完整来源和全部配对，再逐初始化报告原始奖励、各配对差、接受比例和真实写入；执行冻结Design的全部门槛，两个初始化均满足才通过。不选检查点、不重新设阈值。",
+  "analysis_path": "analysis/feedback-plasticity-course/README.md",
+  "code_path": "scripts/analyses/feedback_plasticity.py",
+  "completed_at": "2026-09-26T23:46:21.845381+00:00",
+  "dataset_slugs": ["feedback-plasticity-course"],
+  "artifacts": [
+    {
+      "path": "analysis/feedback-plasticity-course/summary.json",
+      "role": "estimate",
+      "timing_role": "result"
+    },
+    {
+      "path": ".research/analysis/feedback-plasticity-course/A001/outputs/summary.json",
+      "role": "diagnostic",
+      "timing_role": "result",
+      "git_tracking": "not_required",
+      "tracking_reason": "真实A001输出保留独立执行目录；完整26993字节已逐字复制到规范结果，SHA-256为92da6675dc0c7b386c8904887cce77d3e1747c894aea78a6511e00c7fb6bedbb。"
+    }
+  ],
+  "observations": [
+    {
+      "statement": "两个外层初始化的持续关联和短暂变化合并判断中接受比例均为1，每个初始化3072次非零写入；学得接受与全部接受、等次数随机接受在三个条件两窗口的配对奖励差全部为0。",
+      "source_path": "analysis/feedback-plasticity-course/summary.json",
+      "source_locator": "initialization_results[*].accepted_fraction、nonzero_writes及contrasts",
+      "scope": "仅此固定合成方向课程的两个初始化，不是物理搬运、生存或复杂环境收益；不能识别未经外层训练的结构是否也有效。"
+    },
+    {
+      "statement": "持续关联相对全部跳过的前窗口及末24帧差，1701为+0.00019451358821243048与-0.0008372230004169978，1702为-0.00223887458560057与+0.004263930230081314。原方向保持2/2通过，持续关联改善、接受时机收益、混合控制及总判据均0/2通过。",
+      "source_path": "analysis/feedback-plasticity-course/summary.json",
+      "source_locator": "initialization_results[*].contrasts、association_gain、reference_preserved、learned_timing_gain、mixed_control、passed及all_passed",
+      "scope": "不支持此配置达到预定更新时机课程门槛，不延长该配置或接入8775；保留负值，不据此否定所有自训练方法，不另推未检验机制。"
+    }
+  ]
+}

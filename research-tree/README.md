@@ -24,7 +24,8 @@ flowchart TD
     N26["四步实际写入的约束与动作响应<br/>analysis · resolved"]
     N27["首次受伤前首步方向32步后果<br/>analysis · resolved"]
     N28["既有基础301候选均缺少焦点交付改善<br/>analysis · resolved"]
-    N30["可塑方向基础课程实施<br/>study · active"]
+    N30["可塑方向基础课程实施<br/>study · resolved"]
+    N31["可塑方向基础课程配对结果<br/>analysis · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -35,7 +36,7 @@ flowchart TD
         N16["生存优先的反馈有限对照<br/>design · resolved"]
         N19["仅提前负反馈候选时机的有限对照<br/>design · resolved"]
         N21["固定四步与十六步窗口的生存对照<br/>design · resolved"]
-        N29["行动反馈驱动的可塑连接与接受控制草案<br/>design · active"]
+        N29["行动反馈驱动的可塑连接与接受控制草案<br/>design · resolved"]
     end
     N1 --> N2
     N2 --> N3
@@ -66,6 +67,7 @@ flowchart TD
     N5 --> N28
     N5 --> N29
     N29 --> N30
+    N30 --> N31
     N29 -. spawned_from .-> N28
 ```
 
@@ -101,5 +103,6 @@ flowchart TD
 | N26 | analysis | resolved | 四步实际写入的约束与动作响应 | [打开](../analysis/update-constraints/README.md) |
 | N27 | analysis | resolved | 首次受伤前首步方向32步后果 | [打开](../analysis/first-action-outcomes/README.md) |
 | N28 | analysis | resolved | 既有基础301候选均缺少焦点交付改善 | [打开](../analysis/candidate-label-coverage/README.md) |
-| N29 | design | active | 行动反馈驱动的可塑连接与接受控制草案 | [打开](../designs/feedback-plasticity-course.md) |
-| N30 | study | active | 可塑方向基础课程实施 | [打开](../study/feedback-plasticity-course/README.md) |
+| N29 | design | resolved | 行动反馈驱动的可塑连接与接受控制草案 | [打开](../designs/feedback-plasticity-course.md) |
+| N30 | study | resolved | 可塑方向基础课程实施 | [打开](../study/feedback-plasticity-course/README.md) |
+| N31 | analysis | resolved | 可塑方向基础课程配对结果 | [打开](../analysis/feedback-plasticity-course/README.md) |

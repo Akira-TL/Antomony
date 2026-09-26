@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [可塑方向基础课程原始记录](feedback-plasticity-course/README.md) - 129项完整输入已固定并核对散列，尚未汇总效果。
+- [可塑方向基础课程原始记录](feedback-plasticity-course/README.md) - 129项固定输入及147456评价帧已完成机械审计，原件和全部负结果保留。
 
 - [首步方向数据](first-action-outcomes/README.md) - 209文件、8状态128分支，完整清单固定。
 
@@ -45,7 +45,7 @@
 
 ## Relations
 
-- [可塑方向基础课程数据](feedback-plasticity-course/README.md) → [真实实施](../study/feedback-plasticity-course/README.md)、[配对评价计划](../analysis/feedback-plasticity-course/README.md)。尚未汇总，不以数据存在声明效果。
+- [可塑方向基础课程数据](feedback-plasticity-course/README.md) → [真实实施](../study/feedback-plasticity-course/README.md)、[配对评价结果](../analysis/feedback-plasticity-course/README.md)。输入有效不等于学习效果通过。
 
 - [新基础接受数据](memory-update-learning/README.md) → [候选交付与奖励覆盖追查](../analysis/candidate-label-coverage/README.md)。
 

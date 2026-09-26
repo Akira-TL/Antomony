@@ -1,0 +1,12 @@
+{
+  "slug": "feedback-plasticity-course-analysis",
+  "kind": "analysis",
+  "label": "可塑方向基础课程配对结果",
+  "scientific_scope": "1701和1702固定终点结构的三条件四组配对评价，检验合成方向课程内实际写入与接受时机；不是物理搬运、生存、未知环境优势或外层训练贡献的充分对照。",
+  "workflow_status": "resolved",
+  "branch_priority": "primary",
+  "parent_slug": "feedback-plasticity-course-study",
+  "canonical_entity_type": "analysis_run",
+  "canonical_entity_id": "24",
+  "artifact_path": "analysis/feedback-plasticity-course/README.md"
+}
