@@ -74,6 +74,8 @@ class RoundTripPolicy(RecurrentPolicy):
                     self._load_legacy_hidden(value)
                     continue
                 parameter.copy_(torch.from_numpy(value))
+            for delta in self.outer_delta:
+                delta.zero_()
         self.reset_state()
 
     def reset_state(self) -> None:

@@ -4,6 +4,8 @@ ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 PORT="${PORT:-8772}"
 [[ "$PORT" =~ ^[0-9]+$ ]] && ((PORT >= 1024 && PORT <= 65535)) || { echo '端口无效。' >&2; exit 1; }
+[[ -z "${ROUNDTRIP_DEMO_DIR:-}" || -d "$ROUNDTRIP_DEMO_DIR" ]] || { echo '演示快照目录不存在。' >&2; exit 1; }
+[[ -z "${ROUNDTRIP_DEMO_SOURCE:-}" || -f "$ROUNDTRIP_DEMO_SOURCE" ]] || { echo '局部气味检查点不存在。' >&2; exit 1; }
 mkdir -p logs
 PIDFILE="logs/roundtrip-server-$PORT.pid"
 LOGFILE="logs/roundtrip-server-$PORT.log"
@@ -20,8 +22,15 @@ if ss -ltnH "sport = :$PORT" | rg -q .; then
 fi
 [[ -f web/dist/roundtrip.html ]] || { echo '请先执行 npm --prefix web run build。' >&2; exit 1; }
 if [[ "${1:-}" == '--managed' ]]; then
+    service_env=(--setenv "PORT=$PORT" --setenv "PATH=$PATH")
+    if [[ -n "${ROUNDTRIP_DEMO_DIR:-}" ]]; then
+        service_env+=(--setenv "ROUNDTRIP_DEMO_DIR=$ROUNDTRIP_DEMO_DIR")
+    fi
+    if [[ -n "${ROUNDTRIP_DEMO_SOURCE:-}" ]]; then
+        service_env+=(--setenv "ROUNDTRIP_DEMO_SOURCE=$ROUNDTRIP_DEMO_SOURCE")
+    fi
     systemd-run --user --collect --unit "mathhackson-roundtrip-$PORT" \
-        --working-directory "$ROOT" --setenv "PORT=$PORT" --setenv "PATH=$PATH" \
+        --working-directory "$ROOT" "${service_env[@]}" \
         --property "StandardOutput=append:$ROOT/$LOGFILE" \
         --property "StandardError=append:$ROOT/$LOGFILE" \
         /bin/bash "$ROOT/scripts/training/roundtrip-serve.sh"

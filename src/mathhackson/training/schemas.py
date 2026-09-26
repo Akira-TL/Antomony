@@ -192,10 +192,17 @@ class RecurrentState(BaseModel):
 
 class RoundTripCommand(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
-    action: Literal["play", "pause", "step", "phase", "speed", "reset", "write_mode"]
+    action: Literal["play", "pause", "step", "phase", "speed", "reset", "write_mode", "snapshot"]
     phase: Literal["memory", "adaptive", "autonomous"] = "memory"
     write_mode: WriteMode = "off"
     speed: Literal[1, 4, 16] = 1
+    snapshot_id: str = ""
+    seed: int | None = Field(default=None, ge=0, lt=2**31)
+
+
+class RoundTripSnapshot(BaseModel):
+    id: str
+    label: str
 
 
 class RoundTripEpisode(BaseModel):
@@ -212,6 +219,9 @@ class RoundTripEpisode(BaseModel):
 
 class RoundTripState(BaseModel):
     session: str
+    scene_seed: int
+    snapshot_id: str
+    snapshots: list[RoundTripSnapshot]
     paused: bool
     error: str
     phase: RecurrentPhase

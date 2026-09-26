@@ -20,10 +20,12 @@ $('#app').innerHTML=`
       <button type="button" data-phase="memory" aria-pressed="true">双向循迹</button>
       <button type="button" data-phase="adaptive" aria-pressed="false">条件自修改</button>
       <button type="button" data-phase="autonomous" aria-pressed="false">停止外部训练</button>
-    </div><div class="run-controls">${button('play','开始训练',Play)}${button('step','单步',StepForward)}${button('reset','重置回合并保留参数',RotateCcw)}
+    </div><div class="run-controls">${button('play','开始训练',Play)}${button('step','单步',StepForward)}${button('reset','按场景种子重新开始',RotateCcw)}
       <label class="speed-label">速度<select id="speed" aria-label="运行速度"><option value="1">1×</option><option value="4">4×</option><option value="16">16×</option></select></label>
       <label class="speed-label">写入<select id="write-mode" aria-label="运行时写入方式"><option value="off">关闭</option><option value="learned">模型判断</option><option value="always">始终写入</option></select></label>
     </div></div>
+    <div class="review-controls"><label>权重来源<select id="snapshot" aria-label="训练权重来源"></select></label>
+      <label>场景种子<input id="scene-seed" type="number" min="0" max="2147483647" step="1" value="0" aria-label="场景种子"></label></div>
     <div id="error" role="alert" hidden></div>
     <div class="workspace">
       <section class="experiment"><div class="section-heading"><h2>单蚁往返</h2><span id="running" class="state-tag">已暂停</span></div>
@@ -59,7 +61,7 @@ nest.position.y=.05;scene.scene.add(nest);
 const nestRing=new THREE.Mesh(new THREE.RingGeometry(1.08,1.17,48),new THREE.MeshBasicMaterial({color:0x67d7e7,side:THREE.DoubleSide}));
 nestRing.rotation.x=-Math.PI/2;nestRing.position.y=.11;scene.scene.add(nestRing);
 let current:RoundTripState|null=null;
-let connected=false,busy=false,revision=0,lastTick=-1,lastEpisode=-1,lastSession='',historyKey='';
+let connected=false,busy=false,revision=0,lastTick=-1,lastEpisode=-1,lastSession='',historyKey='',snapshotKey='';
 
 function focus():void {
   if(!current)return;
@@ -71,8 +73,17 @@ function render(state:RoundTripState):void {
   current=state;connected=true;
   $('#connection').textContent='已连接';$('#connection').className='connected';
   $('#session-id').textContent=state.session;
-  $('#running').textContent=state.paused?'已暂停':'运行中';$('#running').classList.toggle('live',!state.paused);
-  $('#play').innerHTML=icon(state.paused?Play:Pause);$('#play').title=state.paused?'开始训练':'暂停';$('#play').setAttribute('aria-label',$('#play').title);
+  $('#running').textContent=state.paused?'已暂停':state.phase==='autonomous'?'演示播放中':'训练中';$('#running').classList.toggle('live',!state.paused);
+  $('#play').innerHTML=icon(state.paused?Play:Pause);$('#play').title=state.paused?(state.phase==='autonomous'?'播放演示':'开始训练'):'暂停';$('#play').setAttribute('aria-label',$('#play').title);
+  const available=state.snapshots.map(item=>item.id).join('|');
+  if(available!==snapshotKey){
+    $<HTMLSelectElement>('#snapshot').replaceChildren(...state.snapshots.map(item=>{
+      const option=document.createElement('option');option.value=item.id;option.textContent=item.label;return option;
+    }));
+    snapshotKey=available;
+  }
+  $<HTMLSelectElement>('#snapshot').value=state.snapshot_id;
+  if(document.activeElement!==$('#scene-seed'))$<HTMLInputElement>('#scene-seed').value=String(state.scene_seed);
   document.querySelectorAll<HTMLButtonElement>('[data-phase]').forEach(control=>control.setAttribute('aria-pressed',String(control.dataset.phase===state.phase)));
   $<HTMLSelectElement>('#speed').value=String(state.speed);$<HTMLSelectElement>('#write-mode').value=state.write_mode;
   $<HTMLSelectElement>('#write-mode').disabled=busy||state.phase!=='autonomous';
@@ -115,7 +126,7 @@ function render(state:RoundTripState):void {
     lastTick=state.tick;lastEpisode=state.episode;lastSession=state.session;
   }
   $('#error').textContent=state.error;$('#error').hidden=!state.error;
-  document.querySelectorAll<HTMLButtonElement|HTMLSelectElement>('.toolbar button,.toolbar select').forEach(control=>control.disabled=busy||!connected);
+  document.querySelectorAll<HTMLButtonElement|HTMLSelectElement>('.toolbar button,.toolbar select,.review-controls select,.review-controls input').forEach(control=>control.disabled=busy||!connected);
   $<HTMLSelectElement>('#write-mode').disabled=busy||!connected||state.phase!=='autonomous';
 }
 
@@ -136,7 +147,12 @@ async function send(command:RoundTripCommand):Promise<void> {
 
 $('#play').addEventListener('click',()=>{if(current)void send({action:current.paused?'play':'pause'});});
 $('#step').addEventListener('click',()=>void send({action:'step'}));
-$('#reset').addEventListener('click',()=>void send({action:'reset'}));
+$('#reset').addEventListener('click',()=>{
+  const seed=Number($<HTMLInputElement>('#scene-seed').value);
+  if(!Number.isInteger(seed)||seed<0||seed>=2**31){$('#error').textContent='场景种子须为有效的非负整数';$('#error').hidden=false;return;}
+  void send({action:'reset',seed});
+});
+$('#snapshot').addEventListener('change',()=>void send({action:'snapshot',snapshot_id:$<HTMLSelectElement>('#snapshot').value}));
 $('#focus').addEventListener('click',focus);
 $<HTMLSelectElement>('#speed').addEventListener('change',()=>void send({action:'speed',speed:Number($<HTMLSelectElement>('#speed').value) as 1|4|16}));
 $<HTMLSelectElement>('#write-mode').addEventListener('change',()=>void send({action:'write_mode',write_mode:$<HTMLSelectElement>('#write-mode').value as WriteMode}));

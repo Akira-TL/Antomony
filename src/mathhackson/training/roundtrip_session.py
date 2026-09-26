@@ -13,19 +13,42 @@ from .recurrent_session import GROUP_LABELS
 from .roundtrip_environment import RoundTripEnvironment
 from .roundtrip_policy import ROUNDTRIP_MODEL_VERSION, ROUNDTRIP_NAMES, RoundTripPolicy
 from .schemas import (RecurrentParameterGroup, RoundTripCommand, RoundTripEpisode,
-                      RoundTripState)
+                      RoundTripSnapshot, RoundTripState)
 
 ROUNDTRIP_GROUP_IDS = ROUNDTRIP_NAMES
 ROUNDTRIP_GROUP_LABELS = (*GROUP_LABELS, "双通道释放", "释放临时修正")
 
 
 class RoundTripSession:
-    def __init__(self, directory: Path, foundation: Path, seed: int = 20260926) -> None:
+    def __init__(self, directory: Path, foundation: Path, seed: int = 20260926,
+                 demo_dir: Path | None = None, source_checkpoint: Path | None = None) -> None:
         self.id = uuid4().hex[:12]
         self.directory = directory / self.id
         self.directory.mkdir(parents=True, exist_ok=True)
+        self.foundation = foundation
+        self.model_seed = seed
+        self.demo_dir = demo_dir
+        self.snapshot_paths: dict[str, Path | None] = {"foundation": None}
+        self.snapshots = [RoundTripSnapshot(id="foundation", label="基础模型")]
+        if source_checkpoint is not None:
+            if not source_checkpoint.is_file():
+                raise ValueError("局部气味检查点不存在")
+            self.snapshot_paths["scent-base"] = source_checkpoint
+            self.snapshots.append(RoundTripSnapshot(id="scent-base", label="局部气味基础"))
+        if demo_dir is not None:
+            if not demo_dir.is_dir():
+                raise ValueError("演示快照目录不存在")
+            for path in sorted(demo_dir.glob("teacher-step-[0-9][0-9][0-9][0-9][0-9][0-9].npz")):
+                if not path.is_file():
+                    continue
+                identity = path.stem
+                self.snapshot_paths[identity] = path
+                self.snapshots.append(RoundTripSnapshot(
+                    id=identity, label=f"真实轨迹训练 {int(identity.rsplit('-', 1)[1])} 步"))
+        self.snapshot_id = "foundation"
+        self.scene_seed = 0 if demo_dir is not None else seed + 1
         self.model = RoundTripPolicy(seed, foundation)
-        self.env = RoundTripEnvironment(seed + 1)
+        self.env = RoundTripEnvironment(self.scene_seed)
         self.paused = True
         self.error = ""
         self.speed = 1
@@ -33,10 +56,13 @@ class RoundTripSession:
         self.episode = 1
         self.baseline = 0.
         self.history: list[RoundTripEpisode] = []
-        self._begin()
+        self._begin(reset_environment=False)
+        if demo_dir is not None and len(self.snapshots) > 1:
+            self._select_snapshot(self.snapshots[-1].id)
 
-    def _begin(self) -> None:
-        self.env.reset()
+    def _begin(self, *, reset_environment: bool = True) -> None:
+        if reset_environment:
+            self.env.reset()
         self.model.reset_state()
         self.actions: list[Action] = []
         self.writes: list[Write] = []
@@ -47,7 +73,7 @@ class RoundTripSession:
         self.release_fast_states: list[np.ndarray] = []
         self.start_self = self.model.self_updates
 
-    def finish(self, optimize: bool) -> None:
+    def finish(self, optimize: bool, *, advance_seed: bool = False) -> None:
         if self.actions:
             total = sum(self.rewards)
             self.model.finish(self.actions, self.writes, self.rewards, self.baseline, optimize)
@@ -81,7 +107,12 @@ class RoundTripSession:
             self.episode += 1
             if optimize:
                 self.baseline = .9 * self.baseline + .1 * (total / len(self.rewards))
-        self._begin()
+        if advance_seed and self.demo_dir is not None and self.model.phase == "autonomous":
+            self.scene_seed = (self.scene_seed + 1) % (2**31)
+            self.env = RoundTripEnvironment(self.scene_seed)
+            self._begin(reset_environment=False)
+        else:
+            self._begin()
 
     def step(self) -> None:
         observation = self.env.observation()
@@ -97,9 +128,28 @@ class RoundTripSession:
         self.release_fast_states.append(self.model.release_fast.detach().numpy().copy())
         self.tick += 1
         if self.env.done:
-            self.finish(self.model.phase != "autonomous")
+            self.finish(self.model.phase != "autonomous", advance_seed=True)
+
+    def _select_snapshot(self, identity: str) -> None:
+        if identity not in self.snapshot_paths:
+            raise ValueError("未找到此训练快照")
+        candidate = RoundTripPolicy(self.model_seed, self.foundation)
+        path = self.snapshot_paths[identity]
+        if path is not None:
+            candidate.load_roundtrip_checkpoint(path)
+        self.paused = True
+        self.finish(False)
+        self.model = candidate
+        self.model.phase = "autonomous"
+        self.model.write_mode = "off"
+        self.snapshot_id = identity
+        self.env = RoundTripEnvironment(self.scene_seed)
+        self._begin(reset_environment=False)
 
     def command(self, command: RoundTripCommand) -> None:
+        if command.action == "snapshot":
+            self._select_snapshot(command.snapshot_id)
+            return
         if command.action == "write_mode" and self.model.phase != "autonomous":
             raise ValueError("只可在停止外部训练后切换写入对照")
         if command.action == "pause":
@@ -123,6 +173,11 @@ class RoundTripSession:
                 self.model.write_mode = "learned" if command.phase == "adaptive" else "off"
             elif command.action == "write_mode":
                 self.model.write_mode = command.write_mode
+            elif command.action == "reset":
+                if command.seed is not None:
+                    self.scene_seed = command.seed
+                self.env = RoundTripEnvironment(self.scene_seed)
+                self._begin(reset_environment=False)
 
     def state(self) -> RoundTripState:
         action = self.actions[-1] if self.actions else None
@@ -138,7 +193,8 @@ class RoundTripSession:
         field = np.clip(self.env.field.values * 72, 0, 255).astype(np.uint8)
         observation = self.env.observation()
         return RoundTripState(
-            session=self.id, paused=self.paused, error=self.error,
+            session=self.id, scene_seed=self.scene_seed, snapshot_id=self.snapshot_id,
+            snapshots=self.snapshots, paused=self.paused, error=self.error,
             phase=self.model.phase, write_mode=self.model.write_mode, speed=self.speed,
             tick=self.tick, episode=self.episode, steps=self.env.steps,
             horizon=self.env.horizon, x=float(self.env.position[0]),

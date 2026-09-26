@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -41,7 +42,13 @@ async def run() -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     global session
-    session = RoundTripSession(ROOT / "logs" / "roundtrip-training", FOUNDATION)
+    demo_dir = os.environ.get("ROUNDTRIP_DEMO_DIR")
+    source = os.environ.get("ROUNDTRIP_DEMO_SOURCE")
+    session = RoundTripSession(
+        ROOT / "logs" / "roundtrip-training", FOUNDATION,
+        demo_dir=Path(demo_dir) if demo_dir else None,
+        source_checkpoint=Path(source) if source else None,
+    )
     task = asyncio.create_task(run())
     yield
     task.cancel()
