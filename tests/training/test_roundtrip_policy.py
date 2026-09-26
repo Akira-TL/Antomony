@@ -34,6 +34,22 @@ def test_foundation_weights_are_loaded_and_motor_stays_frozen():
     assert torch.count_nonzero(model.hidden_weights[:, 8:40]) == 0
 
 
+def test_new_foundation_checkpoint_loads_all_recurrent_connections(tmp_path):
+    model = RoundTripPolicy(7, FOUNDATION)
+    with torch.no_grad():
+        model.hidden_weights[0, 3 * 8] = .375
+        model.hidden_weights[1, 4 * 8] = -.25
+    path = tmp_path / "foundation-v3.npz"
+    np.savez_compressed(path, model_version="sparse-memory-v3",
+                        **{name: parameter.detach().numpy() for name, parameter in
+                           zip(ROUNDTRIP_NAMES[:7], model.parameters[:7], strict=True)
+                           if name not in {"motor", "input_weights"}},
+                        motor=model.motor[:, :16].detach().numpy(),
+                        input_weights=model.input_weights[:, :16].detach().numpy())
+    restored = RoundTripPolicy(8, path)
+    assert torch.equal(restored.hidden_weights, model.hidden_weights)
+
+
 def test_fourth_frame_has_independent_short_and_long_connections():
     model = RoundTripPolicy(7, FOUNDATION)
     model.phase = "autonomous"

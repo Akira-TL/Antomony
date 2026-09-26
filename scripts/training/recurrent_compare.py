@@ -10,10 +10,10 @@ import numpy as np
 import torch
 
 from mathhackson.training.environment import SingleAntEnvironment
-from mathhackson.training.recurrent import MODEL_VERSION, RecurrentPolicy, WriteMode
+from mathhackson.training.recurrent import RecurrentPolicy, WriteMode
+from mathhackson.training.recurrent_checkpoint import PARAMETER_NAMES, read_recurrent_parameters
 
-PARAMETERS = ("motor", "input_weights", "hidden_weights", "hidden_bias",
-              "action_weights", "gate_weights", "write_weights")
+PARAMETERS = PARAMETER_NAMES
 TASKS = ("normal", "shift", "sensor")
 MODES: tuple[WriteMode, ...] = ("off", "learned", "always")
 
@@ -31,13 +31,7 @@ class Trial:
 
 
 def read_parameters(checkpoint: Path) -> tuple[np.ndarray, ...]:
-    with np.load(checkpoint, allow_pickle=False) as archive:
-        missing = set(PARAMETERS) - set(archive.files)
-        if missing:
-            raise ValueError(f"检查点缺少循环模型参数：{', '.join(sorted(missing))}")
-        if "model_version" not in archive or str(archive["model_version"]) != MODEL_VERSION:
-            raise ValueError("检查点属于旧版循环模型，不能用于稀疏记忆模型对照")
-        return tuple(np.asarray(archive[name], np.float32).copy() for name in PARAMETERS)
+    return read_recurrent_parameters(checkpoint)
 
 
 def run_trial(parameters: tuple[np.ndarray, ...], seed: int, task: str, mode: WriteMode) -> Trial:

@@ -6,12 +6,13 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from .recurrent import Action, HIDDEN_WIDTH, MEMORY_LAGS, MODEL_VERSION, RecurrentPolicy, Write
+from .recurrent import Action, HIDDEN_WIDTH, LEGACY_MEMORY_LAGS, MEMORY_LAGS, RecurrentPolicy, Write
+from .recurrent_checkpoint import migrate_hidden_weights, read_recurrent_parameters
 
 FOUNDATION_NAMES = ("motor", "input_weights", "hidden_weights", "hidden_bias",
                     "action_weights", "gate_weights", "write_weights")
 ROUNDTRIP_NAMES = (*FOUNDATION_NAMES, "release_weights", "release_write_weights")
-ROUNDTRIP_MEMORY_LAGS = (1, 2, 3, 4, 4, 8, 12, 16)
+ROUNDTRIP_MEMORY_LAGS = MEMORY_LAGS
 ROUNDTRIP_MODEL_VERSION = "roundtrip-v2"
 RELEASE_FAST_LIMIT = .2
 RELEASE_FAST_STEP = .012
@@ -38,32 +39,18 @@ class RoundTripPolicy(RecurrentPolicy):
         self.write_mode = "off"
 
     def _load_foundation(self, path: Path) -> None:
-        with np.load(path, allow_pickle=False) as archive:
-            if "model_version" not in archive or str(archive["model_version"]) != MODEL_VERSION:
-                raise ValueError("基础检查点版本不兼容")
-            values = [np.asarray(archive[name], np.float32).copy() for name in FOUNDATION_NAMES]
-        expected = [(2, 16), (HIDDEN_WIDTH, 16), (HIDDEN_WIDTH, 32), (HIDDEN_WIDTH,),
-                    (2, HIDDEN_WIDTH), (HIDDEN_WIDTH + 1,), (3, HIDDEN_WIDTH + 1)]
-        if any(value.shape != shape or not np.isfinite(value).all()
-               for value, shape in zip(values, expected, strict=True)):
-            raise ValueError("基础检查点参数形状或数值无效")
+        values = read_recurrent_parameters(path)
         with torch.no_grad():
             self.motor[:, :16].copy_(torch.from_numpy(values[0]))
             self.motor[:, 16].zero_()
             self.input_weights[:, :16].copy_(torch.from_numpy(values[1]))
             self.input_weights[:, 16].zero_()
-            self._load_legacy_hidden(values[2])
+            self.hidden_weights.copy_(torch.from_numpy(values[2]))
             for parameter, value in zip(self.parameters[3:7], values[3:], strict=True):
                 parameter.copy_(torch.from_numpy(value))
 
     def _load_legacy_hidden(self, old_weights: np.ndarray) -> None:
-        self.hidden_weights.zero_()
-        for source, lag in enumerate(MEMORY_LAGS):
-            destination = self.memory_lags.index(lag)
-            start = source * HIDDEN_WIDTH
-            target = destination * HIDDEN_WIDTH
-            self.hidden_weights[:, target:target + HIDDEN_WIDTH].copy_(
-                torch.from_numpy(old_weights[:, start:start + HIDDEN_WIDTH]))
+        self.hidden_weights.copy_(torch.from_numpy(migrate_hidden_weights(old_weights)))
 
     def load_roundtrip_checkpoint(self, path: Path) -> None:
         with np.load(path, allow_pickle=False) as archive:
@@ -77,7 +64,7 @@ class RoundTripPolicy(RecurrentPolicy):
             values = [np.asarray(archive[name], np.float32).copy() for name in ROUNDTRIP_NAMES]
         expected = [tuple(parameter.shape) for parameter in self.parameters]
         if version == "roundtrip-v1":
-            expected[2] = (HIDDEN_WIDTH, HIDDEN_WIDTH * len(MEMORY_LAGS))
+            expected[2] = (HIDDEN_WIDTH, HIDDEN_WIDTH * len(LEGACY_MEMORY_LAGS))
         if any(value.shape != shape or not np.isfinite(value).all()
                for value, shape in zip(values, expected, strict=True)):
             raise ValueError("往返检查点参数形状或数值无效")

@@ -9,14 +9,14 @@ import numpy as np
 import torch
 from pydantic import BaseModel, ConfigDict, Field
 
-from .recurrent import INPUT_WIDTH, MODEL_VERSION, RecurrentPolicy
+from .recurrent import INPUT_WIDTH, LEGACY_MODEL_VERSION, MODEL_VERSION, RecurrentPolicy
 
 
 class MotorCheckpoint(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False, frozen=True)
 
     format: Literal["motor-v1"] = "motor-v1"
-    model_version: Literal["sparse-memory-v2"] = MODEL_VERSION
+    model_version: Literal["sparse-memory-v2", "sparse-memory-v3"] = MODEL_VERSION
     source_session: str = Field(pattern=r"^[0-9a-f]{12}$")
     source_episode: int = Field(ge=1)
     source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
@@ -36,8 +36,10 @@ class MotorCheckpoint(BaseModel):
 
 def extract_motor_checkpoint(path: Path) -> MotorCheckpoint:
     with np.load(path, allow_pickle=False) as archive:
-        if "model_version" not in archive or str(archive["model_version"]) != MODEL_VERSION:
+        if "model_version" not in archive or str(archive["model_version"]) not in {
+                LEGACY_MODEL_VERSION, MODEL_VERSION}:
             raise ValueError("来源不是当前版本的循环模型检查点")
+        source_version = str(archive["model_version"])
         motor = np.asarray(archive["motor"], dtype=np.float32)
     if motor.shape != (2, INPUT_WIDTH) or not np.isfinite(motor).all():
         raise ValueError("来源动作矩阵形状或数值无效")
@@ -49,6 +51,7 @@ def extract_motor_checkpoint(path: Path) -> MotorCheckpoint:
     if not path.stem.startswith("episode-"):
         raise ValueError("来源检查点名称无效")
     return MotorCheckpoint(
+        model_version=source_version,
         source_session=path.parent.name,
         source_episode=int(path.stem.removeprefix("episode-")),
         source_sha256=sha256(path.read_bytes()).hexdigest(),

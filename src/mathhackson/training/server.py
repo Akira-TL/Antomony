@@ -65,10 +65,12 @@ async def lifespan(_: FastAPI):
     global session, recurrent_session
     session = TrainingSession(ROOT / "logs" / "training")
     checkpoint = os.environ.get("MOTOR_CHECKPOINT")
+    recurrent_checkpoint = os.environ.get("RECURRENT_CHECKPOINT")
     recurrent_session = RecurrentSession(
         ROOT / "logs" / "recurrent-training",
         motor_checkpoint=Path(checkpoint) if checkpoint else None,
         continue_motor=os.environ.get("MOTOR_CONTINUE") == "1",
+        recurrent_checkpoint=Path(recurrent_checkpoint) if recurrent_checkpoint else None,
     )
     task = asyncio.create_task(run())
     recurrent_task = asyncio.create_task(run_recurrent())

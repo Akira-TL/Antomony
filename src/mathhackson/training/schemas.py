@@ -175,6 +175,7 @@ class RecurrentState(BaseModel):
     write_mode: WriteMode
     motor_source_episode: int | None
     motor_source_session: str | None
+    recurrent_source: str | None
     write_probability: float
     write_status: str
     hidden: list[float]

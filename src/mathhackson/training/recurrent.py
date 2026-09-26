@@ -11,8 +11,10 @@ from torch import Tensor
 Phase = Literal["motor", "memory", "adaptive", "autonomous"]
 WriteMode = Literal["off", "learned", "always"]
 HIDDEN_WIDTH = 8
-MEMORY_LAGS = (1, 8, 12, 16)
-MODEL_VERSION = "sparse-memory-v2"
+LEGACY_MEMORY_LAGS = (1, 8, 12, 16)
+LEGACY_MODEL_VERSION = "sparse-memory-v2"
+MEMORY_LAGS = (1, 2, 3, 4, 4, 8, 12, 16)
+MODEL_VERSION = "sparse-memory-v3"
 INPUT_WIDTH = 16
 MOTOR_CONNECTIONS = ((0, 2, 15), (1,))
 FAST_LIMITS = torch.tensor([.3, .15, .12])

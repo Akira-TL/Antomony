@@ -6,6 +6,8 @@ PORT="${PORT:-8766}"
 [[ "$PORT" =~ ^[0-9]+$ ]] && ((PORT >= 1024 && PORT <= 65535)) || { echo '端口必须在 1024 至 65535 之间。' >&2; exit 1; }
 [[ "${MOTOR_CONTINUE:-0}" == 0 || "${MOTOR_CONTINUE:-0}" == 1 ]] || { echo 'MOTOR_CONTINUE 只能为 0 或 1。' >&2; exit 1; }
 [[ -z "${MOTOR_CHECKPOINT:-}" || -f "$MOTOR_CHECKPOINT" ]] || { echo '动作快照不存在。' >&2; exit 1; }
+[[ -z "${RECURRENT_CHECKPOINT:-}" || -f "$RECURRENT_CHECKPOINT" ]] || { echo '完整循环快照不存在。' >&2; exit 1; }
+[[ -z "${MOTOR_CHECKPOINT:-}" || -z "${RECURRENT_CHECKPOINT:-}" ]] || { echo '动作快照与完整循环快照不能同时载入。' >&2; exit 1; }
 [[ "${MOTOR_CONTINUE:-0}" != 1 || -n "${MOTOR_CHECKPOINT:-}" ]] || { echo '继续动作训练必须指定 MOTOR_CHECKPOINT。' >&2; exit 1; }
 mkdir -p logs
 PIDFILE="logs/training-server-$PORT.pid"
@@ -28,6 +30,9 @@ if [[ "${1:-}" == '--managed' ]]; then
     if [[ -n "${MOTOR_CHECKPOINT:-}" ]]; then
         service_env+=(--setenv "MOTOR_CHECKPOINT=$MOTOR_CHECKPOINT")
         service_env+=(--setenv "MOTOR_CONTINUE=${MOTOR_CONTINUE:-0}")
+    fi
+    if [[ -n "${RECURRENT_CHECKPOINT:-}" ]]; then
+        service_env+=(--setenv "RECURRENT_CHECKPOINT=$RECURRENT_CHECKPOINT")
     fi
     systemd-run --user --collect --unit "mathhackson-training-$PORT" \
         --working-directory "$ROOT" "${service_env[@]}" \

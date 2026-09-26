@@ -5,8 +5,11 @@ import pytest
 import torch
 
 from mathhackson.training.environment import SingleAntEnvironment
-from mathhackson.training.recurrent import (Action, HIDDEN_WIDTH, MEMORY_LAGS,
-                                            SAFETY_PARAMETER_LIMIT, RecurrentPolicy, Write)
+from mathhackson.training.recurrent import (Action, HIDDEN_WIDTH, LEGACY_MEMORY_LAGS,
+                                            MEMORY_LAGS, SAFETY_PARAMETER_LIMIT,
+                                            RecurrentPolicy, Write)
+from mathhackson.training.recurrent_checkpoint import (PARAMETER_NAMES,
+                                                       load_recurrent_checkpoint)
 from mathhackson.training.schemas import RecurrentCommand
 from mathhackson.training.recurrent_session import RecurrentSession
 
@@ -45,8 +48,9 @@ def test_feedback_changes_next_action_through_hidden_state_only():
 
 
 def test_sparse_hidden_taps_use_exact_requested_delays():
-    assert MEMORY_LAGS == (1, 8, 12, 16)
+    assert MEMORY_LAGS == (1, 2, 3, 4, 4, 8, 12, 16)
     model = RecurrentPolicy(4)
+    assert model.hidden_weights.shape == (HIDDEN_WIDTH, 64)
     model.phase = "autonomous"
     with torch.no_grad():
         model.input_weights.zero_()
@@ -56,7 +60,7 @@ def test_sparse_hidden_taps_use_exact_requested_delays():
             model.hidden_weights[index, index * HIDDEN_WIDTH + index] = 1.
     model.hidden_history = [torch.zeros(HIDDEN_WIDTH) for _ in range(16)]
     for index, lag in enumerate(MEMORY_LAGS):
-        model.hidden_history[-lag][index] = .5
+        model.hidden_history[-lag][index] = .8 if index < 4 else .1
     model.hidden_history[-7][0] = 1.
     model.observe_result(observation())
     assert torch.all(model.hidden[:4] > 0)
@@ -65,10 +69,45 @@ def test_sparse_hidden_taps_use_exact_requested_delays():
     assert model.hidden_history == []
     model.hidden_history = [torch.zeros(HIDDEN_WIDTH) for _ in range(16)]
     for index, lag in enumerate(MEMORY_LAGS):
-        model.hidden_history[-lag][index] = .5
+        model.hidden_history[-lag][index] = .8 if index < 4 else .1
     model.hidden_history[-7][0] = -1.
     model.observe_result(observation())
     assert torch.equal(model.hidden, result)
+
+
+def test_legacy_foundation_migration_preserves_recurrent_behavior():
+    path = Path(__file__).resolve().parents[2] / "checkpoints/recurrent/foundation-episode-002570.npz"
+
+    class LegacyPolicy(RecurrentPolicy):
+        memory_lags = LEGACY_MEMORY_LAGS
+
+    old = LegacyPolicy(5)
+    with np.load(path, allow_pickle=False) as archive, torch.no_grad():
+        for name in PARAMETER_NAMES:
+            getattr(old, name).copy_(torch.from_numpy(archive[name]))
+    new = RecurrentPolicy(5)
+    load_recurrent_checkpoint(new, path)
+    old.phase = "autonomous"
+    new.phase = "autonomous"
+    rng = np.random.default_rng(7)
+    for _ in range(32):
+        values = rng.uniform(-1., 1., 16).astype(np.float32)
+        values[15] = 1.
+        a, b = old.decide(values), new.decide(values)
+        assert a.move == b.move
+        assert a.turn == pytest.approx(b.turn, abs=1e-6)
+        old.observe_result(values)
+        new.observe_result(values)
+        np.testing.assert_allclose(old.hidden.detach(), new.hidden.detach(), atol=1e-6)
+
+
+def test_legacy_checkpoint_can_start_new_recurrent_session(tmp_path: Path):
+    path = Path(__file__).resolve().parents[2] / "checkpoints/recurrent/foundation-episode-002570.npz"
+    session = RecurrentSession(tmp_path, recurrent_checkpoint=path)
+    assert session.model.phase == "memory"
+    assert session.state().recurrent_source == path.name
+    assert session.state().memory_lags == list(MEMORY_LAGS)
+    assert len(session.state().memory_taps) == 8
 
 
 def test_action_outputs_remain_finite_with_extreme_parameters():
@@ -296,13 +335,13 @@ def test_pretrained_motor_cannot_be_reopened_after_phase_change(tmp_path: Path):
 def test_parameter_history_and_sparse_taps_are_read_only_state(tmp_path: Path):
     session = RecurrentSession(tmp_path)
     assert len(session.parameter_history().samples) == 1
-    assert session.state().memory_lags == [1, 8, 12, 16]
-    assert session.state().memory_ready == [False] * 4
+    assert session.state().memory_lags == list(MEMORY_LAGS)
+    assert session.state().memory_ready == [False] * len(MEMORY_LAGS)
     for _ in range(16):
         session.step()
     state = session.state()
     assert len(state.hidden_trace) == len(state.fast_trace) == 16
-    assert state.memory_ready == [True] * 4
+    assert state.memory_ready == [True] * len(MEMORY_LAGS)
     assert all(len(tap) == HIDDEN_WIDTH for tap in state.memory_taps)
     episode = session.episode
     while session.episode == episode:

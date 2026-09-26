@@ -55,4 +55,6 @@ def test_pinned_foundation_checkpoint_is_complete_and_unchanged():
         "48a98f424328ddd1af71202b753bae555d0984cd9392921f9f07ea3f817f74b3")
     parameters = read_parameters(path)
     assert len(parameters) == 7
+    assert parameters[2].shape == (8, 64)
+    assert np.count_nonzero(parameters[2][:, 8:40]) == 0
     assert parameters[0][0, 0] > 2.

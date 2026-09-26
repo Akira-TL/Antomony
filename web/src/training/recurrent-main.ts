@@ -119,7 +119,7 @@ async function loadParameterHistory(key:string):Promise<void> {
 function renderStepCharts(next:RecurrentState):void {
   $('#hidden').innerHTML=next.hidden.map((_,index)=>`<div class="trace-cell" tabindex="0" data-kind="hidden" data-index="${index}" aria-label="隐藏状态 h${index} 的趋势"><span>h${index}</span>${sparkline(next.hidden_trace.map(frame=>frame[index]))}</div>`).join('');
   $('#fast-values').innerHTML=next.fast.map((_,index)=>`<div class="trace-cell" tabindex="0" data-kind="fast" data-index="${index}" aria-label="${fastLabels[index]}的趋势"><span>${fastLabels[index]}</span>${sparkline(next.fast_trace.map(frame=>frame[index]))}</div>`).join('');
-  $('#memory-taps').innerHTML=next.memory_lags.map((lag,index)=>`<div class="memory-tap" tabindex="0" data-kind="tap" data-index="${index}" aria-label="此前 ${lag} 步的隐藏状态"><span>t-${lag}</span><small>${next.memory_ready[index]?'已接入':'待积累'}</small></div>`).join('');
+  $('#memory-taps').innerHTML=next.memory_lags.map((lag,index)=>`<div class="memory-tap" tabindex="0" data-kind="tap" data-index="${index}" aria-label="${index<4?'短时':'长时'}组此前 ${lag} 步的隐藏状态"><span>${index<4?'短':'长'} t-${lag}</span><small>${next.memory_ready[index]?'已接入':'待积累'}</small></div>`).join('');
 }
 
 function showTooltip(target:HTMLElement,clientX:number,clientY:number):void {
@@ -127,7 +127,7 @@ function showTooltip(target:HTMLElement,clientX:number,clientY:number):void {
   const kind=target.dataset.kind,index=Number(target.dataset.index);
   const tooltip=$('#chart-tooltip');
   if(kind==='tap'){
-    tooltip.textContent=`t-${state.memory_lags[index]} · ${state.memory_ready[index]?'有效':'填零'} · [${state.memory_taps[index].map(value=>value.toFixed(4)).join(', ')}]`;
+    tooltip.textContent=`${index<4?'短时':'长时'} t-${state.memory_lags[index]} · ${state.memory_ready[index]?'有效':'填零'} · [${state.memory_taps[index].map(value=>value.toFixed(4)).join(', ')}]`;
   }else{
     const group=Number(target.dataset.group),row=Number(target.dataset.row),column=Number(target.dataset.column);
     const samples=kind==='parameter'
@@ -181,8 +181,10 @@ function render(next:RecurrentState):void {
   }
   state=next;connected=true;
   $('#connection').textContent='已连接';$('#connection').className='connected';
-  $('#session-id').textContent=next.motor_source_episode
-    ?`${next.session} · 接续第 ${next.motor_source_episode} 回合动作参数`:next.session;
+  $('#session-id').textContent=next.recurrent_source
+    ?`${next.session} · 已载入 ${next.recurrent_source}`
+    :next.motor_source_episode
+      ?`${next.session} · 接续第 ${next.motor_source_episode} 回合动作参数`:next.session;
   $('#running').textContent=next.paused?'已暂停':'运行中';$('#running').classList.toggle('live',!next.paused);
   $('#play').innerHTML=icon(next.paused?Play:Pause);$('#play').title=next.paused?'开始训练':'暂停';$('#play').setAttribute('aria-label',$('#play').title);
   document.querySelectorAll<HTMLButtonElement>('[data-phase]').forEach(control=>control.setAttribute('aria-pressed',String(control.dataset.phase===next.phase)));
