@@ -67,8 +67,8 @@ class ContinuousPlan(BaseModel):
             raise ValueError("当前模型只能使用已发生反馈")
         if not self.arms or len(set(self.arms)) != len(self.arms):
             raise ValueError("比较组须非空且唯一")
-        if self.feedback_profile != "legacy" and "learned" in self.arms:
-            raise ValueError("旧接受模型未按生存目标训练，不能用于新反馈")
+        if (self.feedback_profile != "legacy" or self.adaptation.feedback_trigger != "window") and "learned" in self.arms:
+            raise ValueError("旧接受模型未按新目标或触发时序训练，不能用于新反馈")
         return self
 
     def policy_path(self, index: int) -> Path:
@@ -152,8 +152,8 @@ class Execution(BaseModel):
 def make_actors(plan: ContinuousPlan, seed: int, arm: Arm) -> list[Actor]:
     if arm not in plan.arms:
         raise ValueError("比较组不在执行协议内")
-    if plan.feedback_profile != "legacy" and arm == "learned":
-        raise ValueError("旧接受模型未按生存目标训练，不能用于新反馈")
+    if (plan.feedback_profile != "legacy" or plan.adaptation.feedback_trigger != "window") and arm == "learned":
+        raise ValueError("旧接受模型未按新目标或触发时序训练，不能用于新反馈")
     if arm == "rules":
         return [LocalRuleController(seed * 32 + i) for i in range(plan.environment.ants)]
     motor, _ = load_motor(Path(plan.motor))

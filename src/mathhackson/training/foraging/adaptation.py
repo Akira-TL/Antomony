@@ -29,12 +29,15 @@ class AdaptationConfig(BaseModel):
     maximum_residual_norm: float = Field(default=1., gt=0.)
     recent_capacity: int = Field(default=8, ge=0)
     feedback_mode: Literal["critic", "observed-window"] = "critic"
+    feedback_trigger: Literal["window", "negative-feedback"] = "window"
     historical_baseline_rate: float = Field(default=0., ge=0., le=1.)
 
     @model_validator(mode="after")
     def validate_baseline(self) -> AdaptationConfig:
         if self.historical_baseline_rate and self.feedback_mode != "observed-window":
             raise ValueError("历史奖励基线仅适用于已发生窗口反馈")
+        if self.feedback_trigger != "window" and self.feedback_mode != "observed-window":
+            raise ValueError("提前响应仅适用于已发生反馈")
         return self
 
 
@@ -97,7 +100,7 @@ class NovelSignalLearner:
                 start = end
 
     def act(self, observation: LocalObservation) -> DirectionDecision:
-        if self.awaiting_feedback or self.proposal is not None or self.terminal or len(self.rewards) >= self.config.window:
+        if self.awaiting_feedback or self.proposal is not None or self.terminal or self.ready:
             raise ValueError("必须先完成反馈和待定修改")
         direction, hidden, value = self.predict(torch.from_numpy(observation.vector()), tuple(self.history))
         distribution = direction_distribution(direction)
@@ -119,7 +122,9 @@ class NovelSignalLearner:
 
     @property
     def ready(self) -> bool:
-        return not self.awaiting_feedback and bool(self.rewards) and (self.terminal or len(self.rewards) >= self.config.window)
+        return not self.awaiting_feedback and bool(self.rewards) and (
+            self.terminal or len(self.rewards) >= self.config.window
+            or self.config.feedback_trigger == "negative-feedback" and self.rewards[-1] < 0.)
 
     def propose(self, next_observation: LocalObservation) -> AdaptationProposal:
         if not self.ready or self.proposal is not None:
