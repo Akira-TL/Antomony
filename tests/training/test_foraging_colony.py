@@ -75,3 +75,15 @@ def test_invalid_actions_do_not_partially_advance_world():
     with pytest.raises(ValueError):
         env.step([DirectionAction(True, float("nan"), 1.)] * 8)
     assert env.steps == 0 and before == [ant.heading for ant in env.ants]
+
+
+def test_no_food_probe_keeps_running_with_budget_and_real_home_trails():
+    env = ColonyEnvironment(8, ColonyConfig(ants=1))
+    env.stock = 0
+    assert not env.done
+    event = env.step(idle(env))[0]
+    observation = env.observation(0)
+    assert not event.picked_up and not event.delivered
+    assert not observation.receptors[:, 0].any()
+    assert observation.receptors[:, 1].any()
+    assert not observation.receptors[:, 2:].any()

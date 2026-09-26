@@ -93,6 +93,7 @@ class Trial(BaseModel):
     exhausted: int
     reward: float
     updates: list[int]
+    food_available: bool = True
 
 
 def assert_reserved(model: ForagingPolicy) -> None:
@@ -172,8 +173,10 @@ class Learner:
 
 
 def run_world(learners: list[Learner], config: RunConfig, seed: int, stage: str, directory: Path,
-              *, sampled: bool, visible: bool = True, training: bool = False) -> Trial:
+              *, sampled: bool, visible: bool = True, training: bool = False, food_available: bool = True) -> Trial:
     env = ColonyEnvironment(seed, config.environment)
+    if not food_available:
+        env.stock = 0
     generators = [torch.Generator().manual_seed(seed * 32 + i) for i in range(len(learners))]
     before = [[p.detach().clone() for p in agent.model.parameters()] for agent in learners]
     for agent in learners:
@@ -239,7 +242,8 @@ def run_world(learners: list[Learner], config: RunConfig, seed: int, stage: str,
     result = Trial(stage=stage, seed=seed, sampled=sampled, trails_visible=visible, training=training, ticks=env.steps,
                    pickups=sum(a.pickups for a in env.ants), deliveries=sum(a.deliveries for a in env.ants),
                    budget_returns=sum(a.budget_returns for a in env.ants), empty_budget_returns=empty_returns,
-                   exhausted=sum(a.exhausted for a in env.ants), reward=total_reward, updates=[a.updates for a in learners])
+                   exhausted=sum(a.exhausted for a in env.ants), reward=total_reward, updates=[a.updates for a in learners],
+                   food_available=food_available)
     with (directory / "trials.jsonl").open("a", encoding="utf-8") as stream:
         stream.write(result.model_dump_json() + "\n")
     print(result.model_dump_json(), flush=True)
