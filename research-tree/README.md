@@ -15,6 +15,7 @@ flowchart TD
     N14["历史基线未通过且奖励与交付排序相反<br/>analysis · resolved"]
     N15["势函数辅助奖励在有限回合和更新截断中何时保留原任务<br/>question · resolved"]
     N17["生存反馈相对不更新改善但未稳定优于旧反馈<br/>analysis · resolved"]
+    N18["多数死亡前已写入但仍未形成稳定避险<br/>analysis · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -40,6 +41,7 @@ flowchart TD
     N5 --> N15
     N5 --> N16
     N16 --> N17
+    N17 --> N18
 ```
 
 ## Node Index
@@ -63,3 +65,4 @@ flowchart TD
 | N15 | question | resolved | 势函数辅助奖励在有限回合和更新截断中何时保留原任务 | [打开](../docs/research/reward-shaping-boundaries.md) |
 | N16 | design | resolved | 生存优先的反馈有限对照 | [打开](../designs/survival-feedback.md) |
 | N17 | analysis | resolved | 生存反馈相对不更新改善但未稳定优于旧反馈 | [打开](../analysis/survival-feedback/README.md) |
+| N18 | analysis | resolved | 多数死亡前已写入但仍未形成稳定避险 | [打开](../analysis/survival-timing/README.md) |

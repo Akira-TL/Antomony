@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [受伤与写入时序](survival-timing/README.md) - planned；既有16世界的结果后诊断，不新增训练。
+- [受伤与写入时序](survival-timing/README.md) - completed；26次危险死亡中21次此前已有受伤后写入，延迟不是唯一解释。
 
 - [生存反馈配对](survival-feedback/README.md) - completed；相对不更新少失败6/58次，相对旧反馈多7/少21次，未通过采用。
 
