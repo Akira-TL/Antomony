@@ -1,0 +1,14 @@
+{
+  "model_seeds": [81,82,83,84,85,86,87,88],
+  "evaluation_seeds": [17101,17102,17103,17104,17105,17106,17107,17108],
+  "hidden_width": 17,
+  "signal_updates": 2400,
+  "checkpoint_every": 200,
+  "signal_batch_size": 256,
+  "signal_rate": 0.003,
+  "weight_decay": 0.0001,
+  "environment": {"trail_profile":"bounded-local-v2","nest_signal_strength":1.0},
+  "minimum_delivery_fraction": 0.9,
+  "minimum_returning_fraction": 0.5,
+  "minimum_exploration_radius": 4.5
+}
