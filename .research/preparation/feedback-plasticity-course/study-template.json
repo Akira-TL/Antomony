@@ -1,0 +1,13 @@
+{
+  "slug": "feedback-plasticity-course",
+  "title": "直接行动反馈驱动的可塑方向基础课程实施",
+  "design_slug": "feedback-plasticity-course",
+  "study_type": "本地合成方向反馈可行性课程",
+  "status": "in_progress",
+  "started_at": null,
+  "provenance_path": "study/feedback-plasticity-course/README.md",
+  "samples": [],
+  "artifacts": [
+    {"location": ".research/protocols/feedback-plasticity-course.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"}
+  ]
+}
