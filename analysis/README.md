@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [反馈时间范围比较](feedback-window/README.md) - 结果前计划，先检查完整共同状态。
+- [反馈时间范围比较](feedback-window/README.md) - 已完成；64步没有通过开发条件，保留16步，不追加窗口搜索。
 
 - [恢复参照后果描述](restoration-control/README.md) - 已完成；同向扰动有可修正偏差，现有候选很少取得相应改善。
 

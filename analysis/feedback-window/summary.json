@@ -1,0 +1,215 @@
+{
+  "files_verified": 588,
+  "snapshots_verified": 288,
+  "worlds": [
+    {
+      "seed": 13101,
+      "pairs": 7,
+      "windows": [
+        {
+          "window": 16,
+          "reward": {
+            "positive": 1,
+            "negative": 0,
+            "tied": 6,
+            "mean": 0.14285714285714285,
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "focal_deliveries": {
+            "positive": 0,
+            "negative": 0,
+            "tied": 7,
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "colony_deliveries": {
+            "positive": 0,
+            "negative": 0,
+            "tied": 7,
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "zero_feedback": 6,
+          "zero_candidates": 2,
+          "step_norm": {
+            "positive": 5,
+            "negative": 0,
+            "tied": 2,
+            "mean": 1.2177829799921265,
+            "minimum": 0.0,
+            "maximum": 3.837460489586228
+          }
+        },
+        {
+          "window": 64,
+          "reward": {
+            "positive": 0,
+            "negative": 0,
+            "tied": 7,
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "focal_deliveries": {
+            "positive": 0,
+            "negative": 0,
+            "tied": 7,
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "colony_deliveries": {
+            "positive": 0,
+            "negative": 0,
+            "tied": 7,
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "zero_feedback": 4,
+          "zero_candidates": 2,
+          "step_norm": {
+            "positive": 5,
+            "negative": 0,
+            "tied": 2,
+            "mean": 0.7227227760096742,
+            "minimum": 0.0,
+            "maximum": 1.7877476603002653
+          }
+        }
+      ],
+      "long_minus_short_reward": {
+        "positive": 0,
+        "negative": 1,
+        "tied": 6,
+        "mean": -0.14285714285714285,
+        "minimum": -1.0,
+        "maximum": 0.0
+      },
+      "long_minus_short_focal_deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 7,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      },
+      "long_minus_short_colony_deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 7,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0
+      }
+    },
+    {
+      "seed": 13102,
+      "pairs": 7,
+      "windows": [
+        {
+          "window": 16,
+          "reward": {
+            "positive": 1,
+            "negative": 1,
+            "tied": 5,
+            "mean": -0.14285714285714285,
+            "minimum": -5.0,
+            "maximum": 4.0
+          },
+          "focal_deliveries": {
+            "positive": 1,
+            "negative": 1,
+            "tied": 5,
+            "mean": 0.0,
+            "minimum": -1.0,
+            "maximum": 1.0
+          },
+          "colony_deliveries": {
+            "positive": 1,
+            "negative": 1,
+            "tied": 5,
+            "mean": -0.14285714285714285,
+            "minimum": -2.0,
+            "maximum": 1.0
+          },
+          "zero_feedback": 6,
+          "zero_candidates": 0,
+          "step_norm": {
+            "positive": 7,
+            "negative": 0,
+            "tied": 0,
+            "mean": 1.1236746785627176,
+            "minimum": 0.4085921830224224,
+            "maximum": 2.148895722867072
+          }
+        },
+        {
+          "window": 64,
+          "reward": {
+            "positive": 0,
+            "negative": 1,
+            "tied": 6,
+            "mean": -0.7142857142857143,
+            "minimum": -5.0,
+            "maximum": 0.0
+          },
+          "focal_deliveries": {
+            "positive": 0,
+            "negative": 1,
+            "tied": 6,
+            "mean": -0.14285714285714285,
+            "minimum": -1.0,
+            "maximum": 0.0
+          },
+          "colony_deliveries": {
+            "positive": 0,
+            "negative": 0,
+            "tied": 7,
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "zero_feedback": 3,
+          "zero_candidates": 0,
+          "step_norm": {
+            "positive": 7,
+            "negative": 0,
+            "tied": 0,
+            "mean": 1.088793552614887,
+            "minimum": 0.4801992791788461,
+            "maximum": 1.9164594032250741
+          }
+        }
+      ],
+      "long_minus_short_reward": {
+        "positive": 0,
+        "negative": 1,
+        "tied": 6,
+        "mean": -0.5714285714285714,
+        "minimum": -4.0,
+        "maximum": 0.0
+      },
+      "long_minus_short_focal_deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "tied": 6,
+        "mean": -0.14285714285714285,
+        "minimum": -1.0,
+        "maximum": 0.0
+      },
+      "long_minus_short_colony_deliveries": {
+        "positive": 1,
+        "negative": 1,
+        "tied": 5,
+        "mean": 0.14285714285714285,
+        "minimum": -1.0,
+        "maximum": 2.0
+      }
+    }
+  ],
+  "select_long_window": false
+}
