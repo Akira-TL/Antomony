@@ -13,12 +13,15 @@ NOVEL_COLUMNS = tuple(i * 8 + j for i in range(9) for j in range(3, 8)) + tuple(
 
 
 class FeedforwardPolicy(nn.Module):
-    def __init__(self, seed: int) -> None:
+    def __init__(self, seed: int, *, hidden_width: int = 14) -> None:
         super().__init__()
+        if type(hidden_width) is not int or hidden_width < 1:
+            raise ValueError("隐藏层宽度必须是正整数")
+        self.hidden_width = hidden_width
         with torch.random.fork_rng(devices=[]):
             torch.manual_seed(seed)
-            self.encoder = nn.Linear(86, 14)
-            self.middle = nn.Linear(14, 8)
+            self.encoder = nn.Linear(86, hidden_width)
+            self.middle = nn.Linear(hidden_width, 8)
             self.direction = nn.Linear(8, 2)
             self.value = nn.Linear(8, 1)
             with torch.no_grad():
@@ -55,19 +58,33 @@ class FeedforwardPolicy(nn.Module):
             raise AssertionError("基础课程改变了预留接收器连接")
 
     def save(self, path: Path, *, update: int, phase: Phase) -> None:
+        metadata: dict[str, int] = {} if self.hidden_width == 14 else {"hidden_width": self.hidden_width}
         with path.open("xb") as stream:
-            np.savez(stream, version="local-mlp-v1", update=update, phase=phase,
+            np.savez(stream, version="local-mlp-v1" if self.hidden_width == 14 else "local-mlp-v2",
+                     update=update, phase=phase, **metadata,
                      **{key: value.detach().numpy() for key, value in self.state_dict().items()})
 
     @classmethod
     def load(cls, path: Path) -> FeedforwardPolicy:
         with np.load(path, allow_pickle=False) as data:
-            if str(data["version"]) != "local-mlp-v1":
+            version = str(data["version"])
+            if version not in ("local-mlp-v1", "local-mlp-v2"):
                 raise ValueError("多层感知机检查点版本不兼容")
-            model = cls(0)
-            weights = {key: torch.from_numpy(data[key].copy()) for key in model.state_dict()}
-            if not all(bool(torch.isfinite(value).all()) for value in weights.values()):
-                raise ValueError("权重非有限")
+            width = 14
+            if version == "local-mlp-v2":
+                saved_width = data["hidden_width"]
+                if saved_width.shape != () or saved_width.dtype.kind not in "iu" or int(saved_width) < 1:
+                    raise ValueError("隐藏层宽度必须是正整数标量")
+                width = int(saved_width)
+                if data["encoder.weight"].shape != (width, 86):
+                    raise ValueError("隐藏层宽度与权重不一致")
+            model = cls(0, hidden_width=width)
+            weights = {}
+            for key, parameter in model.state_dict().items():
+                value = data[key]
+                if value.shape != tuple(parameter.shape) or not np.isfinite(value).all():
+                    raise ValueError("权重维度错误或非有限")
+                weights[key] = torch.from_numpy(value.copy())
             model.load_state_dict(weights)
         model.set_phase("frozen")
         return model

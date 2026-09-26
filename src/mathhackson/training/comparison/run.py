@@ -9,7 +9,7 @@ import subprocess
 from typing import Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 import torch
 
 from mathhackson.training.direction.checkpoint import load_motor
@@ -26,6 +26,7 @@ class Config(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     source_commit: str
     model_seeds: tuple[int, ...] = tuple(range(81, 89))
+    hidden_width: int = Field(default=14, gt=0, strict=True)
     signal_updates: int = 2400
     checkpoint_every: int = 200
     episodes: int = 8
@@ -80,7 +81,7 @@ def train_signal(config: Config, directory: Path) -> list[FeedforwardPolicy]:
     models: list[FeedforwardPolicy] = []
     validation, target = signal_batch(np.random.default_rng(8301), 2048, budgets=True)
     for seed in config.model_seeds:
-        model = FeedforwardPolicy(seed)
+        model = FeedforwardPolicy(seed, hidden_width=config.hidden_width)
         rng = np.random.default_rng(seed + 10000)
         optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad],
                                      lr=config.signal_rate, weight_decay=config.weight_decay)

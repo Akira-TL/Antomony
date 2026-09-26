@@ -16,6 +16,8 @@ from .policy import HIDDEN_WIDTH, RECENT_LAGS, SPARSE_LAGS, Phase
 class MemoryPolicy(nn.Module):
     def __init__(self, base: FeedforwardPolicy) -> None:
         super().__init__()
+        if base.hidden_width != 14:
+            raise ValueError("当前记忆模型只支持原14宽基础模型")
         base.assert_reserved()
         self.base = copy.deepcopy(base)
         self.recent_weights = nn.Parameter(torch.zeros(len(RECENT_LAGS), HIDDEN_WIDTH))
