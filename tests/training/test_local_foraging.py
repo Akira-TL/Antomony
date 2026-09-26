@@ -101,9 +101,7 @@ def test_unused_receptor_connections_stay_zero_and_frozen_during_basic_training(
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    assert not policy.novel_signal.weight.requires_grad
-    assert policy.novel_signal.weight.grad is None
-    assert not policy.novel_signal.weight.any()
+    assert all(not p.requires_grad and p.grad is None and not p.any() for p in policy.reserved_parameters())
     changed = inputs.clone()
     changed[:, :72].reshape(32, 9, 8)[:, :, 3:] = 1.
     torch.testing.assert_close(policy(inputs)[0], policy(changed)[0], rtol=0., atol=0.)
@@ -149,7 +147,7 @@ def test_recurrent_direction_uses_recent_and_sparse_hidden_frames():
 
 def test_old_checkpoint_gets_neutral_state_scale_without_changing_behavior(tmp_path):
     from mathhackson.training.foraging.policy import ForagingPolicy, RECENT_LAGS, SPARSE_LAGS
-    original = ForagingPolicy(71)
+    original = ForagingPolicy(71, relative_signals=False)
     legacy = tmp_path / "legacy.npz"
     with legacy.open("xb") as stream:
         np.savez(stream, version="local-foraging-v1", recent_lags=RECENT_LAGS, sparse_lags=SPARSE_LAGS,
@@ -160,3 +158,18 @@ def test_old_checkpoint_gets_neutral_state_scale_without_changing_behavior(tmp_p
     torch.testing.assert_close(original(observations)[0], restored(observations)[0], rtol=0., atol=0.)
     assert not restored.state_scale.weight.any()
     assert not restored.state_scale.bias.any()
+
+
+def test_spatial_contrast_retains_weak_signal_pattern_and_absolute_strength_path():
+    from mathhackson.training.foraging.policy import ForagingPolicy
+    model = ForagingPolicy(71)
+    observation = torch.zeros(76)
+    receptors = observation[:72].reshape(9, 8)
+    receptors[:, 0] = torch.tensor([.1, .2, .1, .02, .1, .3, .1, .01, .1])
+    weak = observation.clone()
+    weak[:72] *= .02
+    torch.testing.assert_close(model(observation)[0], model(weak)[0], atol=1e-6, rtol=1e-6)
+    with torch.no_grad():
+        model.basic_strength.weight[:, 0].fill_(1.)
+    assert not torch.allclose(model(observation)[1], model(weak)[1])
+    assert torch.isfinite(model(torch.zeros(76))[0]).all()

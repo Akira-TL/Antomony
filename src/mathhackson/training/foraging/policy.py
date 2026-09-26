@@ -20,8 +20,9 @@ Phase = Literal["signal", "reward", "frozen"]
 
 
 class ForagingPolicy(nn.Module):
-    def __init__(self, seed: int) -> None:
+    def __init__(self, seed: int, *, relative_signals: bool = True) -> None:
         super().__init__()
+        self.relative_signals = relative_signals
         with torch.random.fork_rng(devices=[]):
             torch.manual_seed(seed)
             self.basic_signal = nn.Linear(3, 8)
@@ -32,6 +33,8 @@ class ForagingPolicy(nn.Module):
             self.direction = nn.Linear(HIDDEN_WIDTH, 2)
             self.value = nn.Linear(HIDDEN_WIDTH, 1)
             self.state_scale = nn.Linear(1, 8)
+            self.basic_strength = nn.Linear(3, 8, bias=False)
+            self.novel_strength = nn.Linear(5, 8, bias=False)
             with torch.no_grad():
                 self.novel_signal.weight.zero_()
                 self.recent_memory.weight.zero_()
@@ -40,6 +43,8 @@ class ForagingPolicy(nn.Module):
                 self.direction.bias.copy_(torch.tensor([1., 0.]))
                 self.state_scale.weight.zero_()
                 self.state_scale.bias.zero_()
+                self.basic_strength.weight.zero_()
+                self.novel_strength.weight.zero_()
         self.set_phase("signal")
 
     def set_phase(self, phase: Phase) -> None:
@@ -47,15 +52,25 @@ class ForagingPolicy(nn.Module):
             raise ValueError("未知训练阶段")
         self.requires_grad_(phase != "frozen")
         self.novel_signal.requires_grad_(False)
+        self.novel_strength.requires_grad_(False)
         if phase == "signal":
             self.recent_memory.requires_grad_(False)
             self.sparse_memory.requires_grad_(False)
             self.value.requires_grad_(False)
         self.train(phase != "frozen")
 
+    def reserved_parameters(self) -> tuple[nn.Parameter, nn.Parameter]:
+        return self.novel_signal.weight, self.novel_strength.weight
+
     def forward(self, observation: torch.Tensor, history: tuple[torch.Tensor, ...] = ()) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         receptors = observation[..., :72].reshape(*observation.shape[:-1], 9, 8)
-        encoded = torch.tanh(self.basic_signal(receptors[..., :3]) + self.novel_signal(receptors[..., 3:]))
+        if self.relative_signals:
+            strength = receptors.mean(dim=-2, keepdim=True)
+            contrast = (receptors - strength) / receptors.amax(dim=-2, keepdim=True).clamp_min(.001)
+            encoded = torch.tanh(self.basic_signal(contrast[..., :3]) + self.novel_signal(contrast[..., 3:])
+                                 + self.basic_strength(strength[..., :3]) + self.novel_strength(strength[..., 3:]))
+        else:
+            encoded = torch.tanh(self.basic_signal(receptors[..., :3]) + self.novel_signal(receptors[..., 3:]))
         scale = 2. * torch.sigmoid(self.state_scale(observation[..., 72:73]))
         encoded = encoded * scale.unsqueeze(-2)
         current = self.observation_layer(torch.cat((encoded.flatten(-2), observation[..., 72:]), dim=-1))
@@ -69,7 +84,7 @@ class ForagingPolicy(nn.Module):
 
     def save(self, path: Path, *, update: int, phase: Phase) -> None:
         with path.open("xb") as stream:
-            np.savez(stream, version="local-foraging-v2", update=update, phase=phase,
+            np.savez(stream, version="local-foraging-v3" if self.relative_signals else "local-foraging-v2", update=update, phase=phase,
                      recent_lags=RECENT_LAGS, sparse_lags=SPARSE_LAGS,
                      **{key: value.detach().numpy() for key, value in self.state_dict().items()})
 
@@ -78,11 +93,13 @@ class ForagingPolicy(nn.Module):
         model = cls(0)
         with np.load(path, allow_pickle=False) as data:
             version = str(data["version"])
-            if (version not in ("local-foraging-v1", "local-foraging-v2") or tuple(data["recent_lags"]) != RECENT_LAGS
+            if (version not in ("local-foraging-v1", "local-foraging-v2", "local-foraging-v3") or tuple(data["recent_lags"]) != RECENT_LAGS
                     or tuple(data["sparse_lags"]) != SPARSE_LAGS):
                 raise ValueError("局部往返检查点版本不兼容")
             # 旧快照的缩放恰为一，恢复不改变旧策略行为。
-            weights = {key: (value if version == "local-foraging-v1" and key.startswith("state_scale.")
+            model.relative_signals = version == "local-foraging-v3"
+            weights = {key: (value if (version == "local-foraging-v1" and key.startswith("state_scale."))
+                             or (version != "local-foraging-v3" and key.startswith(("basic_strength.", "novel_strength.")))
                              else torch.from_numpy(data[key].copy())) for key, value in model.state_dict().items()}
             if not all(bool(torch.isfinite(value).all()) for value in weights.values()):
                 raise ValueError("模型权重非有限")

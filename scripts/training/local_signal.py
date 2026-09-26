@@ -96,7 +96,7 @@ def train(config: TrainingConfig, directory: Path) -> Path:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)
         optimizer.step()
-        if bool(model.novel_signal.weight.any()) or model.novel_signal.weight.grad is not None:
+        if any(bool(p.any()) or p.grad is not None for p in model.reserved_parameters()):
             raise AssertionError("预留接收器在基础课程中被训练")
         if update % config.checkpoint_every == 0:
             model.save(directory / f"signal-{update:06d}.npz", update=update, phase="signal")
@@ -133,7 +133,7 @@ def evaluate(checkpoint: Path, config: TrainingConfig, seed: int, visible: bool,
             stream.write(frame.model_dump_json() + "\n")
     motor_same = all(a.equal(b) for a, b in zip(motor_before, motor.parameters(), strict=True))
     policy_same = all(a.equal(b) for a, b in zip(policy_before, model.parameters(), strict=True))
-    reserved_zero = not bool(model.novel_signal.weight.any())
+    reserved_zero = not any(bool(p.any()) for p in model.reserved_parameters())
     if not motor_same or not policy_same or not reserved_zero:
         raise AssertionError("评估期间权重改变或预留连接非零")
     return Trial(seed=seed, trails_visible=visible, steps=env.steps, pickups=env.pickups, deliveries=env.deliveries,
