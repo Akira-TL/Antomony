@@ -40,7 +40,9 @@ def make_plan(config: SessionConfig) -> ContinuousPlan:
         conditions=(Condition(name="reference", disturbance=DisturbanceConfig(signal_strength=0., injury_per_step=0.)),),
         environment=ColonyConfig(ants=config.ants, horizon=config.horizon, stock=config.stock,
             food_distance_min=8., food_distance_span=2., trail_profile="bounded-local-v2", nest_signal_strength=1.),
-        adaptation=TrustConfig(window=4, feedback_mode="observed-window"), feedback_profile="survival-v1")
+        adaptation=TrustConfig(window=4, feedback_mode="observed-window"), feedback_profile="survival-v1",
+        policy_directory="models/interactive/memory", gate_directory="models/interactive/gate",
+        mlp_directory="models/interactive/mlp", motor="models/interactive/motor/update-001200.npz")
 
 
 class LiveSession:
