@@ -1,0 +1,44 @@
+{
+  "slug": "candidate-label-coverage",
+  "title": "既有基础候选的交付与奖励覆盖",
+  "analysis_mode": "exploratory",
+  "status": "completed",
+  "target_uncertainty": "固定候选集合是否本就缺少使旧交付判据成立的选择机会；本次已浏览标签后追查。",
+  "estimand": "既有196训练和105留出候选的焦点交付与奖励差覆盖，以及固定配对集合的二元选择最大交付改善。",
+  "unit_of_inference": "整巢种子；候选、个体与同种子初始化条件相关。",
+  "primary_analysis": "完整来源核验后逐条计算接受减跳过，按种子、世界及个体列正负零，枚举数学交付上界；不拟合、不作独立重复推断。",
+  "analysis_path": "analysis/candidate-label-coverage/README.md",
+  "code_path": "scripts/analyses/candidate_label_coverage.py",
+  "dataset_slugs": [
+    "memory-update-learning"
+  ],
+  "artifacts": [
+    {
+      "path": "analysis/candidate-label-coverage/summary.json",
+      "role": "table",
+      "timing_role": "result"
+    },
+    {
+      "path": ".research/analysis/candidate-label-coverage/A001/outputs/summary.json",
+      "role": "diagnostic",
+      "timing_role": "result",
+      "git_tracking": "not_required",
+      "tracking_reason": "完整301双分支标签及192世界内个体分组保留本地，规范完整种子/世界/个体汇总和散列入Git。"
+    },
+    {
+      "path": "logs/analysis/candidate-label-coverage-A001.log",
+      "role": "log",
+      "timing_role": "result",
+      "git_tracking": "not_required",
+      "tracking_reason": "唯一一次正式来源核验的原始输出保留本地，运行时间和身份入规范汇总。"
+    }
+  ],
+  "observations": [
+    {
+      "statement": "全部196训练与105留出候选的焦点交付差均非正，分别0正/3负/193零和0正/1负/104零；奖励仍有12和7个正例。固定配对集合任意二元选择的交付改善数学上界为0。",
+      "source_path": "analysis/candidate-label-coverage/summary.json",
+      "source_locator": "partitions、seeds、worlds和individuals",
+      "scope": "已看到失败并浏览标签后的探索性核验，只约束既有301个固定配对后果，不否定模型架构、自训练原理或连续在线机会，不改旧判据。"
+    }
+  ]
+}

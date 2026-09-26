@@ -23,6 +23,7 @@ flowchart TD
     N25["四步判断下延长动作保留未增加有益候选<br/>analysis · resolved"]
     N26["四步实际写入的约束与动作响应<br/>analysis · resolved"]
     N27["首次受伤前首步方向32步后果<br/>analysis · resolved"]
+    N28["既有基础301候选均缺少焦点交付改善<br/>analysis · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -60,6 +61,7 @@ flowchart TD
     N24 --> N25
     N25 --> N26
     N26 --> N27
+    N5 --> N28
 ```
 
 ## Node Index
@@ -93,3 +95,4 @@ flowchart TD
 | N25 | analysis | resolved | 四步判断下延长动作保留未增加有益候选 | [打开](../analysis/credit-history/README.md) |
 | N26 | analysis | resolved | 四步实际写入的约束与动作响应 | [打开](../analysis/update-constraints/README.md) |
 | N27 | analysis | resolved | 首次受伤前首步方向32步后果 | [打开](../analysis/first-action-outcomes/README.md) |
+| N28 | analysis | resolved | 既有基础301候选均缺少焦点交付改善 | [打开](../analysis/candidate-label-coverage/README.md) |

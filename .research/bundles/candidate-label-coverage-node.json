@@ -1,0 +1,12 @@
+{
+  "slug": "candidate-label-coverage-analysis",
+  "kind": "analysis",
+  "label": "既有基础301候选均缺少焦点交付改善",
+  "scientific_scope": "已见标签后的探索性来源核验与数学枚举；任何二元选择器在固定配对集合的交付改善上界为0，不能推广为架构或连续部署上界。",
+  "workflow_status": "resolved",
+  "branch_priority": "secondary",
+  "parent_slug": "ant-learned-update-adaptation",
+  "canonical_entity_type": "analysis",
+  "canonical_entity_id": "23",
+  "artifact_path": "analysis/candidate-label-coverage/README.md"
+}

@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [基础候选交付与奖励覆盖](candidate-label-coverage/README.md) - 已浏览标签后的探索性追查，不拟合或修改旧判据。
+- [基础候选交付与奖励覆盖](candidate-label-coverage/README.md) - 已完成；301候选无交付正例，固定集合二元选择上界0；已浏览标签后的探索，不拟合或修改旧判据。
 
 - [首步方向32步后果](first-action-outcomes/README.md) - 已完成；8点每点16方向焦点指标相同，单次干预无判别力，停止扩样。
 

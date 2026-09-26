@@ -1,0 +1,1106 @@
+{
+  "source_commit": "3331d6079e88eb39bf4bcb38b3e5ee0729cd4f2c",
+  "started_at": "2026-09-26T20:10:01.086154+00:00",
+  "completed_at": "2026-09-26T20:10:04.017352+00:00",
+  "elapsed_seconds": 2.931225659995107,
+  "audit": {
+    "files": 2738,
+    "snapshots": 1344,
+    "frames": 9475
+  },
+  "partitions": [
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": null,
+      "count": 196,
+      "deliveries": {
+        "positive": 0,
+        "negative": 3,
+        "zero": 193
+      },
+      "rewards": {
+        "positive": 12,
+        "negative": 8,
+        "zero": 176
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -3
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": null,
+      "count": 105,
+      "deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 104
+      },
+      "rewards": {
+        "positive": 7,
+        "negative": 10,
+        "zero": 88
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -1
+    }
+  ],
+  "seeds": [
+    {
+      "partition": "train",
+      "seed": 16101,
+      "initial_norm": null,
+      "individual": null,
+      "count": 32,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 32
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 2,
+        "zero": 29
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16102,
+      "initial_norm": null,
+      "individual": null,
+      "count": 21,
+      "deliveries": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 19
+      },
+      "rewards": {
+        "positive": 2,
+        "negative": 2,
+        "zero": 17
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -2
+    },
+    {
+      "partition": "train",
+      "seed": 16103,
+      "initial_norm": null,
+      "individual": null,
+      "count": 18,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 18
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 18
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16104,
+      "initial_norm": null,
+      "individual": null,
+      "count": 28,
+      "deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 27
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 26
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -1
+    },
+    {
+      "partition": "train",
+      "seed": 16105,
+      "initial_norm": null,
+      "individual": null,
+      "count": 20,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 20
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 19
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16106,
+      "initial_norm": null,
+      "individual": null,
+      "count": 21,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 21
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 21
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16107,
+      "initial_norm": null,
+      "individual": null,
+      "count": 29,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 29
+      },
+      "rewards": {
+        "positive": 5,
+        "negative": 2,
+        "zero": 22
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16108,
+      "initial_norm": null,
+      "individual": null,
+      "count": 27,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 27
+      },
+      "rewards": {
+        "positive": 3,
+        "negative": 0,
+        "zero": 24
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16111,
+      "initial_norm": null,
+      "individual": null,
+      "count": 21,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 21
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 20
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16112,
+      "initial_norm": null,
+      "individual": null,
+      "count": 28,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 28
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 5,
+        "zero": 23
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16113,
+      "initial_norm": null,
+      "individual": null,
+      "count": 26,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 26
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 1,
+        "zero": 24
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16114,
+      "initial_norm": null,
+      "individual": null,
+      "count": 30,
+      "deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 29
+      },
+      "rewards": {
+        "positive": 5,
+        "negative": 4,
+        "zero": 21
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -1
+    }
+  ],
+  "worlds": [
+    {
+      "partition": "train",
+      "seed": 16101,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 11,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16101,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 21,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 21
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 2,
+        "zero": 18
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16102,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 13,
+      "deliveries": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 11
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -2
+    },
+    {
+      "partition": "train",
+      "seed": 16102,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 8,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 8
+      },
+      "rewards": {
+        "positive": 2,
+        "negative": 0,
+        "zero": 6
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16103,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 12,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 12
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 12
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16103,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 6,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 6
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 6
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16104,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 17,
+      "deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 16
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 16
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -1
+    },
+    {
+      "partition": "train",
+      "seed": 16104,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 11,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 10
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16105,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 10,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16105,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 10,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 9
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16106,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 11,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16106,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 10,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16107,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 10,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 9
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16107,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 19,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 19
+      },
+      "rewards": {
+        "positive": 4,
+        "negative": 2,
+        "zero": 13
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16108,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 10,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 9
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": 16108,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 17,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 17
+      },
+      "rewards": {
+        "positive": 2,
+        "negative": 0,
+        "zero": 15
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16111,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 10,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16111,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 11,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 10
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16112,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 13,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 13
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 12
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16112,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 15,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 15
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 4,
+        "zero": 11
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16113,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 10,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 10
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 9
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16113,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 16,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 16
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 15
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": 16114,
+      "initial_norm": 0,
+      "individual": null,
+      "count": 12,
+      "deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 3,
+        "zero": 9
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -1
+    },
+    {
+      "partition": "held",
+      "seed": 16114,
+      "initial_norm": 0.75,
+      "individual": null,
+      "count": 18,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 18
+      },
+      "rewards": {
+        "positive": 5,
+        "negative": 1,
+        "zero": 12
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    }
+  ],
+  "individuals": [
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 0,
+      "count": 27,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 27
+      },
+      "rewards": {
+        "positive": 2,
+        "negative": 0,
+        "zero": 25
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 1,
+      "count": 27,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 27
+      },
+      "rewards": {
+        "positive": 3,
+        "negative": 0,
+        "zero": 24
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 2,
+      "count": 25,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 25
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 23
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 3,
+      "count": 20,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 20
+      },
+      "rewards": {
+        "positive": 2,
+        "negative": 1,
+        "zero": 17
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 4,
+      "count": 31,
+      "deliveries": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 29
+      },
+      "rewards": {
+        "positive": 4,
+        "negative": 2,
+        "zero": 25
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -2
+    },
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 5,
+      "count": 23,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 23
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 0,
+        "zero": 22
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 6,
+      "count": 24,
+      "deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 23
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 22
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -1
+    },
+    {
+      "partition": "train",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 7,
+      "count": 19,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 19
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 18
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 0,
+      "count": 12,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 12
+      },
+      "rewards": {
+        "positive": 2,
+        "negative": 0,
+        "zero": 10
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 1,
+      "count": 13,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 13
+      },
+      "rewards": {
+        "positive": 2,
+        "negative": 0,
+        "zero": 11
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 2,
+      "count": 12,
+      "deliveries": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 10
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": -1
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 3,
+      "count": 11,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 2,
+        "zero": 8
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 4,
+      "count": 15,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 15
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 2,
+        "zero": 13
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 5,
+      "count": 11,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 11
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 1,
+        "zero": 9
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 6,
+      "count": 18,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 18
+      },
+      "rewards": {
+        "positive": 1,
+        "negative": 2,
+        "zero": 15
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    },
+    {
+      "partition": "held",
+      "seed": null,
+      "initial_norm": null,
+      "individual": 7,
+      "count": 13,
+      "deliveries": {
+        "positive": 0,
+        "negative": 0,
+        "zero": 13
+      },
+      "rewards": {
+        "positive": 0,
+        "negative": 1,
+        "zero": 12
+      },
+      "maximum_delivery_sum": 0,
+      "maximum_delivery_mean": 0,
+      "always_delivery_sum": 0
+    }
+  ],
+  "full_output": {
+    "path": ".research/analysis/candidate-label-coverage/A001/outputs/summary.json",
+    "sha256": "217f081659bc921f5c0c8b8c329711ff243211486ea8418234c9b9acfc9bb709",
+    "labels": 301,
+    "world_individual_groups": 192
+  },
+  "scope": "看到原课程失败并浏览标签后的探索性核验；固定配对选择的精确数学界，不是连续运行或架构上界。"
+}
