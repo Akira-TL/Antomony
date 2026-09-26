@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [后到反馈动作归因](credit-history/README.md) - planned；相同状态比较4步与16步动作保留。
+- [后到反馈动作归因](credit-history/README.md) - completed；54共同状态中新配置无有益候选，未通过，停止本路线。
 
 - [四步候选动作输入学习](action-update-learning/README.md) - completed；训练及留出均无正收益候选，两输入0/2通过，停止本课程。
 

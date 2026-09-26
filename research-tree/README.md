@@ -20,6 +20,7 @@ flowchart TD
     N22["四步优于十六步但未稳定优于不更新<br/>analysis · resolved"]
     N23["目标方向改善不保证实际一步转向改善<br/>analysis · resolved"]
     N24["四步动作输入课程缺少正候选且未改善接受判断<br/>analysis · resolved"]
+    N25["四步判断下延长动作保留未增加有益候选<br/>analysis · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -54,6 +55,7 @@ flowchart TD
     N21 --> N22
     N22 --> N23
     N23 --> N24
+    N24 --> N25
 ```
 
 ## Node Index
@@ -84,3 +86,4 @@ flowchart TD
 | N22 | analysis | resolved | 四步优于十六步但未稳定优于不更新 | [打开](../analysis/window-cadence/README.md) |
 | N23 | analysis | resolved | 目标方向改善不保证实际一步转向改善 | [打开](../analysis/candidate-steering/README.md) |
 | N24 | analysis | resolved | 四步动作输入课程缺少正候选且未改善接受判断 | [打开](../analysis/action-update-learning/README.md) |
+| N25 | analysis | resolved | 四步判断下延长动作保留未增加有益候选 | [打开](../analysis/credit-history/README.md) |

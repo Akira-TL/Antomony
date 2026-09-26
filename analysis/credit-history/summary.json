@@ -1,0 +1,125 @@
+{
+  "files_verified": 556,
+  "snapshots_verified": 272,
+  "frames_verified": 1758,
+  "pairs": [
+    {
+      "seed": 19901,
+      "count": 30,
+      "four": {
+        "reward": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 30,
+          "mean": 0.0
+        },
+        "focal_deliveries": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 30,
+          "mean": 0.0
+        },
+        "colony_deliveries": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 30,
+          "mean": 0.0
+        },
+        "nonzero_candidates": 2
+      },
+      "sixteen": {
+        "reward": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 30,
+          "mean": 0.0
+        },
+        "focal_deliveries": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 30,
+          "mean": 0.0
+        },
+        "colony_deliveries": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 30,
+          "mean": 0.0
+        },
+        "nonzero_candidates": 2
+      },
+      "reward_difference": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 30,
+        "mean": 0.0
+      },
+      "delivery_difference": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 30,
+        "mean": 0.0
+      }
+    },
+    {
+      "seed": 19902,
+      "count": 24,
+      "four": {
+        "reward": {
+          "positive": 1,
+          "negative": 0,
+          "tied": 23,
+          "mean": 0.041666666666666664
+        },
+        "focal_deliveries": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 24,
+          "mean": 0.0
+        },
+        "colony_deliveries": {
+          "positive": 1,
+          "negative": 0,
+          "tied": 23,
+          "mean": 0.041666666666666664
+        },
+        "nonzero_candidates": 3
+      },
+      "sixteen": {
+        "reward": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 24,
+          "mean": 0.0
+        },
+        "focal_deliveries": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 24,
+          "mean": 0.0
+        },
+        "colony_deliveries": {
+          "positive": 0,
+          "negative": 0,
+          "tied": 24,
+          "mean": 0.0
+        },
+        "nonzero_candidates": 3
+      },
+      "reward_difference": {
+        "positive": 0,
+        "negative": 1,
+        "tied": 23,
+        "mean": -0.041666666666666664
+      },
+      "delivery_difference": {
+        "positive": 0,
+        "negative": 0,
+        "tied": 24,
+        "mean": 0.0
+      }
+    }
+  ],
+  "parents_identical": true,
+  "development_continue": false
+}
