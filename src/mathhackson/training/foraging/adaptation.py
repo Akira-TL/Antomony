@@ -169,10 +169,11 @@ class NovelSignalLearner:
         self.proposal = None
         return changed
 
-    def restart(self) -> None:
+    def restart(self, *, preserve_memory: bool = False) -> None:
         if self.awaiting_feedback or self.proposal is not None or self.rewards:
             raise ValueError("继承或重启前必须完成终止反馈及修改决定")
-        self.history.clear()
+        if not preserve_memory:
+            self.history.clear()
         self.terminal = False
 
     def save(self, path: Path) -> None:

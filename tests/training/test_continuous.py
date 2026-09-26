@@ -20,7 +20,7 @@ from mathhackson.training.foraging.update_decision import UpdateDecision
 def plan(tmp_path):
     sources = tmp_path / "sources"
     sources.mkdir()
-    for i in range(2):
+    for i in range(8):
         MemoryPolicy(FeedforwardPolicy(81 + i)).save(sources / f"episode-0000-ant-{i:02d}.npz", update=0, phase="frozen")
         FeedforwardPolicy(81 + i, hidden_width=17).save(sources / f"seed-{81+i}-signal-002400.npz", update=2400, phase="signal")
         (sources / f"ant-{i:02d}").mkdir()
@@ -215,3 +215,32 @@ def test_acceptance_separates_preview_from_registered_results(plan, tmp_path, mo
         assert incomplete.value.status_code == 409
     finally:
         acceptance.distant_store.cache_clear()
+
+
+def test_revival_run_preserves_memory_and_records_repeated_deaths(plan, tmp_path):
+    import numpy as np
+    condition = Condition(name="moving-danger", disturbance=DisturbanceConfig(
+        contact_radius=20., injury_per_step=1., signal_radius=20.))
+    plan = plan.model_copy(update={"respawn": True, "environment": plan.environment.model_copy(update={"horizon": 6})})
+    result = run_world(plan, 18999, condition, "always", tmp_path / "revival")
+    assert result.steps == 6 and result.deaths == result.exhausted == 12 and result.revivals == 10
+    trace = frames(tmp_path / "revival")
+    assert trace[-1].ants[0].cumulative_deaths == 6 and trace[-1].ants[0].revivals == 5
+    assert trace[-1].ants[0].pending and trace[-1].food_stock == 48
+    with np.load(tmp_path / "revival/tick-0006-ant-00.memory.npz") as state:
+        assert state["history"].shape == (6, 8)
+    records = [UpdateRecord.model_validate_json(line) for line in
+               (tmp_path / "revival/updates.jsonl").read_text().splitlines()]
+    assert any(r.changed and r.continuing_after_death for r in records)
+    assert all(not r.accepted for r in records if r.tick == 6)
+
+
+def test_expanded_population_has_independent_parameters_and_random_streams(plan):
+    expanded = plan.model_copy(update={"environment": plan.environment.model_copy(update={"ants": 32}), "respawn": True})
+    actors = make_actors(expanded, 18999, "learned")
+    assert len(actors) == 32
+    for first, second in ((actors[0], actors[8]), (actors[8], actors[16]), (actors[16], actors[24])):
+        assert all(a.equal(b) for a, b in zip(first.frozen_parameters(), second.frozen_parameters(), strict=True))
+        assert {p.data_ptr() for p in first.frozen_parameters()}.isdisjoint(p.data_ptr() for p in second.frozen_parameters())
+        assert first.agent.offset.data_ptr() != second.agent.offset.data_ptr()
+        assert not first.agent.random.get_state().equal(second.agent.random.get_state())

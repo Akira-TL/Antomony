@@ -32,6 +32,7 @@ class UpdateRecord(BaseModel):
     terminal: bool
     before: list[float]
     after: list[float]
+    continuing_after_death: bool = False
 
 
 class OnlineForager:
@@ -51,7 +52,9 @@ class OnlineForager:
         return self.agent.act(observation).action
 
     def feedback(self, reward: float, observation: LocalObservation, *, terminal: bool,
-                 tick: int, individual: int) -> UpdateRecord | None:
+                 tick: int, individual: int, continuing_after_death: bool = False) -> UpdateRecord | None:
+        if continuing_after_death and not terminal:
+            raise ValueError("复活延续必须对应已经结束的一次生命")
         self.agent.feedback(reward, terminal=terminal)
         if not self.agent.ready:
             return None
@@ -61,10 +64,10 @@ class OnlineForager:
         features = decision_features(observation.vector(), hidden, proposal, diagnostics)
         before = self.agent.weights().tolist()
         if self.mode == "learned":
-            choice = self.controller.resolve(self.agent, observation)
+            choice = self.controller.resolve(self.agent, observation, continuing_after_death=continuing_after_death)
             prediction = choice.predicted_reward_difference
         else:
-            eligible = not terminal and bool(np.any(proposal.delta))
+            eligible = (not terminal or continuing_after_death) and bool(np.any(proposal.delta))
             accepted = self.mode == "always" and eligible
             changed = self.agent.resolve(proposal, accept=(accepted,))
             choice = UpdateChoice(0., accepted, changed, eligible)
@@ -72,7 +75,12 @@ class OnlineForager:
         return UpdateRecord(tick=tick, individual=individual, proposal=proposal, diagnostics=diagnostics,
             features=features.tolist(), prediction=prediction, eligible=choice.eligible,
             accepted=choice.accepted, changed=choice.changed, terminal=terminal,
-            before=before, after=self.agent.weights().tolist())
+            before=before, after=self.agent.weights().tolist(), continuing_after_death=continuing_after_death)
+
+    def revive(self) -> None:
+        if not self.agent.terminal:
+            raise ValueError("只有已完成终止反馈的个体可以复活")
+        self.agent.restart(preserve_memory=True)
 
     def check_frozen(self) -> None:
         if any(not before.equal(after) for before, after in zip(self.frozen, self.frozen_parameters(), strict=True)):

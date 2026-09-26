@@ -103,7 +103,7 @@ class IndividualUpdateController:
     def __init__(self, model: UpdateDecision) -> None:
         self.model = copy.deepcopy(model).eval().requires_grad_(False)
 
-    def resolve(self, agent: TrustDirectionLearner, observation: LocalObservation) -> UpdateChoice:
+    def resolve(self, agent: TrustDirectionLearner, observation: LocalObservation, *, continuing_after_death: bool = False) -> UpdateChoice:
         proposal = agent.proposal
         if proposal is None or agent.awaiting_feedback:
             raise ValueError("接受决策只处理已取得反馈的当前候选")
@@ -113,7 +113,7 @@ class IndividualUpdateController:
             prediction = float(self.model(torch.from_numpy(features)))
         if not np.isfinite(prediction):
             raise ValueError("接受决策预测非有限，不得写入参数")
-        eligible = not agent.terminal and bool(np.any(proposal.delta))
+        eligible = (not agent.terminal or continuing_after_death) and bool(np.any(proposal.delta))
         accepted = eligible and prediction > 0.
         changed = agent.resolve(proposal, accept=(accepted,))
         return UpdateChoice(prediction, accepted, changed, eligible)

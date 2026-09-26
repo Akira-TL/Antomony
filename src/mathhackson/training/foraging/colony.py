@@ -15,7 +15,7 @@ from .signals import LocalSignals, SignalSource, receptor_points
 
 
 class ColonyConfig(ForagingConfig):
-    ants: int = Field(default=8, ge=1, le=8)
+    ants: int = Field(default=8, ge=1, le=32)
     stock: int = Field(default=16, ge=1)
     exploration_steps: int = Field(default=160, ge=1)
     reserve_steps: int = Field(default=160, ge=1)
@@ -64,8 +64,9 @@ class ColonyEnvironment:
         self.extra_sources: tuple[SignalSource, ...] = ()
         self.stock = self.config.stock
         self.steps = 0
-        # 八个互不重叠的出生位置都在巢内；避免碰撞分离制造初始探索位移。
-        self.ants = [Forager(.5 * unit(2. * math.pi * i / self.config.ants),
+        # 原八只布局不变；更大群体围巢排布，避免碰撞分离凭空制造位移。
+        radius = .5 if self.config.ants <= 8 else .19 / math.sin(math.pi / self.config.ants)
+        self.ants = [Forager(radius * unit(2. * math.pi * i / self.config.ants),
                             float(rng.uniform(-math.pi, math.pi)), self.config.exploration_steps,
                             self.config.reserve_steps) for i in range(self.config.ants)]
         if self.config.trail_profile == "bounded-local-v2":

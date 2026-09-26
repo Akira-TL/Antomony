@@ -10,6 +10,7 @@ import subprocess
 import time
 from typing import Literal
 
+import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import torch
 
@@ -17,6 +18,7 @@ from mathhackson.training.direction.checkpoint import load_motor
 from mathhackson.training.direction.policy import DirectionAction
 from mathhackson.training.foraging.colony import ColonyConfig
 from mathhackson.training.foraging.disturbance import DisturbanceConfig, DisturbedColony
+from mathhackson.training.foraging.revival import RevivingColony
 from mathhackson.training.foraging.memory import MemoryPolicy
 from mathhackson.training.foraging.mlp import FeedforwardPolicy
 from mathhackson.training.foraging.rules import LocalRuleController
@@ -48,6 +50,7 @@ class ContinuousPlan(BaseModel):
     gate_directory: str = "logs/model-artifacts/memory-acceptance"
     mlp_directory: str = "logs/matched-foundation/20260926T121232-2"
     motor: str = "logs/direction-motor/20260926T053106-2/seed-41/update-001200.npz"
+    respawn: bool = False
 
     @model_validator(mode="after")
     def validate_plan(self) -> ContinuousPlan:
@@ -60,13 +63,13 @@ class ContinuousPlan(BaseModel):
         return self
 
     def policy_path(self, index: int) -> Path:
-        return Path(self.policy_directory) / f"episode-0000-ant-{index:02d}.npz"
+        return Path(self.policy_directory) / f"episode-0000-ant-{index % 8:02d}.npz"
 
     def gate_path(self, index: int) -> Path:
-        return Path(self.gate_directory) / f"ant-{index:02d}" / "step-0200.npz"
+        return Path(self.gate_directory) / f"ant-{index % 8:02d}" / "step-0200.npz"
 
     def mlp_path(self, index: int) -> Path:
-        return Path(self.mlp_directory) / f"seed-{81 + index}-signal-002400.npz"
+        return Path(self.mlp_directory) / f"seed-{81 + index % 8}-signal-002400.npz"
 
 
 class AntFrame(BaseModel):
@@ -87,6 +90,11 @@ class AntFrame(BaseModel):
     injury: float
     reward: float
     writes: int
+    pending: bool = False
+    respawned: bool = False
+    cumulative_deaths: int = 0
+    cumulative_terminations: int = 0
+    revivals: int = 0
 
 
 class Frame(BaseModel):
@@ -94,6 +102,7 @@ class Frame(BaseModel):
     source_position: list[float]
     source_active: bool
     ants: list[AntFrame]
+    food_stock: int | None = None
 
 
 class WorldResult(BaseModel):
@@ -115,6 +124,7 @@ class WorldResult(BaseModel):
     writes: list[int]
     snapshots: list[int]
     elapsed_seconds: float
+    revivals: int = 0
 
 
 class Execution(BaseModel):
@@ -150,7 +160,7 @@ def make_actors(plan: ContinuousPlan, seed: int, arm: Arm) -> list[Actor]:
     return actors
 
 
-def save_actors(actors: list[Actor], directory: Path, tick: int) -> None:
+def save_actors(actors: list[Actor], directory: Path, tick: int, *, include_memory: bool = False) -> None:
     for i, actor in enumerate(actors):
         path = directory / f"tick-{tick:04d}-ant-{i:02d}.npz"
         if isinstance(actor, OnlineForager):
@@ -159,21 +169,30 @@ def save_actors(actors: list[Actor], directory: Path, tick: int) -> None:
                 actor.controller.model.save(directory / f"decision-ant-{i:02d}.npz")
         elif isinstance(actor, NeuralForager):
             actor.model.save(path, update=0, phase="frozen")
+        if include_memory and isinstance(actor, (OnlineForager, NeuralForager)):
+            learner = actor.agent if isinstance(actor, OnlineForager) else actor
+            with path.with_suffix(".memory.npz").open("xb") as stream:
+                np.savez(stream, history=np.asarray([h.detach().numpy() for h in learner.history],
+                    dtype=np.float32).reshape(-1, 8), random_state=learner.random.get_state().numpy())
 
 
 def run_world(plan: ContinuousPlan, seed: int, condition: Condition, arm: Arm, directory: Path) -> WorldResult:
     actors = make_actors(plan, seed, arm)
-    env = DisturbedColony(seed, plan.environment, condition.disturbance)
+    env = (RevivingColony if plan.respawn else DisturbedColony)(seed, plan.environment, condition.disturbance)
     directory.mkdir(parents=True, exist_ok=False)
     frozen = [[p.detach().clone() for p in [*a.model.parameters(), *a.motor.parameters()]]
               if isinstance(a, NeuralForager) else [] for a in actors]
-    save_actors(actors, directory, 0)
+    save_actors(actors, directory, 0, include_memory=plan.respawn)
     snapshots = [0]
     decisions = eligible = accepted = active_steps = 0
     reward = 0.
     started = time.perf_counter()
     with gzip.open(directory / "trajectory.jsonl.gz", "xt") as trace, (directory / "updates.jsonl").open("x") as updates:
         while not env.done:
+            revived = env.release_waiting() if isinstance(env, RevivingColony) else []
+            for i in revived:
+                if isinstance(actors[i], OnlineForager):
+                    actors[i].revive()
             active = [not ant.exhausted for ant in env.ants]
             observations = [env.observation(i) for i in range(len(actors))]
             source_position = env.source_position.tolist()
@@ -191,7 +210,8 @@ def run_world(plan: ContinuousPlan, seed: int, condition: Condition, arm: Arm, d
             for i, actor in enumerate(actors):
                 if isinstance(actor, OnlineForager) and active[i]:
                     record = actor.feedback(events[i].reward, env.observation(i), terminal=env.done or env.ants[i].exhausted,
-                                            tick=env.steps, individual=i)
+                                            tick=env.steps, individual=i,
+                                            continuing_after_death=plan.respawn and env.ants[i].exhausted and not env.done)
                     if record is not None:
                         updates.write(record.model_dump_json() + "\n")
                         decisions += 1
@@ -200,15 +220,21 @@ def run_world(plan: ContinuousPlan, seed: int, condition: Condition, arm: Arm, d
             active_steps += sum(active)
             reward += sum(event.reward for event in events)
             trace.write(Frame(tick=env.steps, source_position=source_position, source_active=source_active,
+                food_stock=env.stock if plan.respawn else None,
                 ants=[AntFrame(observation=observations[i].vector().tolist(), active=active[i], move=actions[i].move,
                     turn=actions[i].turn, position=ant.position.tolist(), heading=ant.heading, carrying=ant.carrying,
                     exploration_left=ant.exploration_left, reserve_left=ant.reserve_left, picked_up=events[i].picked_up,
                     delivered=events[i].delivered, budget_return=events[i].budget_return, exhausted=ant.exhausted,
                     killed=bool(env.killed[i]), injury=float(env.injuries[i]), reward=events[i].reward,
-                    writes=actors[i].agent.writes if isinstance(actors[i], OnlineForager) else 0)
+                    writes=actors[i].agent.writes if isinstance(actors[i], OnlineForager) else 0,
+                    pending=bool(env.pending[i]) if isinstance(env, RevivingColony) else False,
+                    respawned=i in revived,
+                    cumulative_deaths=int(env.deaths[i]) if isinstance(env, RevivingColony) else 0,
+                    cumulative_terminations=int(env.terminations[i]) if isinstance(env, RevivingColony) else 0,
+                    revivals=int(env.revivals[i]) if isinstance(env, RevivingColony) else 0)
                     for i, ant in enumerate(env.ants)]).model_dump_json() + "\n")
             if env.steps % plan.checkpoint_every == 0 or env.done:
-                save_actors(actors, directory, env.steps)
+                save_actors(actors, directory, env.steps, include_memory=plan.respawn)
                 snapshots.append(env.steps)
     for actor, before in zip(actors, frozen, strict=True):
         if isinstance(actor, OnlineForager):
@@ -220,10 +246,14 @@ def run_world(plan: ContinuousPlan, seed: int, condition: Condition, arm: Arm, d
             raise AssertionError("冻结MLP改变")
     result = WorldResult(seed=seed, condition=condition.name, arm=arm, steps=env.steps,
         active_individual_steps=active_steps, deliveries=sum(a.deliveries for a in env.ants), pickups=sum(a.pickups for a in env.ants),
-        budget_returns=sum(a.budget_returns for a in env.ants), deaths=int(env.killed.sum()), exhausted=sum(a.exhausted for a in env.ants),
-        injury=float(env.injuries.sum()), reward=reward, decisions=decisions, eligible=eligible, accepted=accepted,
+        budget_returns=sum(a.budget_returns for a in env.ants),
+        deaths=int(env.deaths.sum()) if isinstance(env, RevivingColony) else int(env.killed.sum()),
+        exhausted=int(env.terminations.sum()) if isinstance(env, RevivingColony) else sum(a.exhausted for a in env.ants),
+        injury=float(env.total_injury.sum()) if isinstance(env, RevivingColony) else float(env.injuries.sum()),
+        reward=reward, decisions=decisions, eligible=eligible, accepted=accepted,
         writes=[a.agent.writes if isinstance(a, OnlineForager) else 0 for a in actors], snapshots=snapshots,
-        elapsed_seconds=time.perf_counter() - started)
+        elapsed_seconds=time.perf_counter() - started,
+        revivals=int(env.revivals.sum()) if isinstance(env, RevivingColony) else 0)
     (directory / "result.json").write_text(result.model_dump_json(indent=2))
     return result
 
