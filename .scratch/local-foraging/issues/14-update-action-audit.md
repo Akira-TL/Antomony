@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: claimed
 Category: enhancement
 Blocked by: 13
 
