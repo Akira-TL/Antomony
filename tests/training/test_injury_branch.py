@@ -9,6 +9,8 @@ import torch
 
 from mathhackson.training.comparison.injury_branch import clone_for_branch, evaluate
 from mathhackson.training.comparison import continuous, injury_probe
+from mathhackson.training.comparison.injury_branch import BranchPair
+from mathhackson.training.comparison.injury_scores import audit_branch
 from mathhackson.training.comparison.online_actor import OnlineForager
 from mathhackson.training.direction.policy import DirectionMotor
 from mathhackson.training.foraging.colony import ColonyConfig
@@ -88,3 +90,9 @@ def test_probe_reconstructs_short_record_without_changing_source(tmp_path, monke
     result = injury_probe.probe_world(plan, store, 1, tmp_path / 'branches')
     assert result.parent_steps <= 3 and len(result.points) == 1
     assert (source / 'trajectory.jsonl.gz').read_bytes() == original
+    tick, individual = result.points[0]
+    point = tmp_path / f'branches/seed-1/tick-{tick:04d}-ant-{individual:02d}'
+    pair = BranchPair.model_validate_json((point / 'pair.json').read_bytes())
+    with gzip.open(source / 'trajectory.jsonl.gz', 'rt') as stream:
+        parent = next(f for line in stream if (f := continuous.Frame.model_validate_json(line)).tick == tick)
+    assert audit_branch(point / 'accept.jsonl.gz', pair.accept, parent, individual, config.environment.stock, 2, 5) == 2
