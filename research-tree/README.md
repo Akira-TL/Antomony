@@ -12,12 +12,14 @@ flowchart TD
     N8["候选短期价值描述：危险分支未显示后果差异<br/>analysis · resolved"]
     N10["取消返巢奖励未通过采用条件<br/>analysis · resolved"]
     N12["伤害候选质量与接受判断均有不足<br/>analysis · resolved"]
+    N14["历史基线未通过且奖励与交付排序相反<br/>analysis · resolved"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
         N7["陌生信号候选更新的同状态价值诊断<br/>design · resolved"]
         N9["空载返巢奖励是否干扰危险适应<br/>design · resolved"]
         N11["伤害后单次候选与接受判断<br/>design · resolved"]
+        N13["历史奖励基线的单变量连续对照<br/>design · resolved"]
     end
     N1 --> N2
     N2 --> N3
@@ -30,6 +32,8 @@ flowchart TD
     N9 --> N10
     N5 --> N11
     N11 --> N12
+    N5 --> N13
+    N13 --> N14
 ```
 
 ## Node Index
@@ -48,3 +52,5 @@ flowchart TD
 | N10 | analysis | resolved | 取消返巢奖励未通过采用条件 | [打开](../analysis/return-reward-ablation/README.md) |
 | N11 | design | resolved | 伤害后单次候选与接受判断 | [打开](../designs/injury-candidate.md) |
 | N12 | analysis | resolved | 伤害候选质量与接受判断均有不足 | [打开](../analysis/injury-candidate/README.md) |
+| N13 | design | resolved | 历史奖励基线的单变量连续对照 | [打开](../designs/historical-baseline.md) |
+| N14 | analysis | resolved | 历史基线未通过且奖励与交付排序相反 | [打开](../analysis/historical-baseline/README.md) |

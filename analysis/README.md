@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [历史基线配对后果](historical-baseline/README.md) - 分析规则固定，待正式计算。
+- [历史基线配对后果](historical-baseline/README.md) - 未通过采用条件；出现零交付但总奖励提高，需重新明确目标取舍。
 
 - [伤害候选与接受判断](injury-candidate/README.md) - 已完成；两世界未一致出现有益候选被拒绝，候选质量及接受判断均有不足。
 
