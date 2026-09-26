@@ -1,0 +1,12 @@
+{
+  "seeds": [19501, 19502], "respawn": true, "checkpoint_every": 128,
+  "arms": ["skip", "always", "mlp", "rules"], "feedback_profile": "survival-v1",
+  "environment": {"ants": 8, "horizon": 2048, "stock": 20000,
+    "food_distance_min": 8.0, "food_distance_span": 2.0,
+    "trail_profile": "bounded-local-v2", "nest_signal_strength": 1.0, "return_reward": 2.0},
+  "adaptation": {"window": 16, "feedback_mode": "observed-window", "historical_baseline_rate": 0.0},
+  "conditions": [{"name": "moving-danger", "disturbance": {
+    "response": [1,0,0,0,0,0,1,0], "injury_per_step": 0.08,
+    "contact_radius": 0.45, "active_from": 128, "inactive_signal_scale": 0.0,
+    "motion_amplitude": 1.2, "motion_period_steps": 128}}]
+}
