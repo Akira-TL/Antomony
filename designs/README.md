@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [复杂来源连续更新对照](continuous-adaptation.md) - 固定80世界预算，待登记；主要比较同初始化的三种更新方式。
+- [复杂来源连续更新对照](continuous-adaptation.md) - 已冻结并登记；固定80世界，主要比较同初始化的三种更新方式。
 
 - [近似规模MLP基础资格](matched-foundation.md) - 已冻结；固定训练预算及48世界评价。
 
