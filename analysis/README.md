@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [四步写入约束与动作响应](update-constraints/README.md) - planned；只诊断已发生写入，不训练或增加参数搜索。
+
 - [后到反馈动作归因](credit-history/README.md) - completed；54共同状态中新配置无有益候选，未通过，停止本路线。
 
 - [四步候选动作输入学习](action-update-learning/README.md) - completed；训练及留出均无正收益候选，两输入0/2通过，停止本课程。
@@ -42,6 +44,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [写入约束诊断](update-constraints/README.md) → [窗口原始数据](../data/window-cadence/README.md)。
 
 - [后到归因评价](credit-history/README.md) → [设计](../designs/credit-history.md)、[数据](../data/credit-history/README.md)。
 

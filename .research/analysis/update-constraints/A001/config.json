@@ -1,0 +1,10 @@
+{
+  "input_directory": "logs/window-cadence/20260926T165559-3",
+  "manifest": "data/window-cadence/manifest.sha256",
+  "identities": [
+    {"path": "data/window-cadence/manifest.sha256", "sha256": "ff331b64bd7554d070f15431e2287440c1dd9ecc44bea9d9afb1a25f306a43df"},
+    {"path": ".research/protocols/four-frame-development.json", "sha256": "6f755e89b25c720e631155d805c9f2250b1a447c3ec34a142969133e7f6291df"},
+    {"path": "logs/window-cadence/20260926T165559-3/four/execution.json", "sha256": "62cba047afbeba81e0420a2115bc4abe0a1a043053968924e478005a51df30dc"}
+  ],
+  "output": ".research/analysis/update-constraints/A001/outputs/summary.json"
+}

@@ -1,0 +1,19 @@
+{
+  "slug": "update-constraints",
+  "title": "四步实际写入的约束与动作响应诊断",
+  "analysis_mode": "exploratory",
+  "status": "planned",
+  "target_uncertainty": "既有写入的实际动作变化是否主要消失在约束或角度饱和中。",
+  "estimand": "既有两个四步世界全部实际写入在相同窗口观察上的参数约束余量、角度导数、数值秩和实际动作分布变化。",
+  "unit_of_inference": "整巢世界种子；同巢个体、窗口与生命相关，不将写入次数作独立推断。",
+  "primary_analysis": "逐种子描述全部写入的分布约束、参数约束、饱和、矩阵秩及动作变化，先核验身份和完整随机轨迹，不作因果或显著性推断。",
+  "analysis_path": "analysis/update-constraints/README.md",
+  "code_path": "scripts/analyses/update_constraints.py",
+  "dataset_slugs": ["window-cadence"],
+  "artifacts": [
+    {"path": "scripts/analyses/update-constraints.sh", "role": "other", "timing_role": "pre_result_support"},
+    {"path": ".research/analysis/update-constraints/A001/config.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/comparison/update_constraints.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "tests/training/test_update_constraints.py", "role": "other", "timing_role": "pre_result_support"}
+  ]
+}
