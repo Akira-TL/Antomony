@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [三组基础采样](foundation-qualification/README.md) - 已完成固定48世界。
+
 - [反馈时间范围采样](feedback-window/README.md) - 已完成两种子、28条候选记录。
 
 - [基础扰动恢复参照](restoration-control/README.md) - 已完成六世界70点。
@@ -12,6 +14,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [基础采样](foundation-qualification/README.md) → [冻结设计](../designs/foundation-qualification.md)、[原始数据](../data/foundation-qualification/README.md)。
 
 - [反馈窗口采样](feedback-window/README.md) → [冻结设计](../designs/feedback-window.md)、[原始数据](../data/feedback-window/README.md)。
 
