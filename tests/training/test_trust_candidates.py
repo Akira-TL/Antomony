@@ -114,3 +114,22 @@ def test_probe_preserves_old_plan_and_serializes_new_constraints():
     assert ProbePlan.model_validate_json(new.model_dump_json()) == new
     with pytest.raises(ValueError):
         ProbePlan.model_validate(new.model_dump() | {"candidate_kind": "gradient"})
+
+
+def test_uniform_penalty_scaling_does_not_increase_normalized_trust_step():
+    agents = [TrustDirectionLearner(ForagingPolicy(71).with_budgets(), DirectionMotor(41), 14,
+              TrustConfig(window=16, feedback_mode="observed-window")) for _ in range(2)]
+    proposals = []
+    for agent, scale in zip(agents, (1., 100.), strict=True):
+        for _ in range(16):
+            agent.act(observation())
+            agent.feedback(-.08 * scale)
+        proposals.append(agent.propose(observation()))
+    assert np.any(proposals[0].delta)
+    assert proposals[1].gradient_norm == pytest.approx(100. * proposals[0].gradient_norm, rel=1e-5)
+    # 参数解受病态特征矩阵的舍入影响，比较实际行动分布而非逐参数相等。
+    distributions = [rotation_probabilities(torch.tensor(p.delta), torch.stack(a.base_directions),
+                     torch.stack(a.novel_features)) for a, p in zip(agents, proposals, strict=True)]
+    torch.testing.assert_close(distributions[0], distributions[1], rtol=1e-4, atol=1e-6)
+    assert np.linalg.norm(proposals[1].delta) < 1.01 * np.linalg.norm(proposals[0].delta)
+    assert agents[0].diagnostics.backtracks == agents[1].diagnostics.backtracks
