@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [同情境独立试行回报基线](plastic-paired-baseline.md) - 草案，尚未冻结或实施；两个新初始化、两组相同300轮和实际试行预算，最晚08:43前启动。
+- [同情境独立试行回报基线](plastic-paired-baseline.md) - 已冻结并开始实施，尚无完成或效果判断；两个新初始化、两组相同300轮和实际试行预算。
 
 - [方向读出归一化配对](plastic-projection.md) - 已完成；两个初始化均未通过原课程联合资格及架构、训练增益门槛，停止本有界配置。
 
@@ -48,7 +48,7 @@
 
 ## Relations
 
-- [同情境回报基线](plastic-paired-baseline.md) → [总体研究目标](ant-self-training-adaptation.md)、[前一方向归一化结果](../analysis/plastic-projection/README.md)。这是旧失败可见后的新方法比较，不预先认定失败机制。
+- [同情境回报基线](plastic-paired-baseline.md) → [总体研究目标](ant-self-training-adaptation.md)、[前一方向归一化结果](../analysis/plastic-projection/README.md)、[真实实施](../study/plastic-paired-baseline/README.md)。这是旧失败可见后的新方法比较，不预先认定失败机制。
 
 - [方向读出归一化配对](plastic-projection.md) → [总体研究目标](ant-self-training-adaptation.md)、[前一课程结果](../analysis/feedback-plasticity-course/README.md)、[真实实施](../study/plastic-projection/README.md)、[固定数据](../data/plastic-projection/README.md)、[配对结果](../analysis/plastic-projection/README.md)。这是旧失败可见后的Agent探索，不冒充结果前预测。
 
