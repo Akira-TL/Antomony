@@ -47,7 +47,7 @@
 
 ## Relations
 
-- [同情境独立试行基线实施](plastic-paired-baseline/README.md) → [冻结设计](../designs/plastic-paired-baseline.md)。
+- [同情境独立试行基线实施](plastic-paired-baseline/README.md) → [冻结设计](../designs/plastic-paired-baseline.md)、[固定数据](../data/plastic-paired-baseline/README.md)。
 
 - [方向归一化配对实施](plastic-projection/README.md) → [冻结设计](../designs/plastic-projection.md)、[固定原始数据](../data/plastic-projection/README.md)。
 

@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [同情境独立试行回报基线](plastic-paired-baseline/README.md) - 两组原始508项已固定，尚未汇总效果。
+
 - [方向归一化配对原始记录](plastic-projection/README.md) - 460项原件、28结构点及589824评价帧已审计，完整负结果保留。
 
 - [可塑方向基础课程原始记录](feedback-plasticity-course/README.md) - 129项固定输入及147456评价帧已完成机械审计，原件和全部负结果保留。
@@ -46,6 +48,8 @@
 - [候选更新短期价值](candidate-update-value/README.md) - 本地模拟原始配对数据，72 点。
 
 ## Relations
+
+- [同情境独立试行回报基线](plastic-paired-baseline/README.md) → [真实实施](../study/plastic-paired-baseline/README.md)。
 
 - [方向归一化配对数据](plastic-projection/README.md) → [真实实施](../study/plastic-projection/README.md)、[配对结果](../analysis/plastic-projection/README.md)。实际审计通过不等于课程门槛通过。
 

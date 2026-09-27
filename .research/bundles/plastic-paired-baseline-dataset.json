@@ -1,0 +1,15 @@
+{
+  "slug": "plastic-paired-baseline",
+  "title": "同情境独立试行回报基线的原始记录",
+  "version": "20260927T004157-3",
+  "source": "实施22于UTC00:48:21取回退出0；两组各两个初始化完成，508项原件在首次汇总前固定。两组分别保存真实代码提交，共同冻结581a7b6378f9cb100bf876f4d0c554b130fd317d；执行实现一致。",
+  "status": "active",
+  "study_slug": "plastic-paired-baseline",
+  "received_at": "2026-09-27T00:52:38Z",
+  "unit_of_inference": "独立外层初始化1721和1722；两基线方式、训练前后、同情境独立试行、条件、评价回合及四组在初始化内配对相关。",
+  "provenance_path": "data/plastic-paired-baseline/README.md",
+  "artifacts": [
+    {"location": "data/plastic-paired-baseline/inputs.sha256", "role": "manifest", "storage_kind": "local", "git_tracking": "required"},
+    {"location": "/home/Akira/Projects/MathHackson/logs/plastic-baseline/20260927T004157-3", "role": "raw", "storage_kind": "external", "git_tracking": "not_required", "tracking_reason": "完整508项原始文件保留本地忽略目录，清单及其散列固定入Git，不覆盖原件、不按结果剔除。"}
+  ]
+}
