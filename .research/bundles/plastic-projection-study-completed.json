@@ -1,0 +1,26 @@
+{
+  "slug": "plastic-projection",
+  "title": "方向归一化方式与可塑连接学习配对实施",
+  "design_slug": "plastic-projection",
+  "study_type": "本地合成方向课程的配对架构实验",
+  "status": "completed",
+  "started_at": "2026-09-27T00:05:47Z",
+  "completed_at": "2026-09-27T00:09:34Z",
+  "provenance_path": "study/plastic-projection/README.md",
+  "samples": [
+    {"sample_key": "1711", "source_identity": "20260927T000547-3:1711", "experimental_unit_identity": "外层初始化1711", "sample_type": "两模式配对方向课程", "status": "collected", "metadata": {"mode_directories": ["logs/plastic-projection/20260927T000547-3/unit/seed-1711", "logs/plastic-projection/20260927T000547-3/bounded/seed-1711"]}},
+    {"sample_key": "1712", "source_identity": "20260927T000547-3:1712", "experimental_unit_identity": "外层初始化1712", "sample_type": "两模式配对方向课程", "status": "collected", "metadata": {"mode_directories": ["logs/plastic-projection/20260927T000547-3/unit/seed-1712", "logs/plastic-projection/20260927T000547-3/bounded/seed-1712"]}}
+  ],
+  "artifacts": [
+    {"location": ".research/protocols/plastic-projection-unit.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"},
+    {"location": ".research/protocols/plastic-projection-bounded.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"},
+    {"location": "logs/plastic-projection/20260927T000547-3/unit/protocol.json", "role": "protocol", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "实际协议副本与冻结协议逐字相同，完整460项清单固定原件。"},
+    {"location": "logs/plastic-projection/20260927T000547-3/bounded/protocol.json", "role": "protocol", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "实际协议副本与冻结协议逐字相同，完整460项清单固定原件。"},
+    {"location": "logs/plastic-projection/20260927T000547-3/unit/commits.txt", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "实际代码和冻结身份的机器记录，完整清单固定，不改写原件。"},
+    {"location": "logs/plastic-projection/20260927T000547-3/bounded/commits.txt", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "实际代码和冻结身份的机器记录，完整清单固定，不改写原件。"},
+    {"location": "logs/plastic-projection/20260927T000547-3/unit/completion.json", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "真实完成和内部计时记录，文件mtime不冒充精确退出时刻。"},
+    {"location": "logs/plastic-projection/20260927T000547-3/bounded/completion.json", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "真实完成和内部计时记录，文件mtime不冒充精确退出时刻。"},
+    {"location": "logs/plastic-projection/20260927T000547-3/unit.log", "role": "execution_log", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "原始控制台记录保留于完整清单中，未以此计算评价效果。"},
+    {"location": "logs/plastic-projection/20260927T000547-3/bounded.log", "role": "execution_log", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "原始控制台记录保留于完整清单中，未以此计算评价效果。"}
+  ]
+}
