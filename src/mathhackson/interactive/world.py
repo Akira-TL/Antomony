@@ -42,6 +42,8 @@ class EditableColony(RevivingColony):
             signals.trails.values[:] = self.signals.trails.values
         self.signals = signals
         self.traps: list[Trap] = []
+        if rich_scene:
+            self._seed_rich_scene()
 
     def _open_rich_nest(self, signals: BarrierSignals) -> None:
         coordinates = [np.asarray(((column - 3.5) * .45, (row - 3.5) * .45), dtype=np.float32)
@@ -56,6 +58,19 @@ class EditableColony(RevivingColony):
             self.injuries[index] = 0.
             if self.config.trail_profile == "bounded-local-v2":
                 signals.trails.deposit(position, 0, self.config.home_rate)
+
+    def _seed_rich_scene(self) -> None:
+        positions = ((12.5, 6.8), (11., -7.5), (-11.5, 7.2))[:min(3, self.stock)]
+        quotient, remainder = divmod(self.stock, len(positions))
+        self.foods = [Food(index, x, y, quotient + int(index < remainder))
+                      for index, (x, y) in enumerate(positions)]
+        self.food = np.asarray(positions[0], dtype=np.float32)
+        for food in self.foods:
+            direction = np.asarray((food.x, food.y), dtype=np.float32)
+            direction /= np.linalg.norm(direction)
+            center = np.asarray((food.x, food.y), dtype=np.float32) - 1.35 * direction
+            self.add_wall(float(center[0]), float(center[1]), .25, 1.5,
+                          math.atan2(float(direction[1]), float(direction[0])))
 
     @property
     def done(self) -> bool:

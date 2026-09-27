@@ -22,6 +22,30 @@ def test_live_defaults_open_64_independent_body_slots_in_the_larger_nest():
                    for other in world.ants[:index])
 
 
+def test_rich_scene_splits_stock_and_places_passable_signal_barriers():
+    plan = make_plan(SessionConfig())
+    first = EditableColony(7, plan.environment, rich_scene=True)
+    second = EditableColony(7, plan.environment, rich_scene=True)
+
+    assert len(first.foods) == len(first.walls) == 3
+    assert sum(food.stock for food in first.foods) == first.stock == first.supplied_stock
+    assert first.foods == second.foods and first.walls == second.walls
+    assert np.array_equal(first.signals.trails.blocked, second.signals.trails.blocked)
+    for food, wall in zip(first.foods, first.walls, strict=True):
+        assert not wall.overlaps(np.asarray((food.x, food.y), dtype=np.float32), .4)
+        assert not wall.overlaps(first.home, plan.environment.home_radius)
+        direction = np.asarray((food.x, food.y), dtype=np.float32)
+        direction /= np.linalg.norm(direction)
+        hidden = np.asarray((wall.x, wall.y), dtype=np.float32) - .3 * direction
+        assert first.signals.sample(hidden[None, :], first.food_sources())[0, 0] == 0.
+
+
+def test_rich_scene_keeps_small_custom_stock_valid():
+    plan = make_plan(SessionConfig(ants=1, stock=1))
+    world = EditableColony(3, plan.environment, rich_scene=True)
+    assert len(world.foods) == 1 and world.foods[0].stock == 1
+
+
 def test_live_ant_limit_matches_the_renderer_capacity():
     assert SessionConfig(ants=64).ants == 64
     with pytest.raises(ValidationError):

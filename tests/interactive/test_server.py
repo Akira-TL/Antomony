@@ -42,7 +42,7 @@ def test_api_controls_preview_replay_and_export(live, monkeypatch, tmp_path):
     monkeypatch.setattr(server, "RUNS", tmp_path / "exports")
     async def exercise():
         check = await server.preview(req, Edit(kind="food", x=-8., y=-6.))
-        assert check.valid and len(live.groups[0].world.foods) == 1
+        assert check.valid and len(live.groups[0].world.foods) == 3
         assert (await server.edit_world(req, Edit(kind="food", x=-8., y=-6.))).valid
         assert (await server.control(req, Control(kind="step"))).tick == 1
         assert (await server.replay(req, 0)).tick == 0

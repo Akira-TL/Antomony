@@ -33,10 +33,10 @@ def test_edit_validates_all_three_before_changing_any_world(live):
     live.groups[1].world.ants[0].position[:] = [-4., 3.]
     checked = live.preview(edit)
     assert checked.valid and "0 / 1 / 0" in checked.message
-    assert all(not g.world.walls for g in live.groups)
+    assert all(len(g.world.walls) == 3 for g in live.groups)
     assert live.edit(edit).valid
-    assert [len(g.world.walls) for g in live.groups] == [1, 1, 1]
-    assert not live.groups[1].world.walls[0].overlaps(live.groups[1].world.ants[0].position, .18)
+    assert [len(g.world.walls) for g in live.groups] == [4, 4, 4]
+    assert not live.groups[1].world.walls[-1].overlaps(live.groups[1].world.ants[0].position, .18)
     assert live.tick == 0
     assert live.edit(Edit(kind="food", x=-8., y=-6., stock=7)).valid
     assert [g.world.stock for g in live.groups] == [55, 55, 55]
