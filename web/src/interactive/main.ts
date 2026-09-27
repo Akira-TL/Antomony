@@ -11,7 +11,7 @@ const icon=(id:string,node:IconNode)=>$(id).replaceChildren(createElement(node,{
 const keys:GroupKey[]=['adaptive','mlp','rules'];
 document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <header class="app-header"><div class="brand">Antomony <span>三组现场验收</span></div>
-  <span class="qualification">研究状态：更新时机学习未通过</span><div class="transport">
+  <div class="transport">
   <button id="play" title="运行" aria-label="运行"></button><button id="step" title="单步" aria-label="单步"></button>
   <select id="speed" aria-label="运行倍速"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select>
   <span class="divider"></span><button id="fit" title="三组全景" aria-label="三组全景"></button>
