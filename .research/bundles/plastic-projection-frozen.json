@@ -1,0 +1,13 @@
+{
+  "slug": "plastic-projection",
+  "title": "方向输出归一化方式与可塑连接学习的配对比较",
+  "question_node_slug": "ant-learned-update-adaptation",
+  "status": "frozen",
+  "freeze_commit": "4de4323541da4e2dbff2170f6d7388a584ae6fb6",
+  "feasibility_status": "ready",
+  "feasibility_summary": "设计、两协议、工程实现和结果前分析模板已由真实提交固定；两协议仅direction_mode不同，三份源模型散列核对一致。主线报告85项模型及入口测试和29项分析及短合成整链测试通过；设计及四份准备正文语言核验通过。900/440/420秒限时入口已实现，仅说明固定合成课程具备实施条件，不等于效果成立。",
+  "target_estimand": "分别报告每个初始化、三条件的第5至96帧和第73至96帧平均方向奖励。主要对比为候选减旧模式的训练后学得接受，以及候选训练后减同初始化训练前的学得接受；同时保留每种架构内学得接受减全部跳过、全部接受和等次数随机接受。",
+  "primary_outcome": "每初始化的两窗口配对方向奖励差，另列实际写入、接受与跳过比例；两关联条件联合差按条件等权平均，不是实际搬运或生存。",
+  "experimental_unit": "独立外层初始化1711和1712；两架构、训练前后、条件、回合及四组在初始化内配对相关。",
+  "artifact_path": "designs/plastic-projection.md"
+}
