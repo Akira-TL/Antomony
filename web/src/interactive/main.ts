@@ -1,6 +1,6 @@
 import {createElement,Play,Pause,StepForward,RotateCcw,Focus,Download,Save,MousePointer2,BrickWall,Apple,TriangleAlert,Eraser,Trash2,ChevronLeft,ChevronRight,Radio,X} from 'lucide';
 import type {IconNode} from 'lucide';
-import {api,labels} from './types';
+import {api,labels,pageUrl} from './types';
 import type {Control,Counts,Edit,Frame,GroupKey,Parameters,Preview,Tool} from './types';
 import {LiveWorld} from './world';
 import {ParameterCharts} from './charts';
@@ -41,7 +41,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
     <div id="parameter-charts" class="parameter-charts"></div><div id="parameter-empty" class="empty" hidden>规则组不含神经网络参数</div>
   </div></section>
 </main>
-<footer><div class="timeline"><span id="tick">0 / 4096 步</span><input id="timeline" type="range" min="0" max="0" value="0" aria-label="本轮回看时点"><button id="return-live" title="返回当前现场" aria-label="返回当前现场"></button><span id="timeline-mode">现场</span></div><div class="status-row"><span id="connection">正在连接本地服务</span><span id="run-name"></span><span id="performance"></span></div></footer>
+<footer><div class="timeline"><span id="tick">0 / 4096 步</span><input id="timeline" type="range" min="0" max="0" value="0" aria-label="本轮回看时点"><button id="return-live" title="返回当前现场" aria-label="返回当前现场"></button><span id="timeline-mode">现场</span></div><div class="status-row"><span id="connection">正在连接仿真服务</span><span id="run-name"></span><span id="performance"></span></div></footer>
 <div id="toast" role="alert" hidden></div>
 <dialog id="reset-dialog"><form id="reset-form"><div class="dialog-heading"><h2>新一轮验收</h2><button type="button" id="close-reset" title="取消" aria-label="取消"></button></div><label>随机种子<input id="seed" type="number" min="0" max="33554431" value="20260927" required></label><div class="settings"><label>每组个体<input id="ants" type="number" min="1" max="32" value="32" required></label><label>总步数<input id="horizon" type="number" min="16" max="32768" step="16" value="4096" required></label><label>初始库存<input id="stock" type="number" min="1" max="20000" value="384" required></label></div><div class="dialog-status">当前记录保留 · 新一轮从暂停开始</div><button type="submit" class="primary">开始新一轮</button></form></dialog>`;
 
@@ -96,7 +96,7 @@ function render():void{
   $('notices').replaceChildren(...view.notices.slice(0,3).map(n=>{const row=document.createElement('div');row.textContent=`第 ${n.tick} 步 · ${n.message}`;return row;}));
   $('run-name').textContent=`种子 ${live.seed} · ${live.run_id}`;
   $('performance').textContent=`三组推进 ${live.step_ms.toFixed(0)} ms`;
-  if(live.error){$('connection').textContent=live.error;$('connection').className='negative';}else{$('connection').textContent=connected?'本地服务已连接 · 三组同步':'连接中断';$('connection').className=connected?'':'negative';}
+  if(live.error){$('connection').textContent=live.error;$('connection').className='negative';}else{$('connection').textContent=connected?'仿真服务已连接 · 三组同步':'连接中断';$('connection').className=connected?'':'negative';}
   renderIndividual();renderControls();if(parameterTab)renderParameters();
 }
 function syncSelection():void{
@@ -199,7 +199,7 @@ $('timeline').oninput=()=>void attempt(async()=>{
   const frame=await api<Frame>(`replay?tick=${tick}`);if(serial!==replaySerial||frame.run_id!==live?.run_id)return;
   view=frame;render();
 });
-$('export').onclick=()=>void attempt(async()=>{busy=true;renderControls();try{const result=await api<{url:string}>('export',{});const link=document.createElement('a');link.href=result.url;link.download='';link.click();toast('完整运行记录已导出');}finally{busy=false;renderControls();}});
+$('export').onclick=()=>void attempt(async()=>{busy=true;renderControls();try{const result=await api<{url:string}>('export',{});const link=document.createElement('a');link.href=pageUrl(result.url);link.download='';link.click();toast('完整运行记录已导出');}finally{busy=false;renderControls();}});
 $('new-run').onclick=()=>{$<HTMLInputElement>('seed').value=String(live?.seed??20260927);$<HTMLInputElement>('ants').value=String(live?.groups[0].ants.length??32);$<HTMLInputElement>('horizon').value=String(live?.horizon??4096);$<HTMLDialogElement>('reset-dialog').showModal();};
 $('close-reset').onclick=()=>$<HTMLDialogElement>('reset-dialog').close();
 $<HTMLFormElement>('reset-form').onsubmit=event=>{event.preventDefault();void attempt(async()=>{

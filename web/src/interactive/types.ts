@@ -15,8 +15,16 @@ export interface Parameters {run_id:string;tick:number;group:GroupKey;individual
 export type Tool='inspect'|'wall'|'food'|'trap'|'erase';
 export const labels:Record<GroupKey,string>={adaptive:'自训练模型',mlp:'普通MLP',rules:'代码规则'};
 
+export function pageUrl(path:string,pageHref=window.location.href):string{
+  const base=new URL('.',pageHref);
+  if(!path.startsWith('/api/')&&!path.startsWith('api/'))throw new Error('仅允许当前页面目录的接口资源');
+  const target=new URL(path.startsWith('/')?path.slice(1):path,base);
+  if(target.origin!==base.origin||!target.pathname.startsWith(`${base.pathname}api/`))throw new Error('仅允许当前页面目录的接口资源');
+  return target.href;
+}
+
 export async function api<T>(path:string,body?:object):Promise<T>{
-  const response=await fetch(`/api/${path}`,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(20000)});
+  const response=await fetch(pageUrl(`/api/${path}`),{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(20000)});
   if(!response.ok){
     const error:unknown=await response.json().catch(()=>null);
     const detail=error&&typeof error==='object'&&'detail'in error?error.detail:null;

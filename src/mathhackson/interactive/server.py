@@ -211,7 +211,7 @@ async def download(request: Request, name: str) -> FileResponse:
 
 @app.get("/")
 async def index() -> RedirectResponse:
-    return RedirectResponse("/interactive.html")
+    return RedirectResponse("interactive.html")
 
 
 if (ROOT / "web/dist").exists():

@@ -1,6 +1,7 @@
 import asyncio
 import json
 from types import SimpleNamespace
+from urllib.parse import urljoin
 import zipfile
 
 from fastapi import HTTPException
@@ -14,6 +15,25 @@ from mathhackson.interactive.protocol import Control, Edit
 def request(engine, origin="http://localhost:8775"):
     return Request({"type": "http", "app": SimpleNamespace(state=SimpleNamespace(engine=engine)),
                     "headers": [(b"host", b"localhost:8775"), (b"origin", origin.encode())]})
+
+
+@pytest.mark.parametrize("base", ["http://localhost:8775/", "https://babelbeast.com/Antonomy/"])
+def test_index_redirect_keeps_mount_path(base):
+    response = asyncio.run(server.index())
+    assert response.status_code == 307
+    assert urljoin(base, response.headers["location"]) == base + "interactive.html"
+
+
+def test_proxy_write_uses_original_host_without_trusting_forwarded_host():
+    engine = object()
+    scope = {"type": "http", "app": SimpleNamespace(state=SimpleNamespace(engine=engine)),
+             "headers": [(b"host", b"babelbeast.com"), (b"origin", b"https://babelbeast.com")]}
+    assert server.current(Request(scope), write=True) is engine
+    scope["headers"] = [(b"host", b"babelbeast.com"), (b"origin", b"https://elsewhere.invalid"),
+                        (b"x-forwarded-host", b"elsewhere.invalid")]
+    with pytest.raises(HTTPException) as error:
+        server.current(Request(scope), write=True)
+    assert error.value.status_code == 403
 
 
 def test_api_controls_preview_replay_and_export(live, monkeypatch, tmp_path):
