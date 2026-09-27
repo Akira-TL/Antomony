@@ -1,0 +1,14 @@
+{
+  "slug": "plastic-paired-baseline",
+  "title": "同一情境独立试行回报基线的配对实施",
+  "design_slug": "plastic-paired-baseline",
+  "study_type": "本地合成方向课程的配对训练方法实验",
+  "status": "in_progress",
+  "started_at": "2026-09-27T00:41:57Z",
+  "provenance_path": "study/plastic-paired-baseline/README.md",
+  "samples": [],
+  "artifacts": [
+    {"location": ".research/protocols/plastic-baseline-history.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"},
+    {"location": ".research/protocols/plastic-baseline-paired.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"}
+  ]
+}

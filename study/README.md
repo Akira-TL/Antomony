@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [同情境独立试行基线实施](plastic-paired-baseline/README.md) - 进行中；已登记真实启动，尚未核对完成或效果。
+
 - [方向归一化配对实施](plastic-projection/README.md) - 两模式各两个初始化完整执行、整批退出0；固定数据与配对负结果已另行登记。
 
 - [可塑方向基础课程实施](feedback-plasticity-course/README.md) - 两初始化完整执行，内部125.33秒，配对评价及负结果已另行登记。
@@ -44,6 +46,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [同情境独立试行基线实施](plastic-paired-baseline/README.md) → [冻结设计](../designs/plastic-paired-baseline.md)。
 
 - [方向归一化配对实施](plastic-projection/README.md) → [冻结设计](../designs/plastic-projection.md)、[固定原始数据](../data/plastic-projection/README.md)。
 
