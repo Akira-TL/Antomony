@@ -11,6 +11,8 @@ def test_live_defaults_open_64_independent_body_slots_in_the_larger_nest():
     config = SessionConfig()
     assert config.ants == 64 and config.stock == 768
     plan = make_plan(config)
+    assert plan.environment.exploration_steps == 384
+    assert plan.environment.reserve_steps == 256
     world = EditableColony(config.seed, plan.environment, rich_scene=True)
 
     assert len(world.ants) == 64
