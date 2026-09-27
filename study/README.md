@@ -2,7 +2,9 @@
 
 ## Objects
 
-- [可塑方向基础课程实施](feedback-plasticity-course/README.md) - 两初始化完整执行，内部125.33秒，尚未计算评价效果。
+- [方向归一化配对实施](plastic-projection/README.md) - 已真实启动，当前进行中；未登记完成或数据。
+
+- [可塑方向基础课程实施](feedback-plasticity-course/README.md) - 两初始化完整执行，内部125.33秒，配对评价及负结果已另行登记。
 
 - [首步方向分支](first-action-outcomes/README.md) - 8状态128分支完成，未训练。
 
@@ -42,6 +44,8 @@
 - [候选更新短期价值采样](candidate-update-value/README.md) - 已完成四条主轨迹及其分支。
 
 ## Relations
+
+- [方向归一化配对实施](plastic-projection/README.md) → [冻结设计](../designs/plastic-projection.md)。
 
 - [可塑方向基础课程实施](feedback-plasticity-course/README.md) → [冻结设计](../designs/feedback-plasticity-course.md)、[固定原始数据](../data/feedback-plasticity-course/README.md)。
 
