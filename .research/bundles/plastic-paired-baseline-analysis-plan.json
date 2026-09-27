@@ -1,0 +1,22 @@
+{
+  "slug": "plastic-paired-baseline",
+  "title": "同情境独立试行回报基线的配对结果",
+  "analysis_mode": "exploratory",
+  "status": "planned",
+  "design_slug": "plastic-paired-baseline",
+  "target_uncertainty": "同情境的另一次独立试行回报基线，是否比历史回报基线更有效地训练修改量和接受时机。",
+  "estimand": "分别报告两个初始化在三条件、第5至96帧和第73至96帧的平均方向奖励。主要比较候选训练后减历史基线训练后的学得接受；另比较候选训练后减同初始化训练前。保留每个时点内学得接受减全部跳过、全部接受和等次数随机接受。",
+  "unit_of_inference": "独立外层初始化1721和1722；两基线方式、训练前后、同情境独立试行、条件、评价回合及四组在初始化内配对相关。",
+  "primary_analysis": "依照冻结设计24的全部科学规则，先核验原始文件、协议与来源、结构保存点和逐帧配对，再分别计算两个初始化的全部方向奖励差、接受跳过比例及真实写入，按原定全部继续条件判断；不挑保存点，不删除负差值，不更换窗口或门槛。",
+  "analysis_path": "analysis/plastic-paired-baseline/README.md",
+  "code_path": "scripts/analyses/plastic_baseline.py",
+  "dataset_slugs": ["plastic-paired-baseline"],
+  "artifacts": [
+    {"path": ".research/protocols/plastic-baseline-history.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": ".research/protocols/plastic-baseline-paired.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "scripts/analyses/plastic-baseline.sh", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/foraging/plastic_course/auditing.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/foraging/plastic_course/assessment.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": ".research/analysis/plastic-paired-baseline/A001/config.json", "role": "other", "timing_role": "pre_result_support"}
+  ]
+}

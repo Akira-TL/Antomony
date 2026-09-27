@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [同情境独立试行回报基线](plastic-paired-baseline/README.md) - 计划中；508项原始记录固定，尚未汇总效果。
+
 - [方向归一化方式与训练前后配对评价](plastic-projection/README.md) - 已完成；两架构均一初始化全部跳过、另一全部接受，旧课程联合资格及新增两类增益均未通过，停止本配置。
 
 - [可塑方向基础课程配对评价](feedback-plasticity-course/README.md) - 已完成；两初始化均全部接受，学得组与全部接受及等次数组奖励差为0，0/2通过；不延长、不接入8775。
@@ -52,6 +54,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [同情境独立试行回报基线](plastic-paired-baseline/README.md) → [冻结设计](../designs/plastic-paired-baseline.md)、[固定数据](../data/plastic-paired-baseline/README.md)。
 
 - [方向归一化配对评价](plastic-projection/README.md) → [冻结设计](../designs/plastic-projection.md)、[固定原始数据](../data/plastic-projection/README.md)、[真实实施](../study/plastic-projection/README.md)。
 

@@ -1,0 +1,9 @@
+{
+  "input": "logs/plastic-baseline/20260927T004157-3",
+  "history_plan": ".research/protocols/plastic-baseline-history.json",
+  "paired_plan": ".research/protocols/plastic-baseline-paired.json",
+  "manifest": "data/plastic-paired-baseline/inputs.sha256",
+  "output": ".research/analysis/plastic-paired-baseline/A001/outputs/summary.json",
+  "command": ["env", "UV_CACHE_DIR=/tmp/mathhackson-uv-cache", "bash", "scripts/analyses/plastic-baseline.sh", "--input", "logs/plastic-baseline/20260927T004157-3", "--history-plan", ".research/protocols/plastic-baseline-history.json", "--paired-plan", ".research/protocols/plastic-baseline-paired.json", "--manifest", "data/plastic-paired-baseline/inputs.sha256", "--output", ".research/analysis/plastic-paired-baseline/A001/outputs/summary.json"],
+  "status": "prepared-not-run"
+}

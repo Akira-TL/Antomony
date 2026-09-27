@@ -49,7 +49,7 @@
 
 ## Relations
 
-- [同情境独立试行回报基线](plastic-paired-baseline/README.md) → [真实实施](../study/plastic-paired-baseline/README.md)。
+- [同情境独立试行回报基线](plastic-paired-baseline/README.md) → [真实实施](../study/plastic-paired-baseline/README.md)、[配对分析计划](../analysis/plastic-paired-baseline/README.md)。
 
 - [方向归一化配对数据](plastic-projection/README.md) → [真实实施](../study/plastic-projection/README.md)、[配对结果](../analysis/plastic-projection/README.md)。实际审计通过不等于课程门槛通过。
 
