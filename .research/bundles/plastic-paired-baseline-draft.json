@@ -1,0 +1,12 @@
+{
+  "slug": "plastic-paired-baseline",
+  "title": "同一情境独立试行的回报基线比较",
+  "question_node_slug": "ant-learned-update-adaptation",
+  "status": "draft",
+  "feasibility_status": "unresolved",
+  "feasibility_summary": "Agent已在前一归一化比较失败后提出同情境另一独立试行基线与历史基线的唯一配对方案，固定1721/1722、两组各300轮、每轮8情境各2试行及780秒总硬限。工程修改、合成检查与结果前冻结仍待完成；最晚北京时间08:43前启动，否则保留未实施状态，不删减对照。当前只登记草案，不授权执行。",
+  "target_estimand": "分别报告两个初始化在三条件、第5至96帧和第73至96帧的平均方向奖励。主要比较候选训练后减历史基线训练后的学得接受；另比较候选训练后减同初始化训练前。保留每个时点内学得接受减全部跳过、全部接受和等次数随机接受。",
+  "primary_outcome": "每初始化两窗口的方向奖励配对差，持续关联与短暂变化联合差按条件等权平均；另列真实写入、接受跳过及全部固定继续条件，不是实际搬运或生存。",
+  "experimental_unit": "独立外层初始化1721和1722；两基线方式、训练前后、同情境独立试行、条件、评价回合及四组在初始化内配对相关。",
+  "artifact_path": "designs/plastic-paired-baseline.md"
+}

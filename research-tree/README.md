@@ -40,6 +40,7 @@ flowchart TD
         N21["固定四步与十六步窗口的生存对照<br/>design · resolved"]
         N29["行动反馈驱动的可塑连接与接受控制草案<br/>design · resolved"]
         N32["方向读出归一化方式的配对设计<br/>design · resolved"]
+        N35["同情境独立试行回报基线的配对设计<br/>design · active"]
     end
     N1 --> N2
     N2 --> N3
@@ -74,8 +75,10 @@ flowchart TD
     N5 --> N32
     N32 --> N33
     N33 --> N34
+    N5 --> N35
     N29 -. spawned_from .-> N28
     N32 -. spawned_from .-> N31
+    N35 -. spawned_from .-> N34
 ```
 
 ## Node Index
@@ -116,3 +119,4 @@ flowchart TD
 | N32 | design | resolved | 方向读出归一化方式的配对设计 | [打开](../designs/plastic-projection.md) |
 | N33 | study | resolved | 方向归一化配对实施 | [打开](../study/plastic-projection/README.md) |
 | N34 | analysis | closed | 方向归一化与训练前后配对评价 | [打开](../analysis/plastic-projection/README.md) |
+| N35 | design | active | 同情境独立试行回报基线的配对设计 | [打开](../designs/plastic-paired-baseline.md) |

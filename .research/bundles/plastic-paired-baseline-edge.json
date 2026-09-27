@@ -1,0 +1,8 @@
+{
+  "source_slug": "plastic-paired-baseline-design",
+  "relation": "spawned_from",
+  "target_slug": "plastic-projection-analysis",
+  "basis_type": "analysis",
+  "basis_ref": "analysis/plastic-projection/summary.json",
+  "note": "旧归一化配对未通过后提出新的外层训练方法探索；这是结果后的路线选择，不是新基线已经有效或旧失败机制已被识别的证据。"
+}

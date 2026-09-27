@@ -1,0 +1,12 @@
+{
+  "slug": "plastic-paired-baseline-design",
+  "kind": "design",
+  "label": "同情境独立试行回报基线的配对设计",
+  "scientific_scope": "前一方向归一化失败后的两个新外层初始化比较，固定模型、同情境重复结构与行动预算，只比较两回报基线；不以此预先认定梯度方差机制或真实蚁群优势。",
+  "workflow_status": "active",
+  "branch_priority": "primary",
+  "parent_slug": "ant-learned-update-adaptation",
+  "canonical_entity_type": "design",
+  "canonical_entity_id": "24",
+  "artifact_path": "designs/plastic-paired-baseline.md"
+}
