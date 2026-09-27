@@ -15,16 +15,16 @@ GroupKey = Literal["adaptive", "mlp", "rules"]
 class SessionConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     seed: int = Field(default=20260927, ge=0, lt=2**25)
-    ants: int = Field(default=32, ge=1, le=32)
+    ants: int = Field(default=64, ge=1, le=64)
     horizon: int = Field(default=4096, ge=16, le=32768)
-    stock: int = Field(default=384, ge=1, le=20000)
+    stock: int = Field(default=768, ge=1, le=20000)
 
 
 class Edit(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
     kind: Literal["wall", "food", "trap", "erase-wall", "erase-trap", "clear-trails"]
-    x: float = Field(default=0., ge=-14., le=14.)
-    y: float = Field(default=0., ge=-10., le=10.)
+    x: float = Field(default=0., ge=-17., le=17.)
+    y: float = Field(default=0., ge=-12., le=12.)
     hx: float = Field(default=.25, ge=.2, le=4.)
     hy: float = Field(default=1.5, ge=.2, le=4.)
     angle: float = Field(default=0., ge=-100., le=100.)

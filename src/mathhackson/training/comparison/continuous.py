@@ -156,13 +156,13 @@ def make_actors(plan: ContinuousPlan, seed: int, arm: Arm) -> list[Actor]:
     if (plan.feedback_profile != "legacy" or plan.adaptation.feedback_trigger != "window") and arm == "learned":
         raise ValueError("旧接受模型未按新目标或触发时序训练，不能用于新反馈")
     if arm == "rules":
-        return [LocalRuleController(seed * 32 + i) for i in range(plan.environment.ants)]
+        return [LocalRuleController(seed * 64 + i) for i in range(plan.environment.ants)]
     motor, _ = load_motor(Path(plan.motor))
     if arm == "mlp":
         policies = [FeedforwardPolicy.load(plan.mlp_path(i)) for i in range(plan.environment.ants)]
         if any(policy.hidden_width != 17 for policy in policies):
             raise ValueError("普通对照须使用固定17宽模型")
-        return [NeuralForager(policy, motor, seed * 32 + i) for i, policy in enumerate(policies)]
+        return [NeuralForager(policy, motor, seed * 64 + i) for i, policy in enumerate(policies)]
     if arm not in ("learned", "skip", "always"):
         raise ValueError("未知比较组")
     actors = []
@@ -173,7 +173,7 @@ def make_actors(plan: ContinuousPlan, seed: int, arm: Arm) -> list[Actor]:
             raise ValueError("接受模型必须使用固定200步终点")
         if any(bool(p.any()) for p in policy.memory_parameters()):
             raise ValueError("当前比较要求保留基础功能的零记忆初始化")
-        actors.append(OnlineForager(policy, motor, decision, seed * 32 + i, arm, plan.adaptation))
+        actors.append(OnlineForager(policy, motor, decision, seed * 64 + i, arm, plan.adaptation))
     return actors
 
 

@@ -11,13 +11,15 @@ TrailProfile = Literal["additive-cell-v1", "bounded-local-v2"]
 
 
 class LocalTrailField(Pheromones):
-    def __init__(self, profile: TrailProfile) -> None:
+    def __init__(self, profile: TrailProfile, *, half: tuple[float, float] = (14., 10.)) -> None:
         if profile not in ("additive-cell-v1", "bounded-local-v2"):
             raise ValueError("未知训练轨迹场版本")
-        super().__init__()
+        super().__init__(half=half)
         self.profile = profile
-        self.x = np.linspace(-14. + 14. / self.width, 14. - 14. / self.width, self.width)
-        self.y = np.linspace(-10. + 10. / self.height, 10. - 10. / self.height, self.height)
+        self.x = np.linspace(-self.half[0] + self.half[0] / self.width,
+                             self.half[0] - self.half[0] / self.width, self.width)
+        self.y = np.linspace(-self.half[1] + self.half[1] / self.height,
+                             self.half[1] - self.half[1] / self.height, self.height)
 
     def deposit(self, p: np.ndarray, channel: int, amount: float) -> None:
         if self.profile == "additive-cell-v1":

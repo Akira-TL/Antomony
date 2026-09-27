@@ -166,7 +166,7 @@ async def live_frames(socket: WebSocket) -> None:
 
 
 @app.get("/api/parameters")
-async def parameters(request: Request, group: GroupKey = "adaptive", individual: int = Query(default=0, ge=0, le=31)) -> ParameterView:
+async def parameters(request: Request, group: GroupKey = "adaptive", individual: int = Query(default=0, ge=0, le=63)) -> ParameterView:
     engine = current(request)
     async with engine.lock:
         try:

@@ -15,6 +15,10 @@ from mathhackson.training.foraging.signals import SignalSource
 from .signals import BarrierSignals
 from .hazards import Trap
 
+INTERACTIVE_HALF = (17., 12.)
+INTERACTIVE_HOME_RADIUS = 2.5
+INTERACTIVE_AWAY_RADIUS = 2.8
+
 
 @dataclass
 class Food:
@@ -25,15 +29,33 @@ class Food:
 
 
 class EditableColony(RevivingColony):
-    def __init__(self, seed: int, config: ColonyConfig) -> None:
+    def __init__(self, seed: int, config: ColonyConfig, *, rich_scene: bool = False) -> None:
         super().__init__(seed, config, DisturbanceConfig(signal_strength=0., injury_per_step=0.))
         self.foods = [Food(0, float(self.food[0]), float(self.food[1]), self.stock)]
         self.food_origins: list[int | None] = [None] * len(self.ants)
         self.supplied_stock = self.stock
-        signals = BarrierSignals(config.trail_profile)
-        signals.trails.values[:] = self.signals.trails.values
+        half = INTERACTIVE_HALF if rich_scene else tuple(float(value) for value in self.signals.trails.half)
+        signals = BarrierSignals(config.trail_profile, half=half)
+        if rich_scene:
+            self._open_rich_nest(signals)
+        else:
+            signals.trails.values[:] = self.signals.trails.values
         self.signals = signals
         self.traps: list[Trap] = []
+
+    def _open_rich_nest(self, signals: BarrierSignals) -> None:
+        coordinates = [np.asarray(((column - 3.5) * .45, (row - 3.5) * .45), dtype=np.float32)
+                       for row in range(8) for column in range(8)]
+        coordinates.sort(key=lambda point: (float(point @ point), math.atan2(float(point[1]), float(point[0]))))
+        self.slots = coordinates[:len(self.ants)]
+        self.waiting.clear()
+        for index, (ant, position) in enumerate(zip(self.ants, self.slots, strict=True)):
+            ant.position = position.copy()
+            ant.exhausted = False
+            self.pending[index] = self.killed[index] = False
+            self.injuries[index] = 0.
+            if self.config.trail_profile == "bounded-local-v2":
+                signals.trails.deposit(position, 0, self.config.home_rate)
 
     @property
     def done(self) -> bool:
@@ -94,7 +116,7 @@ class EditableColony(RevivingColony):
         position = np.asarray([x, y], dtype=np.float32)
         if np.any(np.abs(position) + .4 > self.signals.trails.half):
             return "食物超出场地"
-        if np.linalg.norm(position - self.home) < 1.1:
+        if np.linalg.norm(position - self.home) < self.config.home_radius + .45:
             return "食物不能覆盖巢穴"
         if any(np.linalg.norm(position - (f.x, f.y)) < .8 for f in self.foods):
             return "食物位置重叠"
@@ -120,7 +142,7 @@ class EditableColony(RevivingColony):
             return None, "墙体尺寸或位置无效"
         if np.any(np.abs((wall.x, wall.y)) + wall.extent > self.signals.trails.half):
             return None, "墙体超出场地"
-        if wall.overlaps(self.home, 1.):
+        if wall.overlaps(self.home, self.config.home_radius + .2):
             return None, "墙体不能覆盖巢穴"
         if any(wall.overlaps(np.asarray([f.x, f.y]), .4) for f in self.foods):
             return None, "墙体不能覆盖食物"
@@ -156,7 +178,7 @@ class EditableColony(RevivingColony):
         extent = np.asarray([trap.radius, trap.radius + trap.motion_amplitude])
         if np.any(np.abs(center) + extent > self.signals.trails.half):
             return "作用区或移动范围超出场地"
-        if np.linalg.norm(center - self.home) < 1. + trap.radius + trap.motion_amplitude:
+        if np.linalg.norm(center - self.home) < self.config.home_radius + trap.radius + trap.motion_amplitude:
             return "作用区不能覆盖巢穴"
         if any(w.overlaps(center, trap.radius + trap.motion_amplitude) for w in self.walls):
             return "作用区不能覆盖墙体"

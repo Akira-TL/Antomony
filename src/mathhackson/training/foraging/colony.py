@@ -15,12 +15,14 @@ from .signals import LocalSignals, SignalSource, receptor_points
 
 
 class ColonyConfig(ForagingConfig):
-    ants: int = Field(default=8, ge=1, le=32)
+    ants: int = Field(default=8, ge=1, le=64)
     stock: int = Field(default=16, ge=1)
     exploration_steps: int = Field(default=160, ge=1)
     reserve_steps: int = Field(default=160, ge=1)
     return_reward: float = Field(default=2., ge=0.)
     exhaustion_cost: float = Field(default=2., ge=0.)
+    home_radius: float = Field(default=.65, gt=0.)
+    away_radius: float = Field(default=.9, gt=0.)
 
 
 @dataclass
@@ -129,7 +131,7 @@ class ColonyEnvironment:
             ant.previous_move, ant.previous_turn = action.move, action.turn
             ant.leg_distance += traveled
             ant.release_distance += traveled
-            if float(np.linalg.norm(ant.position - self.home)) > .9:
+            if float(np.linalg.norm(ant.position - self.home)) > self.config.away_radius:
                 ant.away = True
             if ant.exploration_left > 0:
                 ant.exploration_left -= 1
@@ -153,7 +155,7 @@ class ColonyEnvironment:
             elif ant.release_distance >= self.config.food_release_spacing:
                 self.signals.trails.deposit(ant.position, 1, self.config.food_rate * strength)
                 ant.release_distance = 0.
-            at_home = float(np.linalg.norm(ant.position - self.home)) < .65
+            at_home = float(np.linalg.norm(ant.position - self.home)) < self.config.home_radius
             delivery = ant.carrying and at_home
             pickup = not ant.carrying and self.take_food(i)
             returned = at_home and ant.away and ant.exploration_left == 0

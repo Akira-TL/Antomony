@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import {ColonyScene} from '../scene';
 import type {Edit,Frame,World} from './types';
 
+const ARENA={x:17,y:12};
+const HOME_RADIUS=2.5;
+
 function dispose(group:THREE.Group):void{
   group.traverse(o=>{if(o instanceof THREE.Mesh||o instanceof THREE.LineSegments){o.geometry.dispose();const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.dispose());}});group.clear();
 }
@@ -22,17 +25,17 @@ export class LiveWorld {
   onWheel:(direction:number,p:{x:number;y:number}|null)=>boolean=()=>false;
   editing=false;world:World|null=null;
   constructor(host:HTMLElement,onSelect:(id:number)=>void){
-    this.scene=new ColonyScene(host,true);
+    this.scene=new ColonyScene(host,true,ARENA);
     this.scene.onPoint=(_x,_y,id)=>{if(id!==null&&this.ids[id]!==undefined)onSelect(this.ids[id]);};
     this.scene.scene.add(this.content,this.preview,this.foods);
-    const nest=new THREE.Mesh(new THREE.CylinderGeometry(.6,.65,.08,48),new THREE.MeshStandardMaterial({color:0x438c79}));
-    nest.position.y=.06;this.scene.scene.add(nest,ring(1,0x66bcac,.5),ring(.65,0x9be2ca));
+    const nest=new THREE.Mesh(new THREE.CylinderGeometry(HOME_RADIUS-.08,HOME_RADIUS,.08,64),new THREE.MeshStandardMaterial({color:0x438c79}));
+    nest.position.y=.06;this.scene.scene.add(nest,ring(HOME_RADIUS+.2,0x66bcac,.5),ring(HOME_RADIUS,0x9be2ca));
     const canvas=this.scene.renderer.domElement;
     const ground=(e:Pick<PointerEvent,'clientX'|'clientY'>):{x:number;y:number}|null=>{
       const box=canvas.getBoundingClientRect(),v=new THREE.Vector2((e.clientX-box.left)/box.width*2-1,1-(e.clientY-box.top)/box.height*2);
       const ray=new THREE.Raycaster();ray.setFromCamera(v,this.scene.camera);
       const p=ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),new THREE.Vector3());
-      return p&&Math.abs(p.x)<=14&&Math.abs(p.z)<=10?{x:p.x,y:p.z}:null;
+      return p&&Math.abs(p.x)<=ARENA.x&&Math.abs(p.z)<=ARENA.y?{x:p.x,y:p.z}:null;
     };
     canvas.addEventListener('pointermove',e=>{if(this.editing)this.onMove(ground(e));});
     canvas.addEventListener('pointerleave',()=>this.onMove(null));

@@ -35,8 +35,9 @@ class SignalSource:
 
 
 class LocalSignals:
-    def __init__(self, *, trail_profile: TrailProfile = "additive-cell-v1") -> None:
-        self.trails = LocalTrailField(trail_profile)
+    def __init__(self, *, trail_profile: TrailProfile = "additive-cell-v1",
+                 half: tuple[float, float] = (14., 10.)) -> None:
+        self.trails = LocalTrailField(trail_profile, half=half)
 
     def trail_samples(self, points: np.ndarray) -> np.ndarray:
         grid = self.trails

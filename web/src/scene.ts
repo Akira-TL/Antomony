@@ -37,7 +37,7 @@ export class ColonyScene {
   private visualTime=0;
   private last=performance.now();private frameCounter=0;private fpsStart=performance.now();
 
-  constructor(private host:HTMLElement,private training=false) {
+  constructor(private host:HTMLElement,private training=false,private arena={x:14,y:10}) {
     this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
     this.renderer.setPixelRatio(Math.min(devicePixelRatio,training?1.25:1.8));
     this.renderer.shadowMap.enabled=true;
@@ -55,10 +55,10 @@ export class ColonyScene {
     const sun=new THREE.DirectionalLight(0xfaf4dc,3);sun.position.set(-9,24,12);sun.castShadow=true;
     sun.shadow.mapSize.set(training?1024:2048,training?1024:2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:16,bottom:-16,near:1,far:65});sun.shadow.bias=-.0004;
     this.scene.add(sun);
-    const base=new THREE.Mesh(new THREE.BoxGeometry(28.8,.65,20.8),new THREE.MeshStandardMaterial({color:0x142c2b,roughness:.8,metalness:.1}));base.position.y=-.38;base.receiveShadow=true;this.scene.add(base);
-    const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshStandardMaterial({color:training?0x292c30:0x17342e,roughness:.92}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;this.scene.add(floor);
-    const grid=new THREE.GridHelper(28,56,0x416454,0x28483e);grid.scale.z=20/28;grid.position.y=.009;(grid.material as THREE.Material).transparent=true;(grid.material as THREE.Material).opacity=.28;this.scene.add(grid);
-    const border=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(28.5,.06,20.5)),new THREE.LineBasicMaterial({color:0x82b49a,transparent:true,opacity:.5}));border.position.y=.02;this.scene.add(border);
+    const base=new THREE.Mesh(new THREE.BoxGeometry(arena.x*2+.8,.65,arena.y*2+.8),new THREE.MeshStandardMaterial({color:0x142c2b,roughness:.8,metalness:.1}));base.position.y=-.38;base.receiveShadow=true;this.scene.add(base);
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(arena.x*2,arena.y*2),new THREE.MeshStandardMaterial({color:training?0x292c30:0x17342e,roughness:.92}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;this.scene.add(floor);
+    const grid=new THREE.GridHelper(arena.x*2,Math.round(arena.x*4),0x416454,0x28483e);grid.scale.z=arena.y/arena.x;grid.position.y=.009;(grid.material as THREE.Material).transparent=true;(grid.material as THREE.Material).opacity=.28;this.scene.add(grid);
+    const border=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(arena.x*2+.5,.06,arena.y*2+.5)),new THREE.LineBasicMaterial({color:0x82b49a,transparent:true,opacity:.5}));border.position.y=.02;this.scene.add(border);
     if(!training){
     const nest=new THREE.Mesh(new THREE.CylinderGeometry(1.65,1.8,.18,64),new THREE.MeshStandardMaterial({color:0x356b54,metalness:.45,roughness:.36}));nest.position.set(-10,.08,0);this.scene.add(nest);
     for(const r of [1.25,1.85]){const torus=new THREE.Mesh(new THREE.TorusGeometry(r,.018,8,90),new THREE.MeshBasicMaterial({color:0xa8e6b5}));torus.rotation.x=Math.PI/2;torus.position.set(-10,.19,0);this.scene.add(torus);}
@@ -76,7 +76,7 @@ export class ColonyScene {
     for(let channel=0;channel<2;channel++){
       const texture=new THREE.DataTexture(new Uint8Array(96*64*4),96,64,THREE.RGBAFormat);
       texture.flipY=true;texture.magFilter=THREE.LinearFilter;texture.minFilter=THREE.LinearFilter;
-      const mesh=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,toneMapped:false}));
+      const mesh=new THREE.Mesh(new THREE.PlaneGeometry(arena.x*2,arena.y*2),new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,toneMapped:false}));
       mesh.rotation.x=-Math.PI/2;mesh.position.y=.022+channel*.002;this.scene.add(mesh);
       this.fieldTextures.push(texture);this.fieldMeshes.push(mesh);
     }
@@ -106,7 +106,7 @@ export class ColonyScene {
     // 用真实投影边界验收全景，而不是只根据窗口比例猜镜头距离。
     for(let attempt=0;attempt<20;attempt++){
       this.camera.position.set(0,distance*.94,distance*.342);this.camera.lookAt(0,0,0);this.camera.updateMatrixWorld();
-      const corners=[[-14.5,-10.5],[-14.5,10.5],[14.5,-10.5],[14.5,10.5]];
+      const corners=[[-this.arena.x-.5,-this.arena.y-.5],[-this.arena.x-.5,this.arena.y+.5],[this.arena.x+.5,-this.arena.y-.5],[this.arena.x+.5,this.arena.y+.5]];
       const fits=corners.every(([x,z])=>{const p=new THREE.Vector3(x,0,z).project(this.camera);return Math.abs(p.x)<.93&&Math.abs(p.y)<.88;});
       if(fits)break;distance*=1.06;
     }
@@ -161,7 +161,7 @@ export class ColonyScene {
     const rect=this.renderer.domElement.getBoundingClientRect();this.pointer.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);
     this.raycaster.setFromCamera(this.pointer,this.camera);
     const p=this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),new THREE.Vector3());
-    if(!p||Math.abs(p.x)>14||Math.abs(p.z)>10)return null;
+    if(!p||Math.abs(p.x)>this.arena.x||Math.abs(p.z)>this.arena.y)return null;
     return p;
   }
 

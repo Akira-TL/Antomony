@@ -33,8 +33,8 @@ def visible_from(origin: np.ndarray, points: np.ndarray, walls: list[Wall]) -> n
 
 
 class BarrierTrailField(LocalTrailField):
-    def __init__(self, profile: TrailProfile) -> None:
-        super().__init__(profile)
+    def __init__(self, profile: TrailProfile, *, half: tuple[float, float] = (14., 10.)) -> None:
+        super().__init__(profile, half=half)
         self.walls: list[Wall] = []
 
     def set_walls(self, walls: list[Wall]) -> None:
@@ -58,8 +58,8 @@ class BarrierTrailField(LocalTrailField):
 
 
 class BarrierSignals(LocalSignals):
-    def __init__(self, profile: TrailProfile) -> None:
-        self.trails = BarrierTrailField(profile)
+    def __init__(self, profile: TrailProfile, *, half: tuple[float, float] = (14., 10.)) -> None:
+        self.trails = BarrierTrailField(profile, half=half)
 
     def sample(self, points: np.ndarray, sources: tuple[SignalSource, ...]) -> np.ndarray:
         if not self.trails.walls:

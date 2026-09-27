@@ -24,7 +24,7 @@ from .hazards import Trap
 from .protocol import (AntView, Control, Counts, Edit, Frame, GroupKey, Notice, ParameterModule,
                        ParameterPoint, ParameterView, Preview, SessionConfig, TrapView, WorldView)
 from .recording import RecordStore
-from .world import EditableColony
+from .world import (INTERACTIVE_AWAY_RADIUS, INTERACTIVE_HOME_RADIUS, EditableColony)
 
 
 @dataclass
@@ -40,7 +40,8 @@ def make_plan(config: SessionConfig) -> ContinuousPlan:
     return ContinuousPlan(seeds=(config.seed,), arms=("always", "mlp", "rules"), respawn=True,
         conditions=(Condition(name="reference", disturbance=DisturbanceConfig(signal_strength=0., injury_per_step=0.)),),
         environment=ColonyConfig(ants=config.ants, horizon=config.horizon, stock=config.stock,
-            food_distance_min=8., food_distance_span=2., trail_profile="bounded-local-v2", nest_signal_strength=1.),
+            food_distance_min=10., food_distance_span=2., trail_profile="bounded-local-v2", nest_signal_strength=1.,
+            nest_signal_radius=3.5, home_radius=INTERACTIVE_HOME_RADIUS, away_radius=INTERACTIVE_AWAY_RADIUS),
         adaptation=TrustConfig(window=4, feedback_mode="observed-window"), feedback_profile="survival-v1",
         policy_directory="models/interactive/memory", gate_directory="models/interactive/gate",
         mlp_directory="models/interactive/mlp", motor="models/interactive/motor/update-001200.npz")
@@ -55,7 +56,8 @@ class LiveSession:
                 or self.plan.feedback_profile != "survival-v1" or not self.plan.respawn
                 or self.plan.arms != ("always", "mlp", "rules")):
             raise ValueError("现场配置与实际执行方案不一致")
-        self.groups = [Group(key, EditableColony(config.seed, self.plan.environment), make_actors(self.plan, config.seed, arm))
+        self.groups = [Group(key, EditableColony(config.seed, self.plan.environment, rich_scene=True),
+                             make_actors(self.plan, config.seed, arm))
                        for key, arm in (("adaptive", "always"), ("mlp", "mlp"), ("rules", "rules"))]
         self.run_id = directory.name
         self.paused, self.learning, self.rate = True, True, 1
