@@ -18,7 +18,7 @@ from ..feedback_cues import CONDITIONS, Condition, CueConfig, CueEpisode, cue_ep
 from ..memory import MemoryPolicy
 from ..plastic_direction import DirectionMode, PlasticDirection
 from .checkpoint import save_checkpoint
-from .rollout import CourseTrace, Mode, matched_schedule, outer_loss, rollout
+from .rollout import CourseTrace, Mode, matched_schedule, outer_loss, paired_baseline, rollout
 
 
 class Source(BaseModel):
@@ -53,6 +53,8 @@ class Protocol(BaseModel):
     max_fast: float = Field(default=2., gt=0, le=4.)
     direction_mode: DirectionMode = "unit"
     evaluate_initial: bool = False
+    paired_courses: bool = False
+    baseline_mode: Literal["history", "paired"] = "history"
     checkpoint_interval: Literal[25] = 25
     time_limit_seconds: int = Field(default=900, ge=30, le=900)
 
@@ -71,6 +73,10 @@ class Protocol(BaseModel):
             seen.update(partition)
         if self.max_step > self.max_fast:
             raise ValueError("单次写入范数上限不能超过累计上限")
+        if self.paired_courses and self.course.batch % 2:
+            raise ValueError("成对训练课程需要偶数批量")
+        if self.baseline_mode == "paired" and not self.paired_courses:
+            raise ValueError("同对另一轨迹基线需要成对训练课程")
         return self
 
 
@@ -130,6 +136,19 @@ def base_directions(base: MemoryPolicy, episode: CueEpisode) -> torch.Tensor:
     return torch.stack(directions).detach()
 
 
+def training_episode(seed: int, plan: Protocol) -> CueEpisode:
+    if not plan.paired_courses:
+        return cue_episode(seed, plan.course)
+    half = cue_episode(seed, plan.course.model_copy(update={"batch": plan.course.batch // 2}))
+    return CueEpisode(config=plan.course,
+        conditions=tuple(condition for condition in half.conditions for _ in range(2)),
+        observations=half.observations.repeat_interleave(2, dim=1),
+        targets=half.targets.repeat_interleave(2, dim=1),
+        clean_targets=half.clean_targets.repeat_interleave(2, dim=1),
+        cue_ids=half.cue_ids.repeat_interleave(2, dim=1),
+        reward_flips=half.reward_flips.repeat_interleave(2, dim=1))
+
+
 def save_trace(path: Path, episode: CueEpisode, base: torch.Tensor, trace: CourseTrace, *, structure_update: int) -> None:
     with path.open("xb") as stream:
         np.savez_compressed(stream, structure_update=structure_update, observations=episode.observations.numpy(),
@@ -176,16 +195,18 @@ def train(model: PlasticDirection, base: MemoryPolicy, initialization: Initializ
     for update in range(1, plan.updates + 1):
         if time.monotonic() >= deadline:
             raise TimeoutError("达到预定总计算预算，保留所有中间记录；未完成不作通过判断")
-        episode = cue_episode(initialization.train_seed + update, plan.course)
+        episode = training_episode(initialization.train_seed + update, plan)
         directions = base_directions(base, episode)
         trace = rollout(model, episode, directions,
             seed=initialization.train_seed + update + 10_000_000, training=True)
-        loss, credit = outer_loss(trace, baseline, gamma=plan.gamma, write_cost=plan.write_cost)
+        control = paired_baseline(trace, gamma=plan.gamma, write_cost=plan.write_cost) if plan.baseline_mode == "paired" else baseline
+        loss, credit = outer_loss(trace, control, gamma=plan.gamma, write_cost=plan.write_cost)
         optimizer.zero_grad()
         loss.backward()
         norm = torch.nn.utils.clip_grad_norm_(model.parameters(), plan.gradient_norm, error_if_nonfinite=True)
         optimizer.step()
-        baseline = plan.baseline_decay * baseline + (1. - plan.baseline_decay) * credit
+        if plan.baseline_mode == "history":
+            baseline = plan.baseline_decay * baseline + (1. - plan.baseline_decay) * credit
         row = TrainingRow(update=update, loss=float(loss.detach()), mean_reward=float(trace.rewards.mean()),
             accepted_fraction=float(trace.accepted[3::4].float().mean()), gradient_norm=float(norm),
             elapsed_seconds=time.monotonic() - start)

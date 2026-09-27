@@ -112,14 +112,26 @@ def returns(rewards: torch.Tensor, gamma: float) -> torch.Tensor:
     return torch.stack(result[::-1]).detach()
 
 
+def paired_baseline(trace: CourseTrace, *, gamma: float = .97, write_cost: float = .002) -> torch.Tensor:
+    if (trace.rewards.ndim != 2 or not trace.rewards.numel() or trace.rewards.shape[1] % 2
+            or trace.accepted.shape != trace.rewards.shape or trace.accepted.dtype != torch.bool
+            or not math.isfinite(write_cost) or write_cost < 0):
+        raise ValueError("成对回报基线需要偶数条轨迹及有效接受成本")
+    credit = returns(trace.rewards - write_cost * trace.accepted.to(torch.float32), gamma)
+    # 相邻两列是同一课程的独立轨迹；只交换对方回报，不混入自身回报。
+    return credit.reshape(len(credit), -1, 2).flip(2).reshape_as(credit).detach()
+
+
 def outer_loss(trace: CourseTrace, baseline: torch.Tensor, *, gamma: float = .97,
                write_cost: float = .002) -> tuple[torch.Tensor, torch.Tensor]:
-    if (baseline.shape != (len(trace.rewards),) or not bool(torch.isfinite(baseline).all())
+    if (baseline.shape not in ((len(trace.rewards),), trace.rewards.shape) or not bool(torch.isfinite(baseline).all())
             or not math.isfinite(write_cost) or write_cost < 0):
-        raise ValueError("外层历史回报基线或写入成本无效")
+        raise ValueError("外层回报基线或写入成本无效")
+    baseline = baseline.detach()
     utility = trace.rewards - write_cost * trace.accepted.to(torch.float32)
     credit = returns(utility, gamma)
-    loss = -(trace.logp * (credit - baseline[:, None])).sum()
+    action_control = baseline[:, None] if baseline.ndim == 1 else baseline
+    loss = -(trace.logp * (credit - action_control)).sum()
     for tick, log_probability in trace.gate_logp:
         # 当前方向的奖励先于写入产生；只把后续回报及自身写入成本归给接受决策。
         following = gamma * credit[tick + 1] if tick + 1 < len(credit) else torch.zeros_like(credit[tick])
