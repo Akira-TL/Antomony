@@ -73,7 +73,7 @@ class LiveSession:
 
     @property
     def done(self) -> bool:
-        return self.tick >= self.config.horizon
+        return False
 
     def notice(self, message: str) -> None:
         self.notices.appendleft(Notice(tick=self.tick, message=message))

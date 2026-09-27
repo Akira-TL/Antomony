@@ -43,7 +43,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 </main>
 <footer><div class="timeline"><span id="tick">0 / 4096 步</span><input id="timeline" type="range" min="0" max="0" value="0" aria-label="本轮回看时点"><button id="return-live" title="返回当前现场" aria-label="返回当前现场"></button><span id="timeline-mode">现场</span></div><div class="status-row"><span id="connection">正在连接仿真服务</span><span id="run-name"></span><span id="performance"></span></div></footer>
 <div id="toast" role="alert" hidden></div>
-<dialog id="reset-dialog"><form id="reset-form"><div class="dialog-heading"><h2>新一轮验收</h2><button type="button" id="close-reset" title="取消" aria-label="取消"></button></div><label>随机种子<input id="seed" type="number" min="0" max="33554431" value="20260927" required></label><div class="settings"><label>每组个体<input id="ants" type="number" min="1" max="32" value="32" required></label><label>总步数<input id="horizon" type="number" min="16" max="32768" step="16" value="4096" required></label><label>初始库存<input id="stock" type="number" min="1" max="20000" value="384" required></label></div><div class="dialog-status">当前记录保留 · 新一轮从暂停开始</div><button type="submit" class="primary">开始新一轮</button></form></dialog>`;
+<dialog id="reset-dialog"><form id="reset-form"><div class="dialog-heading"><h2>新一轮验收</h2><button type="button" id="close-reset" title="取消" aria-label="取消"></button></div><label>随机种子<input id="seed" type="number" min="0" max="33554431" value="20260927" required></label><div class="settings"><label>每组个体<input id="ants" type="number" min="1" max="32" value="32" required></label><label>初始库存<input id="stock" type="number" min="1" max="20000" value="384" required></label></div><div class="dialog-status">持续运行 · 当前记录保留 · 新一轮从暂停开始</div><button type="submit" class="primary">开始新一轮</button></form></dialog>`;
 
 const icons:[string,IconNode][]=[['play',Play],['step',StepForward],['fit',Focus],['focus-ant',Focus],['checkpoint',Save],['export',Download],['new-run',RotateCcw],['tool-inspect',MousePointer2],['tool-wall',BrickWall],['tool-food',Apple],['tool-trap',TriangleAlert],['tool-erase',Eraser],['clear',Trash2],['prev-weights',ChevronLeft],['next-weights',ChevronRight],['return-live',Radio],['close-reset',X]];
 icons.forEach(([id,node])=>icon(id,node));
@@ -87,7 +87,7 @@ function render():void{
     return`<tr><th>${label}</th>${values.map(v=>`<td>${decimal?v.toFixed(2):v}</td>`).join('')}<td class="${color}">${signed(diff,decimal)}</td></tr>`;}).join('');
   $('mode').textContent=live.error?'异常停止':replayTick!==null?'历史只读':live.done?'本轮结束':live.paused?'已暂停':'运行中';
   $('mode').classList.toggle('running',!live.paused&&replayTick===null);
-  $('tick').textContent=`${view.tick} / ${live.horizon} 步`;
+  $('tick').textContent=`${view.tick} 步`;
   const slider=$<HTMLInputElement>('timeline');slider.max=String(live.tick);slider.value=String(view.tick);
   $('timeline-mode').textContent=replayTick===null?'现场':'回看';
   $('saved').textContent=`保存点 ${live.checkpoint_tick}`;
@@ -205,11 +205,11 @@ $('timeline').oninput=()=>void attempt(async()=>{
   view=frame;render();
 });
 $('export').onclick=()=>void attempt(async()=>{busy=true;renderControls();try{const result=await api<{url:string}>('export',{});const link=document.createElement('a');link.href=pageUrl(result.url);link.download='';link.click();toast('完整运行记录已导出');}finally{busy=false;renderControls();}});
-$('new-run').onclick=()=>{$<HTMLInputElement>('seed').value=String(live?.seed??20260927);$<HTMLInputElement>('ants').value=String(live?.groups[0].ants.length??32);$<HTMLInputElement>('horizon').value=String(live?.horizon??4096);$<HTMLDialogElement>('reset-dialog').showModal();};
+$('new-run').onclick=()=>{$<HTMLInputElement>('seed').value=String(live?.seed??20260927);$<HTMLInputElement>('ants').value=String(live?.groups[0].ants.length??32);$<HTMLDialogElement>('reset-dialog').showModal();};
 $('close-reset').onclick=()=>$<HTMLDialogElement>('reset-dialog').close();
 $<HTMLFormElement>('reset-form').onsubmit=event=>{event.preventDefault();void attempt(async()=>{
   if(busy)return;mutationVersion++;busy=true;renderControls();
-  try{const frame=await api<Frame>('reset',{seed:number('seed'),ants:number('ants'),horizon:number('horizon'),stock:number('stock')});
+  try{const frame=await api<Frame>('reset',{seed:number('seed'),ants:number('ants'),stock:number('stock')});
     live=frame;view=frame;replayTick=null;parameterData=null;selectedAnt=0;syncSelection();setTool('inspect');render();$<HTMLDialogElement>('reset-dialog').close();worlds.forEach(w=>w.fit());void refreshParameters(true);
   }finally{busy=false;renderControls();}
 });};

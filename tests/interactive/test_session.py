@@ -39,14 +39,14 @@ def test_edit_validates_all_three_before_changing_any_world(live):
     assert len((live.records.directory / "interventions.jsonl").read_text().splitlines()) == 2
 
 
-def test_complete_run_records_real_fields_memories_and_control_changes(live):
+def test_continuous_run_records_real_fields_memories_and_control_changes(live):
     live.control(Control(kind="learning", enabled=False))
     live.control(Control(kind="pause", enabled=False))
     with pytest.raises(ValueError, match="暂停"):
         live.control(Control(kind="step"))
     for _ in range(16):
         live.advance()
-    assert live.done and live.paused
+    assert not live.done and not live.paused
     assert all(a.agent.writes == 0 for a in live.groups[0].actors)
     assert live.groups[0].decisions == 8
     assert live.records.replay(4).tick == 4
@@ -56,7 +56,7 @@ def test_complete_run_records_real_fields_memories_and_control_changes(live):
     assert (live.records.directory / "adaptive/tick-0016.field.npz").is_file()
     with pytest.raises(ValueError):
         live.records.replay(17)
-    assert not live.edit(Edit(kind="food", x=4., y=4.)).valid
+    assert live.edit(Edit(kind="food", x=4., y=4.)).valid
     assert not list((live.records.directory / "rules").glob("*-ant-*.npz"))
 
 

@@ -37,8 +37,8 @@ class EditableColony(RevivingColony):
 
     @property
     def done(self) -> bool:
-        # 现场允许库存耗尽后继续添加；只有本次明确的时限结束运行。
-        return self.steps >= self.config.horizon
+        # 现场演示持续运行；离线训练仍使用各自环境的回合边界。
+        return False
 
     def food_sources(self) -> tuple[SignalSource, ...]:
         return tuple(SignalSource(food.x, food.y, self.config.food_radius, self.config.food_strength,

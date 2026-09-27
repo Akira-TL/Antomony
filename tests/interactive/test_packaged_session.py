@@ -9,9 +9,9 @@ def test_default_session_only_loads_tracked_model_package(tmp_path):
     try:
         paths = [session.plan.motor, str(session.plan.policy_path(0)), str(session.plan.gate_path(0)), str(session.plan.mlp_path(0))]
         assert all(Path(p).is_relative_to("models/interactive") for p in paths)
-        for _ in range(16):
+        for _ in range(20):
             session.advance()
-        assert session.done and session.paused
-        assert [g.world.steps for g in session.groups] == [16, 16, 16]
+        assert not session.done and session.paused
+        assert [g.world.steps for g in session.groups] == [20, 20, 20]
     finally:
         session.close()

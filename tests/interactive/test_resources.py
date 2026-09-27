@@ -83,7 +83,7 @@ def test_empty_interactive_world_accepts_more_food_without_reset():
     assert env.steps == 2 and env.ants[0].deliveries == 1
     env.step(idle(env))
     env.step(idle(env))
-    assert env.done
+    assert not env.done and env.steps == 4
     conserved(env)
 
 
