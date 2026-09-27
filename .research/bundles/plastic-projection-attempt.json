@@ -1,0 +1,12 @@
+{
+  "analysis_slug": "plastic-projection",
+  "attempt_key": "A001",
+  "status": "selected",
+  "git_commit": "669b4ce04488db248d5d39cd284462559ba4981e",
+  "config_path": ".research/analysis/plastic-projection/A001/config.json",
+  "output_path": ".research/analysis/plastic-projection/A001/outputs/summary.json",
+  "started_at": "2026-09-27T00:17:54Z",
+  "completed_at": "2026-09-27T00:18:20Z",
+  "reason": "已在首次汇总前登记分析25，本次是唯一固定配对分析；核验460项原件、28结构点和589824评价帧，按既定架构及训练前后门槛汇总，不追加训练、不调整判据。",
+  "decision_reason": "主线实际进程退出码0，采用完整有效负结果，不表示模型达标。两初始化均未通过旧课程总资格、新架构增益和训练增益，停止本配置。开始为主线实际启动时刻；completed_at为主线取回退出结果时刻，不冒充精确退出时间；原输出mtime为UTC2026-09-27T00:17:57.887261424Z，1045974字节，SHA-256为7f887ebcbff5366ddf2980561e376e78e0d25c04bad70efa66143ac08785bd45。执行尝试在实际结束后首次登记，不冒充提前登记。"
+}

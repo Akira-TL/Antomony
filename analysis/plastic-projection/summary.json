@@ -1,0 +1,780 @@
+{
+  "source": "logs/plastic-projection/20260927T000547-3",
+  "manifest_sha256": "a83587452c069198b7d02ee3a57f9cc56844bdfbc62961759543a31068cac742",
+  "snapshots": [
+    {
+      "direction_mode": "unit",
+      "records": [
+        {
+          "initialization": 1711,
+          "snapshots": 7,
+          "parameter_change_norm": 0.3303424119949341,
+          "memory_change_norm": 0.19509896636009216
+        },
+        {
+          "initialization": 1712,
+          "snapshots": 7,
+          "parameter_change_norm": 0.42708346247673035,
+          "memory_change_norm": 0.2333812564611435
+        }
+      ]
+    },
+    {
+      "direction_mode": "bounded",
+      "records": [
+        {
+          "initialization": 1711,
+          "snapshots": 7,
+          "parameter_change_norm": 0.3436695337295532,
+          "memory_change_norm": 0.20620527863502502
+        },
+        {
+          "initialization": 1712,
+          "snapshots": 7,
+          "parameter_change_norm": 0.4238663911819458,
+          "memory_change_norm": 0.24309255182743073
+        }
+      ]
+    }
+  ],
+  "evaluations": [
+    {
+      "direction_mode": "unit",
+      "structure_update": 0,
+      "assessments": [
+        {
+          "initialization": 1711,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0011506760492920876,
+              "last_quarter_difference": 0.0030783796682953835
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.000949617475271225,
+              "last_quarter_difference": 0.00041303690522909164
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": -0.00003552436828613281,
+              "last_quarter_difference": 0.00046380795538425446
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0008555311869713478,
+              "last_quarter_difference": -0.0014900632959324867
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0007382474577752873,
+              "last_quarter_difference": 0.0015491533849854022
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": -0.00015180015179794282,
+              "last_quarter_difference": -0.0014131833740975708
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0009749501805345062,
+              "last_quarter_difference": -0.0019270917400717735
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0003711307617777493,
+              "last_quarter_difference": 0.0009811604977585375
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.00022202399486559443,
+              "last_quarter_difference": -0.000019477447494864464
+            }
+          ],
+          "accepted_fraction": 0.6826171875,
+          "nonzero_writes": 2097,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": true,
+          "passed": false
+        },
+        {
+          "initialization": 1712,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0015718480572104454,
+              "last_quarter_difference": -0.0027717179618775845
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.00018393894424661994,
+              "last_quarter_difference": 0.0021926879417151213
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0015461722505278885,
+              "last_quarter_difference": 0.00541772015276365
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            }
+          ],
+          "accepted_fraction": 1.0,
+          "nonzero_writes": 3072,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": false,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "direction_mode": "unit",
+      "structure_update": 150,
+      "assessments": [
+        {
+          "initialization": 1711,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": -0.0009291917085647583,
+              "last_quarter_difference": -0.0033514415845274925
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.00030313441675389186,
+              "last_quarter_difference": 0.0009042256860993803
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": -0.00005778102786280215,
+              "last_quarter_difference": 0.0005208203219808638
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            }
+          ],
+          "accepted_fraction": 0.0,
+          "nonzero_writes": 0,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": false,
+          "passed": false
+        },
+        {
+          "initialization": 1712,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0003299359232187271,
+              "last_quarter_difference": -0.00222306651994586
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.00030680897179991007,
+              "last_quarter_difference": -0.002292265009600669
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0003283167025074363,
+              "last_quarter_difference": 0.0011177394189871848
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            }
+          ],
+          "accepted_fraction": 1.0,
+          "nonzero_writes": 3072,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": false,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "direction_mode": "bounded",
+      "structure_update": 0,
+      "assessments": [
+        {
+          "initialization": 1711,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0008047670125961304,
+              "last_quarter_difference": 0.0006162906065583229
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.00005443580448627472,
+              "last_quarter_difference": -0.00022207386791706085
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": -0.00036043860018253326,
+              "last_quarter_difference": -0.0013621198013424873
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.000904389686184004,
+              "last_quarter_difference": -0.0015984946221578866
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0006210419087437913,
+              "last_quarter_difference": 0.0015428921033162624
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0002774574459181167,
+              "last_quarter_difference": -0.0007427216332871467
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0014436583041970152,
+              "last_quarter_difference": -0.002609996823593974
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.00010782025856315158,
+              "last_quarter_difference": 0.00042893021600320935
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0002100938254443463,
+              "last_quarter_difference": -0.0011520771076902747
+            }
+          ],
+          "accepted_fraction": 0.6819661458333334,
+          "nonzero_writes": 2095,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": true,
+          "passed": false
+        },
+        {
+          "initialization": 1712,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0023311180993914604,
+              "last_quarter_difference": -0.00420596357434988
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.000014078628737479448,
+              "last_quarter_difference": -0.0003949690726585686
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0016445568180643022,
+              "last_quarter_difference": 0.003953004867071286
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            }
+          ],
+          "accepted_fraction": 1.0,
+          "nonzero_writes": 3072,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": false,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "direction_mode": "bounded",
+      "structure_update": 150,
+      "assessments": [
+        {
+          "initialization": 1711,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": -0.000497935339808464,
+              "last_quarter_difference": -0.004026792943477631
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0006128434397396632,
+              "last_quarter_difference": 0.003308873565401882
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0006447785126511008,
+              "last_quarter_difference": 0.003228980174753815
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            }
+          ],
+          "accepted_fraction": 0.0,
+          "nonzero_writes": 0,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": false,
+          "passed": false
+        },
+        {
+          "initialization": 1712,
+          "contrasts": [
+            {
+              "condition": "reference",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": -0.0003420580178499222,
+              "last_quarter_difference": -0.0005156616680324078
+            },
+            {
+              "condition": "reference",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "reference",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.000053573050536215305,
+              "last_quarter_difference": -0.0010719509446062148
+            },
+            {
+              "condition": "association",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "association",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "off",
+              "episodes": 64,
+              "mean_difference": 0.0006589157273992896,
+              "last_quarter_difference": 0.0022106051328592002
+            },
+            {
+              "condition": "transient",
+              "comparator": "always",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            },
+            {
+              "condition": "transient",
+              "comparator": "matched",
+              "episodes": 64,
+              "mean_difference": 0.0,
+              "last_quarter_difference": 0.0
+            }
+          ],
+          "accepted_fraction": 1.0,
+          "nonzero_writes": 3072,
+          "association_gain": false,
+          "reference_preserved": true,
+          "learned_timing_gain": false,
+          "mixed_control": false,
+          "passed": false
+        }
+      ]
+    }
+  ],
+  "evaluation_frames": 589824,
+  "contrasts": [
+    {
+      "initialization": 1711,
+      "condition": "reference",
+      "comparison": "architecture",
+      "mean_difference": 0.0,
+      "last_quarter_difference": 0.0
+    },
+    {
+      "initialization": 1711,
+      "condition": "reference",
+      "comparison": "training",
+      "mean_difference": 0.0008047670125961304,
+      "last_quarter_difference": -0.0006162906065583229
+    },
+    {
+      "initialization": 1711,
+      "condition": "association",
+      "comparison": "architecture",
+      "mean_difference": 0.0,
+      "last_quarter_difference": 0.0
+    },
+    {
+      "initialization": 1711,
+      "condition": "association",
+      "comparison": "training",
+      "mean_difference": 0.000904389686184004,
+      "last_quarter_difference": 0.0015984946221578866
+    },
+    {
+      "initialization": 1711,
+      "condition": "transient",
+      "comparison": "architecture",
+      "mean_difference": 0.0,
+      "last_quarter_difference": 0.0
+    },
+    {
+      "initialization": 1711,
+      "condition": "transient",
+      "comparison": "training",
+      "mean_difference": 0.0014436583041970152,
+      "last_quarter_difference": 0.002609996823593974
+    },
+    {
+      "initialization": 1712,
+      "condition": "reference",
+      "comparison": "architecture",
+      "mean_difference": -0.000012122094631195068,
+      "last_quarter_difference": 0.0017074048519134521
+    },
+    {
+      "initialization": 1712,
+      "condition": "reference",
+      "comparison": "training",
+      "mean_difference": 0.0019890600815415382,
+      "last_quarter_difference": 0.0036903019063174725
+    },
+    {
+      "initialization": 1712,
+      "condition": "association",
+      "comparison": "architecture",
+      "mean_difference": 0.0003603820223361254,
+      "last_quarter_difference": 0.0012203140649944544
+    },
+    {
+      "initialization": 1712,
+      "condition": "association",
+      "comparison": "training",
+      "mean_difference": 0.00006765167927369475,
+      "last_quarter_difference": -0.0006769818719476461
+    },
+    {
+      "initialization": 1712,
+      "condition": "transient",
+      "comparison": "architecture",
+      "mean_difference": 0.00033059902489185333,
+      "last_quarter_difference": 0.0010928657138720155
+    },
+    {
+      "initialization": 1712,
+      "condition": "transient",
+      "comparison": "training",
+      "mean_difference": -0.0009856410906650126,
+      "last_quarter_difference": -0.0017423997342120856
+    }
+  ],
+  "decisions": [
+    {
+      "initialization": 1711,
+      "original_conditions": false,
+      "architecture_gain": false,
+      "training_gain": false,
+      "passed": false
+    },
+    {
+      "initialization": 1712,
+      "original_conditions": false,
+      "architecture_gain": false,
+      "training_gain": false,
+      "passed": false
+    }
+  ],
+  "all_passed": false,
+  "boundary": "两个初始化的合成方向课程；不等于真实搬运、生存或未见复杂环境优势",
+  "source_file_count": 460,
+  "full_output": ".research/analysis/plastic-projection/A001/outputs/summary.json",
+  "full_output_sha256": "7f887ebcbff5366ddf2980561e376e78e0d25c04bad70efa66143ac08785bd45",
+  "omitted_sections": [
+    "source_files",
+    "evaluations[].rows",
+    "contrasts[].differences",
+    "contrasts[].last_quarter_differences"
+  ]
+}
