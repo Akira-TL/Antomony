@@ -8,7 +8,7 @@ MODE="${1:-render}"
 shift "$(( $# > 0 ? 1 : 0 ))"
 case "$MODE" in
  audio) exec uv run --no-project --python 3.12 --with 'edge-tts==7.2.8' --with numpy -m communication.video.progress.voice "$@";;
- assemble|check|review|package) exec uv run --no-project --python 3.12 --with numpy -m communication.video.progress.build "$MODE" "$@";;
+ assemble|check|review|package) exec uv run --no-project --python 3.12 --with numpy -m communication.video.progress.production.build "$MODE" "$@";;
  render|still|preview|interactive) ;;
  *) echo 'Usage: progress.sh audio|render|still|preview|interactive|assemble|check|review|package' >&2;exit 2;;
 esac

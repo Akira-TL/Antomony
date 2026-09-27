@@ -68,8 +68,8 @@ Sentence(10.2,'During use, feedback changes the fast connections locally.','运�
 Sentence(14.,'Learning the rule, then learning with it.','先学会更新规则，再用这套规则继续学。'))),
 Chapter('C07SeparateTheClaims','Adaptation is not update selection',14,(
 Sentence(.4,'Can we tell adaptation from better update selection?','能否区分适应收益与更新选择的收益？'),
-Sentence(4.2,'In our completed trials, learned updates beat no updates.','在已完成试验中，学得接受比不更新交付更多。'),
-Sentence(8.2,'But they did not beat always accepting.','但它没有超过固定接受。'),
+Sentence(4.2,'Learned updates delivered more than no updates.','学得接受，比不更新交付更多。'),
+Sentence(8.2,'But always accepting delivered slightly more.','不过，固定接受的交付量还略多一些。'),
 Sentence(11.6,'Those are different tests.','这是两种不同的检验。'))),
 Chapter('C08ActionDeadline','The next action cannot wait',14,(
 Sentence(.4,'And the next step still has a deadline.','下一次行动，仍然有截止时间。'),

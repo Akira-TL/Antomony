@@ -136,11 +136,11 @@ Learning the rule, then learning with it.
 Can we tell adaptation from better update selection?
 能否区分适应收益与更新选择的收益？
 
-In our completed trials, learned updates beat no updates.
-在已完成试验中，学得接受比不更新交付更多。
+Learned updates delivered more than no updates.
+学得接受，比不更新交付更多。
 
-But they did not beat always accepting.
-但它没有超过固定接受。
+But always accepting delivered slightly more.
+不过，固定接受的交付量还略多一些。
 
 Those are different tests.
 这是两种不同的检验。
