@@ -12,7 +12,16 @@ from mathhackson.training.foraging.trails import LocalTrailField, TrailProfile
 
 def visible_from(origin: np.ndarray, points: np.ndarray, walls: list[Wall]) -> np.ndarray:
     visible = np.ones(points.shape[:-1], dtype=np.bool_)
+    if not points.size:
+        return visible
+    axes = tuple(range(points.ndim - 1))
+    lower = np.minimum(np.min(points, axis=axes), origin)
+    upper = np.maximum(np.max(points, axis=axes), origin)
     for wall in walls:
+        extent = wall.extent
+        if (upper[0] < wall.x - extent[0] or lower[0] > wall.x + extent[0]
+                or upper[1] < wall.y - extent[1] or lower[1] > wall.y + extent[1]):
+            continue
         c, s = math.cos(wall.angle), math.sin(wall.angle)
         matrix = np.asarray([[c, s], [-s, c]])
         start = (origin - (wall.x, wall.y)) @ matrix.T
@@ -67,8 +76,11 @@ class BarrierSignals(LocalSignals):
         receptors = np.zeros((*points.shape[:-1], 8), dtype=np.float32)
         receptors[..., 1:3] = self.trail_samples(points)
         for source in sources:
+            response = source.sample(points)
+            if not np.any(response):
+                continue
             visible = visible_from(np.asarray([source.x, source.y]), points, self.trails.walls)
-            receptors += source.sample(points) * visible[..., None]
+            receptors += response * visible[..., None]
         # 不允许天线跨过实体墙读取另一侧；points[0] 是当前身体位置。
         receptors *= visible_from(points[0], points, self.trails.walls)[..., None]
         return receptors
