@@ -1,0 +1,19 @@
+Watch this controller follow a moving target. Now the controls change. It still responds, but its old rule sends it the wrong way. Can it learn the new rule while it keeps moving?
+
+A common way to change a neural network is backpropagation: measure an error, then trace it backward to adjust the weights. Our question is whether adaptation can happen locally, without repeatedly backpropagating through the whole network.
+
+Keep the basic controller. Put a small, adjustable correction beside it. The effective weights are the stable weights plus this fast change. New experience can now alter a limited part of the model, instead of rewriting everything.
+
+Start with one connection. It predicts the effect of an action. The next observation arrives, and the difference gives a local correction. Only this little calculation changes the weight. No error signal has to travel backward through the rest of the network.
+
+But an error is not always a reason to learn. A changed rule and random noise can both produce surprises. So we propose a gate that learns when to apply a candidate correction, and when to leave the weights alone.
+
+Now the important part: the gate learns too. When it tries an update, it keeps a short record of that choice. Later consequences provide feedback on the choice. That feedback adjusts its future update decisions. Experience changes both the controller and the way the controller learns.
+
+A bad update should not erase a useful skill. Keeping recent changes separate lets us withdraw a particular change that turns out to be harmful. The world does not rewind. Only that tracked adjustment is removed; the rest of the experience still happened.
+
+Meanwhile, actions keep coming. The controller uses the latest committed weights. Learning runs within its own budget; an unfinished update waits. Removing global backpropagation is only part of this design. The real requirement is that learning must not make the next action miss its deadline.
+
+We want to test this in a small ant world: local signals, a few actions, and rules that change without warning. Compare the same starting model with learning disabled, fixed updates, and learned updates. Measure adaptation speed, retained skills, and response time.
+
+Can a model learn when to change itself, using local feedback, while it keeps acting?

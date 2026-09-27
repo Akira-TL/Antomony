@@ -49,3 +49,7 @@ analysis/**/figures/*.svg
 # 本地前端依赖与可重建资源
 /web/node_modules/
 /web/dist/
+
+# Manim 渲染产物和缓存只在本机保留，源 Scene 与分镜进入 Git。
+/communication/video/rendered/
+/latex_cache/

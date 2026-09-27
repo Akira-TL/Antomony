@@ -1,0 +1,19 @@
+Training is finished. Does learning have to stop? Here, the weights stay fixed while new inputs keep arriving. But the world can change. Could the model adapt through small local corrections, without backpropagating through the whole network? Could it learn which corrections to make, and still act on time? That's our question. Let's put it in a world small enough to watch.
+
+She already knows how to follow the trail. Now add a sideways push. Same legs, same steering rule, but a different path.
+
+Give her a twin. Same starting rule, same push. Only one can change its steering. Watch the paths separate. What changed inside?
+
+Not her legs. Slide this correction, and watch her heading change. The effective weight is the old weight plus the correction. One changed number becomes a different movement.
+
+Where should the correction come from? Here's the movement she predicted. Here's what actually happened. This gap is the error. Combine it with the input that produced the prediction, and we get a local update. We don't have to backpropagate through the whole network to make this particular correction.
+
+So why not update every time? Try one brief gust. An eager learner starts correcting for a push that's already gone. Now try a lasting change. This time, refusing to learn is the mistake. The size of one error can't tell these situations apart. We need to learn when an update is worth making.
+
+But who teaches that choice? Start by allowing small trials. Remember which adjustment was tried. Then let the ant keep moving. Only afterward does the consequence arrive. Compare it with what was expected, and use that difference to change future update decisions. Now two things can adapt: the steering, and the rule deciding when to change the steering.
+
+Subtract this recent change. Her next turn changes; her footprints don't. We undo a weight change, not the past.
+
+There's still a deadline. The next step can't wait for every learning calculation. Keep acting with the latest complete weights; commit a finished update between actions. Watch her feet: they keep moving while the correction is being worked out. That's the real-time behavior we want to test.
+
+The ants are the example. Learning how to adapt, while still acting: that's the architecture we want to test.

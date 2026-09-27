@@ -1,0 +1,85 @@
+{
+  "source_root": "/home/Akira/Projects/MathHackson",
+  "source_commit": "c5491ea759f2578667454a733e5980893864107b",
+  "files": [
+    {
+      "path": "RESEARCH.md",
+      "sha256": "39cccf41749377e84757651caf93912fa6665a06d72d0f41fc810fcfe2fde67c"
+    },
+    {
+      "path": "docs/engineering/plastic-direction-contract.md",
+      "sha256": "455a08186820d6bc87d7cd5c8ca627800f1c0ab4f6b45b82557e25da8d320a0c"
+    },
+    {
+      "path": "analysis/continuous-adaptation/README.md",
+      "sha256": "7e5f0feda8a78a3261f115eadd0f86ebb0e4ad38666cc705f07552cb8b9a2d31"
+    },
+    {
+      "path": "analysis/feedback-plasticity-course/README.md",
+      "sha256": "8e1d60bac6fff16b69d1f36c7fcff0308c272e433971fe8dc48e63a35bb103dd"
+    },
+    {
+      "path": "analysis/plastic-projection/README.md",
+      "sha256": "e8d743983a3bab799c4510c5139f7ded94737f653feb04d2e564b29331f8464e"
+    },
+    {
+      "path": "analysis/plastic-paired-baseline/README.md",
+      "sha256": "ec685228c136e4abdf55dc0441dea7472be741d727836937472854a8025d72d9"
+    }
+  ],
+  "preserved_masters": [
+    {
+      "path": "communication/video/rendered/v2/Learning_While_Acting_v2_1080p60.mp4",
+      "sha256": "4e7d70eaf9a4336972ff84a09a01d6a132ef57692958e24ff324708fcb61bedf",
+      "bytes": 17410247
+    },
+    {
+      "path": "communication/video/rendered/v3/Learning_While_Acting_v3_Stage_1080p60.mp4",
+      "sha256": "5bd9012325acb448dec01682843ab454d258d9231e4676c28a7181b977b68ae7",
+      "bytes": 16993903
+    }
+  ],
+  "preserved_sources": {
+    "communication/video/README.md": "9575c094de83e043f29995b2b8c40ac5223060da921697d33cecea69e8aa36aa",
+    "communication/video/film_plan.py": "fce701df33b2e363b30503d2ba692e9b748a80ab9079c3ac09cc720560267f3d",
+    "communication/video/narration-v3.en.txt": "765a72c0c777b3f929eb645e999b18464ed551591edac4ff1ce9310faec25bc1",
+    "communication/video/narration-v4.en.txt": "d6be7b2058de0ab2d7b43b90ccaf72f7464c1e2f49abc2d10211f7467c2ed501",
+    "communication/video/plans/narration-stage-v3.en.txt": "2dc05e276852a41d05a63514deb7e365da1f0fe5bd3865bea7c8bf80d366fade",
+    "communication/video/plans/stage-cut-v3.md": "e72e2d45d8bc9daea05d45a4133118cad102497a2e83d081e468f7d7e792b917",
+    "communication/video/production-notes-v2.md": "516b69895b876e5270f5855e967b570c096a9dfbb855fa1d01957986d7696155",
+    "communication/video/production/assemble.py": "c7443c5c249bea20b2626ccabbd31465bfe3d81572987df653eefdc4b4fef78d",
+    "communication/video/production/audio.py": "fc559e319e639cedeb3a0cd127a4bb7ee1d52199891c55e2d7a19e56f76e82f9",
+    "communication/video/production/check_artwork.py": "212a8cec4aa9f390ed1102b0636c1495b77fad9eea45436c28eeda4cd74b88ba",
+    "communication/video/production/retime_audio.py": "278821b2ca91e010016c4f26441b73227fc8b6772b62355b51fa63de78b454d9",
+    "communication/video/production/toy_motion.py": "8ca58e739c9bca1a317ebb01e83297efb588cd3f8a3b166e2bd413693d540ae5",
+    "communication/video/scenes/ant_drawing.py": "6df8e95b89862e5518d3bb2136d7b3c075c47636bfe4db0efc071f27dd921593",
+    "communication/video/scenes/ants_learning.py": "d6436cda556c9a9a67cf25b1e3d793b878f8df2ead3cd3d9828a4e1ba3e6ddf4",
+    "communication/video/scenes/story_prototype.py": "2c7f81240969755da46cec87cac547bce4aaec08d2f5d75ffedb45afac2805f6",
+    "communication/video/stage/README.md": "9f98b5296c4efea8d930e73dfdf34491232325045f282e59fcce75f48ab7e1bf",
+    "communication/video/stage/build.py": "bb3f0593433e92e5ac6dc0f0fec6aa7456e8a3d20785db4073b6f1dbf26d002f",
+    "communication/video/stage/network.py": "788afcf4f209ab4dc5d6fab3100a3713f49538f9e002f0860a4fec087da76b05",
+    "communication/video/stage/plan.py": "44d3e2a152d0a2623a14ae86ea47729522dad89925551b9f8b967bb396fbf56b",
+    "communication/video/stage/scenes.py": "3dbf226cdc6b21f0c42d875185f903149fdd03909a7f292925af5f237bc897e8",
+    "communication/video/stage/voice.py": "619b81e8d68fe463587b25cea9b14697ac2a59faeaa5287d5edffce60b09f311",
+    "communication/video/storyboard-v0.md": "9331383924efb4445a8f7d44722a5c0162e16bb8efce634a57187544e584bde4",
+    "communication/video/storyboard-v3-self-learning.md": "e9aa2327cdc16f1e1cb009d4af03a20e1da91bb34683d8973da02b8ab3020f42",
+    "communication/video/visual-redesign-v4.md": "84e1829195e318ac6845a1bda0d50b896db916a13d4b7873bc04b9072035a351",
+    "scripts/video/assemble.sh": "02adbe6f24e53685db16af62b7b20e02cec2a850c8020a15fc308632b7af12da",
+    "scripts/video/audio.sh": "86478f9bd59cf5a3150692d5546d418f07d0808ca4ca965aad43c8851d16f90e",
+    "scripts/video/check-artwork.sh": "18e08c77f016bc74082a21b7bf5d0678ee74fc3cad24301711958601e696f6f5",
+    "scripts/video/open-review.sh": "6e7d29f57b3eee0d7238a2cbc8c565527300c1d14cc626b90032fbe50926e0e4",
+    "scripts/video/prepare-toy.sh": "2e3c78107e7a7abca18592abfb40b63a239cb4600a0b4c83241fb99ec05b6108",
+    "scripts/video/render.sh": "150681b0d9aeacdcd8d39a0586476341dadd8ead1555c03b70852e3b3a761a8b",
+    "scripts/video/retime-audio.sh": "b782c1ea1bf16a40a2341c709ee314e58b6dbaa37e032a770e3abb0b8b4b8996",
+    "scripts/video/stage.sh": "7925e010de087b2fd185700d4a3c6607d465aa60dff676fb55d4339ccdc2d8be"
+  },
+  "evidence": {
+    "study": "continuous-adaptation/20260926T123655-2",
+    "world_seeds": 4,
+    "model_initialization_sets": 1,
+    "changed_conditions": 3,
+    "mean_delivery_difference_learned_minus_skip": 5.25,
+    "mean_delivery_difference_learned_minus_always": -1.0,
+    "latest_paired_baseline": "analysis stopped at validity audit; no effect estimate"
+  }
+}
