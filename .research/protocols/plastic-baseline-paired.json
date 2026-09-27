@@ -1,0 +1,25 @@
+{
+  "version": "feedback-plasticity-course-v1",
+  "direction_mode": "bounded",
+  "evaluate_initial": true,
+  "paired_courses": true,
+  "baseline_mode": "paired",
+  "motor": {"path": "models/interactive/motor/update-001200.npz", "sha256": "ea6e831e0cf4715b4fbad6bad68263acacb1c65e4815b08c8f37bf0ce6143492"},
+  "initializations": [
+    {"seed": 1721, "foundation": {"path": "models/interactive/memory/episode-0000-ant-00.npz", "sha256": "9eefbfa6aeb744afc800230ae8fc22bf7c3297a3e593d7cc453689fd664a2726"}, "train_seed": 910000, "evaluation_seed": 1020000},
+    {"seed": 1722, "foundation": {"path": "models/interactive/memory/episode-0000-ant-01.npz", "sha256": "442fba44c184868c39696307f23e110ed81856e0f15ca1553768cae233174e02"}, "train_seed": 930000, "evaluation_seed": 1040000}
+  ],
+  "course": {"steps": 96, "batch": 16, "cues": 3},
+  "updates": 300,
+  "evaluation_batches": 4,
+  "learning_rate": 0.003,
+  "weight_decay": 0.0001,
+  "gradient_norm": 1,
+  "gamma": 0.97,
+  "baseline_decay": 0.9,
+  "write_cost": 0.002,
+  "max_step": 0.25,
+  "max_fast": 2,
+  "checkpoint_interval": 25,
+  "time_limit_seconds": 360
+}
