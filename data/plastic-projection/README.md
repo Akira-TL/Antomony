@@ -5,6 +5,7 @@
 - [研究首页](../../RESEARCH.md)
 - [真实实施](../../study/plastic-projection/README.md)
 - [冻结设计](../../designs/plastic-projection.md)
+- [分析计划](../../analysis/plastic-projection/README.md)
 
 ## Dataset Identity
 

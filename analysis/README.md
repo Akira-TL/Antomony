@@ -2,6 +2,8 @@
 
 ## Objects
 
+- [方向归一化方式与训练前后配对评价](plastic-projection/README.md) - 分析25已登记为计划状态；固定两新初始化、两架构及训练前后，尚未汇总。
+
 - [可塑方向基础课程配对评价](feedback-plasticity-course/README.md) - 已完成；两初始化均全部接受，学得组与全部接受及等次数组奖励差为0，0/2通过；不延长、不接入8775。
 
 - [基础候选交付与奖励覆盖](candidate-label-coverage/README.md) - 已完成；301候选无交付正例，固定集合二元选择上界0；已浏览标签后的探索，不拟合或修改旧判据。
@@ -50,6 +52,8 @@
 - [候选更新短期价值描述](candidate-update-value/README.md) - 已完成探索描述，保留数据库登记晚于结果的流程偏离。
 
 ## Relations
+
+- [方向归一化配对评价](plastic-projection/README.md) → [冻结设计](../designs/plastic-projection.md)、[固定原始数据](../data/plastic-projection/README.md)、[真实实施](../study/plastic-projection/README.md)。
 
 - [可塑方向基础课程评价](feedback-plasticity-course/README.md) → [冻结设计](../designs/feedback-plasticity-course.md)、[真实实施](../study/feedback-plasticity-course/README.md)、[固定数据](../data/feedback-plasticity-course/README.md)。
 

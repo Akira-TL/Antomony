@@ -26,7 +26,8 @@ flowchart TD
     N28["既有基础301候选均缺少焦点交付改善<br/>analysis · resolved"]
     N30["可塑方向基础课程实施<br/>study · resolved"]
     N31["可塑方向基础课程配对结果<br/>analysis · resolved"]
-    N33["方向归一化配对实施<br/>study · active"]
+    N33["方向归一化配对实施<br/>study · resolved"]
+    N34["方向归一化与训练前后配对评价<br/>analysis · active"]
     subgraph G5_design["design siblings"]
         direction TB
         N6["蚁群自训练适应性对照草案<br/>design · active"]
@@ -72,6 +73,7 @@ flowchart TD
     N30 --> N31
     N5 --> N32
     N32 --> N33
+    N33 --> N34
     N29 -. spawned_from .-> N28
     N32 -. spawned_from .-> N31
 ```
@@ -112,4 +114,5 @@ flowchart TD
 | N30 | study | resolved | 可塑方向基础课程实施 | [打开](../study/feedback-plasticity-course/README.md) |
 | N31 | analysis | resolved | 可塑方向基础课程配对结果 | [打开](../analysis/feedback-plasticity-course/README.md) |
 | N32 | design | active | 方向读出归一化方式的配对设计 | [打开](../designs/plastic-projection.md) |
-| N33 | study | active | 方向归一化配对实施 | [打开](../study/plastic-projection/README.md) |
+| N33 | study | resolved | 方向归一化配对实施 | [打开](../study/plastic-projection/README.md) |
+| N34 | analysis | active | 方向归一化与训练前后配对评价 | [打开](../analysis/plastic-projection/README.md) |

@@ -1,0 +1,10 @@
+{
+  "input": "logs/plastic-projection/20260927T000547-3",
+  "unit_plan": ".research/protocols/plastic-projection-unit.json",
+  "bounded_plan": ".research/protocols/plastic-projection-bounded.json",
+  "manifest": "data/plastic-projection/inputs.sha256",
+  "manifest_sha256": "a83587452c069198b7d02ee3a57f9cc56844bdfbc62961759543a31068cac742",
+  "output": ".research/analysis/plastic-projection/A001/outputs/summary.json",
+  "command": ["env", "UV_CACHE_DIR=/tmp/mathhackson-uv-cache", "bash", "scripts/analyses/plastic-projection.sh", "--input", "logs/plastic-projection/20260927T000547-3", "--unit-plan", ".research/protocols/plastic-projection-unit.json", "--bounded-plan", ".research/protocols/plastic-projection-bounded.json", "--manifest", "data/plastic-projection/inputs.sha256", "--output", ".research/analysis/plastic-projection/A001/outputs/summary.json"],
+  "status": "prepared-not-run"
+}

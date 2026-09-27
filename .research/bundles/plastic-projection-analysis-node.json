@@ -1,0 +1,12 @@
+{
+  "slug": "plastic-projection-analysis",
+  "kind": "analysis",
+  "label": "方向归一化与训练前后配对评价",
+  "scientific_scope": "1711与1712两个外层初始化、两方向模式、训练前后和四组的合成课程配对差及固定门槛，不作物理搬运、生存或广泛适应性优势声明。",
+  "workflow_status": "active",
+  "branch_priority": "primary",
+  "parent_slug": "plastic-projection-study",
+  "canonical_entity_type": "analysis_run",
+  "canonical_entity_id": "25",
+  "artifact_path": "analysis/plastic-projection/README.md"
+}

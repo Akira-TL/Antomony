@@ -47,7 +47,7 @@
 
 ## Relations
 
-- [方向归一化配对数据](plastic-projection/README.md) → [真实实施](../study/plastic-projection/README.md)。分析计划在首次汇总前另行登记。
+- [方向归一化配对数据](plastic-projection/README.md) → [真实实施](../study/plastic-projection/README.md)、[分析计划](../analysis/plastic-projection/README.md)。计划已在首次汇总前登记，不以数据存在声明效果。
 
 - [可塑方向基础课程数据](feedback-plasticity-course/README.md) → [真实实施](../study/feedback-plasticity-course/README.md)、[配对评价结果](../analysis/feedback-plasticity-course/README.md)。输入有效不等于学习效果通过。
 
