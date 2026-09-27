@@ -45,7 +45,7 @@
 
 ## Relations
 
-- [方向归一化配对实施](plastic-projection/README.md) → [冻结设计](../designs/plastic-projection.md)。
+- [方向归一化配对实施](plastic-projection/README.md) → [冻结设计](../designs/plastic-projection.md)、[固定原始数据](../data/plastic-projection/README.md)。
 
 - [可塑方向基础课程实施](feedback-plasticity-course/README.md) → [冻结设计](../designs/feedback-plasticity-course.md)、[固定原始数据](../data/feedback-plasticity-course/README.md)。
 

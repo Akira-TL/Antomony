@@ -1,0 +1,15 @@
+{
+  "slug": "plastic-projection",
+  "title": "方向归一化配对课程原始记录",
+  "version": "20260927T000547-3",
+  "source": "Study21，实际代码df7afbfd20bba451071e9cad429064c65e710cbb、冻结4de4323541da4e2dbff2170f6d7388a584ae6fb6；两模式完成，主线UTC00:09:34取回退出码0，460项原件在首次汇总前固定。",
+  "status": "active",
+  "study_slug": "plastic-projection",
+  "received_at": "2026-09-27T00:13:02Z",
+  "unit_of_inference": "独立外层初始化1711和1712；两架构、训练前后、条件、回合及四组在初始化内配对相关。",
+  "provenance_path": "data/plastic-projection/README.md",
+  "artifacts": [
+    {"location": "data/plastic-projection/inputs.sha256", "role": "manifest", "storage_kind": "local", "git_tracking": "required"},
+    {"location": "/home/Akira/Projects/MathHackson/logs/plastic-projection/20260927T000547-3", "role": "raw", "storage_kind": "external", "git_tracking": "not_required", "tracking_reason": "完整460项原始文件保留本地忽略目录，逐文件散列及清单自身散列固定入Git，不覆盖原件，不按结果剔除。"}
+  ]
+}
