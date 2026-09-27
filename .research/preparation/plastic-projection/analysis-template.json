@@ -1,0 +1,22 @@
+{
+  "slug": "plastic-projection",
+  "title": "方向归一化方式与训练前后配对评价",
+  "analysis_mode": "exploratory",
+  "status": "planned",
+  "design_slug": "plastic-projection",
+  "target_uncertainty": "只改变方向归一化方式，能否在两个新初始化分别提高课程方向收益，并产生有益的接受与跳过；训练后相对同初始化训练前是否改善。",
+  "estimand": "分别报告每个初始化、三条件的第5至96帧和第73至96帧平均方向奖励。主要对比为候选减旧模式的训练后学得接受，以及候选训练后减同初始化训练前的学得接受；同时保留每种架构内学得接受减全部跳过、全部接受和等次数随机接受。",
+  "unit_of_inference": "独立外层初始化1711和1712；两架构、训练前后、条件、回合及四组在初始化内配对相关。",
+  "primary_analysis": "先核验两架构、两个结构时点及四组的完整来源和配对，再逐初始化计算两窗口配对奖励差、接受跳过比例与真实写入；执行设计全部原课程资格、架构增益及训练增益门槛，候选两个初始化都满足才通过。不重设门槛、不挑保存点。",
+  "analysis_path": "analysis/plastic-projection/README.md",
+  "code_path": "scripts/analyses/plastic_projection.py",
+  "dataset_slugs": [],
+  "artifacts": [
+    {"path": ".research/preparation/plastic-projection/analysis-plan.md", "role": "other", "timing_role": "pre_result_support"},
+    {"path": ".research/protocols/plastic-projection-unit.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": ".research/protocols/plastic-projection-bounded.json", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "scripts/analyses/plastic-projection.sh", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/foraging/plastic_course/auditing.py", "role": "other", "timing_role": "pre_result_support"},
+    {"path": "src/mathhackson/training/foraging/plastic_course/assessment.py", "role": "other", "timing_role": "pre_result_support"}
+  ]
+}

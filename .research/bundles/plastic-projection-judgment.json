@@ -1,0 +1,6 @@
+{
+  "actor": "agent",
+  "judgment_type": "scientific_assessment",
+  "statement": "看到前一基础课程两个初始化均未通过且全部接受后，提出只改变方向读出归一化方式的有界配对探索。固定两个新初始化、两架构各150轮、同初始化训练前参照和900秒总上限；具体方案与继续门槛是Agent判断，不冒充用户逐项批准。当前设计草案尚不可执行。",
+  "basis": "既有证据为analysis/feedback-plasticity-course/summary.json及结果提交22e6ff6c67478c958bd9a41dee34a10fb50aa60f：两个初始化接受比例1，学得接受与全部接受、等次数随机接受的三个条件两窗口差均0，课程总判据0/2通过。新的方向单位球投影方案源自Agent对方向读出限制的检查；合成张量机械性质尚不能证明它解释了旧失败，也不能证明新配置有效。完整科学目标与边界见designs/plastic-projection.md。"
+}

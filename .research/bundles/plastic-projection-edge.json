@@ -1,0 +1,8 @@
+{
+  "source_slug": "plastic-projection-design",
+  "relation": "spawned_from",
+  "target_slug": "feedback-plasticity-course-analysis",
+  "basis_type": "analysis",
+  "basis_ref": "analysis/feedback-plasticity-course/summary.json",
+  "note": "前一课程0/2通过后提出方向归一化的单变量探索；这是结果后的选路依据，不是新方案有效的证据。"
+}

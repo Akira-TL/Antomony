@@ -1,0 +1,15 @@
+{
+  "slug": "plastic-projection",
+  "title": "方向归一化配对课程原始记录",
+  "version": null,
+  "source": null,
+  "status": "active",
+  "study_slug": "plastic-projection",
+  "received_at": null,
+  "unit_of_inference": "独立外层初始化1711和1712；两架构、训练前后、条件、回合及四组在初始化内配对相关。",
+  "provenance_path": "data/plastic-projection/README.md",
+  "artifacts": [
+    {"location": "data/plastic-projection/inputs.sha256", "role": "manifest", "storage_kind": "local", "git_tracking": "required"},
+    {"location": null, "role": "raw", "storage_kind": "external", "git_tracking": "not_required", "tracking_reason": "待填写实际完整目录、文件计数及固定清单，原始轨迹和参数保留本地忽略目录，不覆盖原件。"}
+  ]
+}
