@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [同情境独立试行基线实施](plastic-paired-baseline/README.md) - 进行中；已登记真实启动，尚未核对完成或效果。
+- [同情境独立试行基线实施](plastic-paired-baseline/README.md) - 两组各两个初始化完整执行，整批退出0；508项原件散列通过，尚未汇总效果。
 
 - [方向归一化配对实施](plastic-projection/README.md) - 两模式各两个初始化完整执行、整批退出0；固定数据与配对负结果已另行登记。
 

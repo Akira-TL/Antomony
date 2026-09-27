@@ -1,0 +1,26 @@
+{
+  "slug": "plastic-paired-baseline",
+  "title": "同一情境独立试行回报基线的配对实施",
+  "design_slug": "plastic-paired-baseline",
+  "study_type": "本地合成方向课程的配对训练方法实验",
+  "status": "completed",
+  "started_at": "2026-09-27T00:41:57Z",
+  "completed_at": "2026-09-27T00:48:21Z",
+  "provenance_path": "study/plastic-paired-baseline/README.md",
+  "samples": [
+    {"sample_key": "1721", "source_identity": "20260927T004157-3:1721", "experimental_unit_identity": "外层初始化1721", "sample_type": "两基线配对方向课程", "status": "collected", "metadata": {"mode_directories": ["logs/plastic-baseline/20260927T004157-3/history/seed-1721", "logs/plastic-baseline/20260927T004157-3/paired/seed-1721"]}},
+    {"sample_key": "1722", "source_identity": "20260927T004157-3:1722", "experimental_unit_identity": "外层初始化1722", "sample_type": "两基线配对方向课程", "status": "collected", "metadata": {"mode_directories": ["logs/plastic-baseline/20260927T004157-3/history/seed-1722", "logs/plastic-baseline/20260927T004157-3/paired/seed-1722"]}}
+  ],
+  "artifacts": [
+    {"location": ".research/protocols/plastic-baseline-history.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"},
+    {"location": ".research/protocols/plastic-baseline-paired.json", "role": "protocol", "storage_kind": "local", "git_tracking": "required"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/history/protocol.json", "role": "protocol", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "实际协议副本与冻结协议逐字节相同，完整508项清单固定原件。"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/paired/protocol.json", "role": "protocol", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "实际协议副本与冻结协议逐字节相同，完整508项清单固定原件。"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/history/commits.txt", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "分别保存实际代码和冻结身份，不以当前提交覆盖运行时身份。"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/paired/commits.txt", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "分别保存实际代码和冻结身份，不以当前提交覆盖运行时身份。"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/history/completion.json", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "真实完成与内部计时，文件修改时间不作为精确退出时刻。"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/paired/completion.json", "role": "assay_metadata", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "真实完成与内部计时，文件修改时间不作为精确退出时刻。"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/history.log", "role": "execution_log", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "原始控制台记录随完整清单保留，未据此计算正式评价效果。"},
+    {"location": "logs/plastic-baseline/20260927T004157-3/paired.log", "role": "execution_log", "storage_kind": "local", "git_tracking": "not_required", "tracking_reason": "原始控制台记录随完整清单保留，未据此计算正式评价效果。"}
+  ]
+}
