@@ -18,6 +18,8 @@ export class ColonyScene {
   private frame:SceneFrame|null=null;
   private previous:SceneFrame|null=null;
   private received=0;
+  private transitionMs=110;
+  private fieldKey='';
   private antMeshes:THREE.InstancedMesh[]=[];
   private legs:THREE.InstancedMesh;
   private cargo:THREE.InstancedMesh;
@@ -37,7 +39,7 @@ export class ColonyScene {
 
   constructor(private host:HTMLElement,private training=false) {
     this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio,training?1.25:1.8));
     this.renderer.shadowMap.enabled=true;
     this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     this.renderer.setClearColor(training?0x16191c:0x091214,1);
@@ -51,7 +53,7 @@ export class ColonyScene {
     this.controls.maxPolarAngle=Math.PI*.46;this.controls.minDistance=3;this.controls.maxDistance=65;
     const ambient=new THREE.HemisphereLight(0xc4efd5,0x172932,2.1);this.scene.add(ambient);
     const sun=new THREE.DirectionalLight(0xfaf4dc,3);sun.position.set(-9,24,12);sun.castShadow=true;
-    sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:16,bottom:-16,near:1,far:65});sun.shadow.bias=-.0004;
+    sun.shadow.mapSize.set(training?1024:2048,training?1024:2048);Object.assign(sun.shadow.camera,{left:-20,right:20,top:16,bottom:-16,near:1,far:65});sun.shadow.bias=-.0004;
     this.scene.add(sun);
     const base=new THREE.Mesh(new THREE.BoxGeometry(28.8,.65,20.8),new THREE.MeshStandardMaterial({color:0x142c2b,roughness:.8,metalness:.1}));base.position.y=-.38;base.receiveShadow=true;this.scene.add(base);
     const floor=new THREE.Mesh(new THREE.PlaneGeometry(28,20),new THREE.MeshStandardMaterial({color:training?0x292c30:0x17342e,roughness:.92}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;this.scene.add(floor);
@@ -118,22 +120,27 @@ export class ColonyScene {
   }
 
   update(frame:SceneFrame):void {
+    const now=performance.now();
     this.previous=this.frame?.seed===frame.seed && this.frame.tick<=frame.tick && this.frame.ants.length===frame.ants.length?this.frame:null;
+    if(this.previous&&frame.tick>this.previous.tick&&this.received)this.transitionMs=THREE.MathUtils.clamp(now-this.received,90,400);
     if(!this.previous){this.gaits.clear();this.visualTime=frame.seconds;}
-    this.frame=frame;this.received=performance.now();
+    this.frame=frame;this.received=now;
     if(this.tool==='wall')this.wallPreview.refresh();
     if(this.tool==='food')this.foodPreview.refresh();
-    const raw=atob(frame.pheromones),n=frame.field_width*frame.field_height;
-    const colors=[[57,203,231],[255,157,55]];
-    this.fieldTextures.forEach((texture,channel)=>{
-      const rgba=texture.image.data as Uint8Array,[red,green,blue]=colors[channel];
-      for(let i=0;i<n;i++){
-        const value=raw.charCodeAt(i+channel*n),index=i*4;
-        rgba[index]=red;rgba[index+1]=green;rgba[index+2]=blue;
-        rgba[index+3]=Math.min(245,255*Math.pow(Math.max(0,value-3)/24,.8));
-      }
-      texture.needsUpdate=true;
-    });
+    if(this.fieldKey!==frame.pheromones){
+      this.fieldKey=frame.pheromones;
+      const raw=atob(frame.pheromones),n=frame.field_width*frame.field_height;
+      const colors=[[57,203,231],[255,157,55]];
+      this.fieldTextures.forEach((texture,channel)=>{
+        const rgba=texture.image.data as Uint8Array,[red,green,blue]=colors[channel];
+        for(let i=0;i<n;i++){
+          const value=raw.charCodeAt(i+channel*n),index=i*4;
+          rgba[index]=red;rgba[index+1]=green;rgba[index+2]=blue;
+          rgba[index+3]=Math.min(245,255*Math.pow(Math.max(0,value-3)/24,.8));
+        }
+        texture.needsUpdate=true;
+      });
+    }
     const wk=JSON.stringify(frame.walls);
     if(wk!==this.wallKey){this.clear(this.wallGroup);this.wallKey=wk;
       for(const w of frame.walls){const g=new THREE.BoxGeometry(w.hx*2,1.15,w.hy*2);const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0x304950,roughness:.5,metalness:.28}));m.position.set(w.x,.58,w.y);m.rotation.y=-w.angle;m.castShadow=true;m.receiveShadow=true;this.wallGroup.add(m);const edge=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x97b9ae,transparent:true,opacity:.62}));edge.position.copy(m.position);edge.rotation.y=-w.angle;this.wallGroup.add(edge);}
@@ -174,7 +181,7 @@ export class ColonyScene {
     this.controls.enabled=this.interactive&&this.tool==='inspect';this.controls.update();this.fieldMeshes.forEach(mesh=>mesh.visible=this.showField);
     this.ring.visible=this.rays.visible=this.selected>=0;
     const f=this.frame;
-    if(f){const alpha=Math.min(1,(now-this.received)/110);let carrying=0;
+    if(f){const alpha=Math.min(1,(now-this.received)/this.transitionMs);let carrying=0;
       const visualTime=this.previous?THREE.MathUtils.lerp(this.previous.seconds,f.seconds,alpha):f.seconds;
       const gaitDt=Math.min(.1,Math.max(0,visualTime-this.visualTime));this.visualTime=visualTime;
       this.antMeshes.forEach(m=>m.count=f.ants.length);this.legs.count=f.ants.length*12;

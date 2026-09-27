@@ -78,3 +78,16 @@ def test_cached_state_is_not_changed_by_an_in_progress_world_step(live):
     refreshed = engine.refresh().model_dump_json()
     live.groups[0].world.foods[0].stock -= 1
     assert engine.view.model_dump_json() == refreshed
+
+
+def test_frame_publish_keeps_only_latest_for_slow_clients(live):
+    engine = server.Engine(live)
+    queue = engine.subscribe()
+    assert queue.get_nowait() == engine.view.model_dump_json()
+    live.advance()
+    engine.refresh()
+    first = queue.get_nowait()
+    live.advance()
+    engine.refresh()
+    assert queue.qsize() == 1
+    assert queue.get_nowait() != first

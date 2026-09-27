@@ -18,6 +18,7 @@ from mathhackson.training.comparison.online_actor import OnlineForager
 from mathhackson.training.direction.policy import DirectionAction
 from mathhackson.training.foraging.colony import ColonyConfig
 from mathhackson.training.foraging.disturbance import DisturbanceConfig
+from mathhackson.training.foraging.environment import LocalObservation
 from mathhackson.training.foraging.trust_candidate import TrustConfig
 from .hazards import Trap
 from .protocol import (AntView, Control, Counts, Edit, Frame, GroupKey, Notice, ParameterModule,
@@ -156,11 +157,12 @@ class LiveSession:
             self.notice(f"参数已保存至第{self.checkpoint_tick}步")
         self.records.control(at_tick, command)
 
-    def advance(self) -> None:
+    def advance(self) -> Frame:
         if self.done:
             self.paused = True
-            return
+            return self.frame()
         start = time.perf_counter()
+        next_observations: dict[GroupKey, list[LocalObservation]] = {}
         for group in self.groups:
             world = group.world
             for i in world.release_waiting():
@@ -173,11 +175,13 @@ class LiveSession:
                        for actor, obs, alive in zip(group.actors, observations, active, strict=True)]
             injury_before = world.injuries.copy()
             events = world.step(actions)
+            observed = [world.observation(i) for i in range(len(group.actors))]
+            next_observations[group.key] = observed
             for i, actor in enumerate(group.actors):
                 if isinstance(actor, OnlineForager) and active[i]:
                     reward = learning_feedback("survival-v1", events[i], active=True,
                         injury_delta=float(world.injuries[i] - injury_before[i]), injury_limit=1.)
-                    record = actor.feedback(reward, world.observation(i), terminal=world.done or world.ants[i].exhausted,
+                    record = actor.feedback(reward, observed[i], terminal=world.done or world.ants[i].exhausted,
                         tick=world.steps, individual=i, continuing_after_death=world.ants[i].exhausted and not world.done,
                         accept_updates=self.learning)
                     if record:
@@ -193,7 +197,9 @@ class LiveSession:
         self.step_ms = (time.perf_counter() - start) * 1000.
         if self.done:
             self.paused = True
-        self.records.append(self.frame())
+        frame = self.frame(next_observations)
+        self.records.append(frame)
+        return frame
 
     def _remember_parameters(self) -> None:
         for i, actor in enumerate(self.groups[0].actors):
@@ -212,10 +218,11 @@ class LiveSession:
         self.checkpoint_tick = self.tick
         self.records.flush()
 
-    def frame(self) -> Frame:
+    def frame(self, observations: dict[GroupKey, list[LocalObservation]] | None = None) -> Frame:
         views = []
         for group in self.groups:
             world = group.world
+            observed = observations.get(group.key) if observations else None
             writes = [actor.agent.writes if isinstance(actor, OnlineForager) else 0 for actor in group.actors]
             counts = Counts(delivered=sum(a.deliveries for a in world.ants), pickups=sum(a.pickups for a in world.ants),
                 deaths=int(world.deaths.sum()), exhaustions=int((world.terminations - world.deaths).sum()),
@@ -226,7 +233,8 @@ class LiveSession:
                 carrying=a.carrying, pending=a.exhausted, injury=float(world.injuries[i]),
                 exploration=a.exploration_left, reserve=a.reserve_left, delivered=a.deliveries,
                 deaths=int(world.deaths[i]), exhaustions=int(world.terminations[i] - world.deaths[i]),
-                revivals=int(world.revivals[i]), writes=writes[i], receptors=world.observation(i).receptors[0].tolist())
+                revivals=int(world.revivals[i]), writes=writes[i],
+                receptors=(observed[i] if observed else world.observation(i)).receptors[0].tolist())
                 for i, a in enumerate(world.ants)]
             field = np.clip(world.signals.trails.values * 72., 0., 255.).astype(np.uint8)
             views.append(WorldView(key=group.key, counts=counts, ants=ants, walls=world.walls, foods=world.foods,

@@ -14,6 +14,7 @@ export class LiveWorld {
   readonly scene:ColonyScene;
   private content=new THREE.Group();private preview=new THREE.Group();
   private foodKey='';private foods=new THREE.Group();private previewKey='';
+  private stateKey='';private fieldKey='';
   private ids:number[]=[];private run='';private lastTick=-1;private version=0;private lastRevivals=0;
   private following=false;
   onMove:(p:{x:number;y:number}|null)=>void=()=>{};
@@ -50,12 +51,15 @@ export class LiveWorld {
   render(frame:Frame,world:World,selected:number,showField:boolean):void{
     this.world=world;
     if(this.run!==frame.run_id)this.fit();
-    if(this.following&&selected>=0){const ant=world.ants[selected],target=new THREE.Vector3(ant.x,0,ant.y);
-      this.scene.camera.position.add(target.clone().sub(this.scene.controls.target));this.scene.controls.target.copy(target);this.scene.controls.update();}
     const ids=world.ants.filter(a=>!a.pending).map(a=>a.id);
     if(this.run!==frame.run_id||ids.join(',')!==this.ids.join(',')||frame.tick<this.lastTick||frame.tick-this.lastTick>4||this.lastRevivals!==world.counts.revivals)this.version++;
     this.run=frame.run_id;this.ids=ids;this.lastTick=frame.tick;this.lastRevivals=world.counts.revivals;
     this.scene.showField=showField;this.scene.selected=ids.indexOf(selected);
+    const stateKey=`${frame.run_id}:${frame.tick}:${selected}:${world.walls.length}:${world.foods.length}:${world.traps.length}`;
+    if(stateKey===this.stateKey&&world.field===this.fieldKey)return;
+    this.stateKey=stateKey;this.fieldKey=world.field;
+    if(this.following&&selected>=0){const ant=world.ants[selected],target=new THREE.Vector3(ant.x,0,ant.y);
+      this.scene.camera.position.add(target.clone().sub(this.scene.controls.target));this.scene.controls.target.copy(target);this.scene.controls.update();}
     this.scene.update({mode:world.key==='rules'?'rules':'neural',seed:this.version,tick:frame.tick,seconds:frame.tick*.1,delivered:0,
       field_width:96,field_height:64,pheromones:world.field,walls:world.walls,foods:[],
       ants:ids.map((id,index)=>{const a=world.ants[id];return{id:index,x:a.x,y:a.y,heading:a.heading,carrying:a.carrying,

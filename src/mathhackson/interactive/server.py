@@ -12,7 +12,7 @@ from uuid import uuid4
 import zipfile
 import zlib
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -36,11 +36,26 @@ class Engine:
         self.error: str | None = None
         self.stopping = False
         self.view = session.frame().model_copy(deep=True)
+        self.subscribers: set[asyncio.Queue[str]] = set()
         self.downloads: dict[str, Path] = {}
 
     def refresh(self) -> Frame:
-        self.view = self.session.frame().model_copy(update={"error": self.error}, deep=True)
+        self.publish(self.session.frame())
         return self.view
+
+    def publish(self, frame: Frame) -> None:
+        self.view = frame.model_copy(update={"error": self.error}, deep=True)
+        payload = self.view.model_dump_json()
+        for queue in self.subscribers:
+            if queue.full():
+                queue.get_nowait()
+            queue.put_nowait(payload)
+
+    def subscribe(self) -> asyncio.Queue[str]:
+        queue: asyncio.Queue[str] = asyncio.Queue(maxsize=1)
+        queue.put_nowait(self.view.model_dump_json())
+        self.subscribers.add(queue)
+        return queue
 
     def ensure_ready(self) -> None:
         if self.error:
@@ -50,7 +65,7 @@ class Engine:
         logging.exception("实时验收停止，保留已有记录")
         self.session.paused = True
         self.error = "执行异常，已停止；请保存记录并开始新一轮"
-        self.view = self.view.model_copy(update={"paused": True, "error": self.error})
+        self.publish(self.view.model_copy(update={"paused": True, "error": self.error}))
 
     async def run(self) -> None:
         while not self.stopping:
@@ -58,8 +73,8 @@ class Engine:
             async with self.lock:
                 if not self.session.paused and not self.error:
                     try:
-                        await asyncio.to_thread(self.session.advance)
-                        self.refresh()
+                        frame = await asyncio.to_thread(self.session.advance)
+                        self.publish(frame)
                     except Exception:
                         self.fail()
                 rate = self.session.rate
@@ -126,6 +141,28 @@ async def health() -> bool:
 @app.get("/api/state")
 async def state(request: Request) -> Frame:
     return current(request).view
+
+
+@app.websocket("/api/live")
+async def live_frames(socket: WebSocket) -> None:
+    origin = socket.headers.get("origin")
+    if origin and urlsplit(origin).netloc != socket.headers.get("host"):
+        await socket.close(code=1008)
+        return
+    await socket.accept()
+    engine: Engine = socket.app.state.engine
+    queue = engine.subscribe()
+    try:
+        while True:
+            try:
+                payload = await asyncio.wait_for(queue.get(), timeout=15.)
+            except TimeoutError:
+                payload = engine.view.model_dump_json()
+            await socket.send_text(payload)
+    except (WebSocketDisconnect, RuntimeError):
+        pass
+    finally:
+        engine.subscribers.discard(queue)
 
 
 @app.get("/api/parameters")

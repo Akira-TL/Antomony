@@ -168,16 +168,20 @@ worlds.forEach(world=>{world.onMove=p=>movePreview(p,world);world.onWheel=(direc
   mutationVersion++;busy=true;renderControls();
   try{const result=await api<Preview>('edit',edit);if(!result.valid){toast(result.message);return;}live=await api<Frame>('state');view=live;render();movePreview(p,world);}finally{busy=false;renderControls();}
 });});
-async function poll():Promise<void>{
-  if(busy){window.setTimeout(()=>void poll(),250);return;}
-  const version=mutationVersion;
-  try{const frame=await api<Frame>('state');
-    if(version!==mutationVersion){window.setTimeout(()=>void poll(),250);return;}
-    connected=true;
-    if(live&&live.run_id!==frame.run_id){replayTick=null;parameterData=null;selectedAnt=0;setTool('inspect');}
-    live=frame;if(replayTick===null)view=frame;syncSelection();render();
-  }catch{connected=false;$('connection').textContent='连接中断 · 正在重试';$('connection').className='negative';renderControls();}
-  window.setTimeout(()=>void poll(),250);
+function connectLive():void{
+  const url=new URL(pageUrl('/api/live'));url.protocol=url.protocol==='https:'?'wss:':'ws:';
+  const socket=new WebSocket(url);
+  socket.onmessage=event=>{
+    if(busy)return;
+    try{
+      const frame=JSON.parse(String(event.data)) as Frame;
+      if(live&&frame.run_id===live.run_id&&frame.tick<live.tick)return;
+      connected=true;
+      if(live&&live.run_id!==frame.run_id){replayTick=null;parameterData=null;selectedAnt=0;setTool('inspect');}
+      live=frame;if(replayTick===null)view=frame;syncSelection();render();
+    }catch{toast('收到无法解析的现场帧');}
+  };
+  socket.onclose=()=>{connected=false;$('connection').textContent='连接中断 · 正在重连';$('connection').className='negative';renderControls();window.setTimeout(connectLive,500);};
 }
 $('play').onclick=()=>void attempt(()=>command({kind:'pause',enabled:!live?.paused}));
 $('step').onclick=()=>void attempt(()=>command({kind:'step'}));
@@ -186,7 +190,7 @@ $('focus-ant').onclick=()=>{setTool('inspect');worlds[keys.indexOf(selectedGroup
 $('checkpoint').onclick=()=>void attempt(async()=>{await command({kind:'checkpoint'});toast(`参数与记忆已保存，第 ${live?.checkpoint_tick} 步`);});
 $('speed').onchange=()=>void attempt(()=>command({kind:'speed',rate:Number($<HTMLSelectElement>('speed').value)}));
 $('learning').onchange=()=>void attempt(async()=>{await command({kind:'learning',enabled:$<HTMLInputElement>('learning').checked});await refreshParameters();});
-$('clear').onclick=()=>void attempt(async()=>{if(!confirm('清空三组当前信息素？个体参数和记忆将保留。'))return;const result=await api<Preview>('edit',{kind:'clear-trails'});if(!result.valid)throw new Error(result.message);});
+$('clear').onclick=()=>void attempt(async()=>{if(!confirm('清空三组当前信息素？个体参数和记忆将保留。'))return;busy=true;renderControls();try{const result=await api<Preview>('edit',{kind:'clear-trails'});if(!result.valid)throw new Error(result.message);live=await api<Frame>('state');if(replayTick===null)view=live;render();}finally{busy=false;renderControls();}});
 $('show-field').onchange=render;
 $('tab-controls').onclick=()=>setTab(false);$('tab-parameters').onclick=()=>setTab(true);
 $('group').onchange=()=>{selectedGroup=$<HTMLSelectElement>('group').value as GroupKey;void refreshParameters(true);render();};
@@ -213,4 +217,4 @@ $<HTMLFormElement>('reset-form').onsubmit=event=>{event.preventDefault();void at
     live=frame;view=frame;replayTick=null;parameterData=null;selectedAnt=0;syncSelection();setTool('inspect');render();$<HTMLDialogElement>('reset-dialog').close();worlds.forEach(w=>w.fit());void refreshParameters(true);
   }finally{busy=false;renderControls();}
 });};
-syncSelection();renderControls();void poll();window.setInterval(()=>void refreshParameters(),2500);
+syncSelection();renderControls();connectLive();window.setInterval(()=>void refreshParameters(),2500);

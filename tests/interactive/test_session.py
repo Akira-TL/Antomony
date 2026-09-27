@@ -22,6 +22,12 @@ def test_paired_clock_independent_worlds_and_real_parameter_views(live):
         live.parameters("rules", 2)
 
 
+def test_advance_returns_the_exact_recorded_frame(live):
+    frame = live.advance()
+    assert frame == live.records.replay(1)
+    assert frame.tick == 1
+
+
 def test_edit_validates_all_three_before_changing_any_world(live):
     edit = Edit(kind="wall", x=-4., y=3.)
     live.groups[1].world.ants[0].position[:] = [-4., 3.]
