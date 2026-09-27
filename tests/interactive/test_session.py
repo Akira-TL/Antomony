@@ -25,12 +25,12 @@ def test_paired_clock_independent_worlds_and_real_parameter_views(live):
 def test_edit_validates_all_three_before_changing_any_world(live):
     edit = Edit(kind="wall", x=-4., y=3.)
     live.groups[1].world.ants[0].position[:] = [-4., 3.]
-    assert not live.edit(edit).valid
+    checked = live.preview(edit)
+    assert checked.valid and "0 / 1 / 0" in checked.message
     assert all(not g.world.walls for g in live.groups)
-    live.groups[1].world.ants[0].position[:] = [0., 0.]
-    assert live.preview(edit).valid and all(not g.world.walls for g in live.groups)
     assert live.edit(edit).valid
     assert [len(g.world.walls) for g in live.groups] == [1, 1, 1]
+    assert not live.groups[1].world.walls[0].overlaps(live.groups[1].world.ants[0].position, .18)
     assert live.tick == 0
     assert live.edit(Edit(kind="food", x=-8., y=-6., stock=7)).valid
     assert [g.world.stock for g in live.groups] == [55, 55, 55]

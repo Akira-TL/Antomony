@@ -86,12 +86,16 @@ class LiveSession:
     def preview(self, edit: Edit) -> Preview:
         if self.done:
             return Preview(valid=False, message="本轮已结束，请开始新一轮", tick=self.tick)
+        relocations: list[int] = []
         for group in self.groups:
             world = group.world
             if edit.kind == "food":
                 error = world.food_placement_error(edit.x, edit.y, edit.stock)
             elif edit.kind == "wall":
-                error = world.wall_placement_error(Wall(0, edit.x, edit.y, edit.hx, edit.hy, edit.angle))
+                planned, error = world.plan_wall(Wall(0, edit.x, edit.y, edit.hx, edit.hy, edit.angle))
+                if planned is not None:
+                    current = np.stack([ant.position for ant in world.ants])
+                    relocations.append(int(np.count_nonzero(np.linalg.norm(planned - current, axis=1) > 1e-6)))
             elif edit.kind == "trap":
                 error = world.trap_placement_error(self._trap(edit, world))
             elif edit.kind == "erase-wall":
@@ -103,6 +107,9 @@ class LiveSession:
             if error:
                 title = {"adaptive": "自训练组", "mlp": "MLP组", "rules": "规则组"}[group.key]
                 return Preview(valid=False, message=f"{title}：{error}", tick=self.tick)
+        if edit.kind == "wall" and any(relocations):
+            counts = " / ".join(str(count) for count in relocations)
+            return Preview(valid=True, message=f"三组均可放置；将分别移开 {counts} 只蚂蚁", tick=self.tick)
         return Preview(valid=True, message="三组均可放置" if edit.kind in ("food", "wall", "trap") else "三组均可执行", tick=self.tick)
 
     def edit(self, command: Edit) -> Preview:

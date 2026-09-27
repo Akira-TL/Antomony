@@ -59,15 +59,21 @@ def test_physics_wall_removal_and_signal_mask_agree():
     assert env.ants[0].position[0] > 3.25
 
 
-def test_wall_rejects_ants_resources_nest_and_does_not_relocate():
-    env = EditableColony(1, ColonyConfig(ants=1))
-    env.ants[0].position[:] = (5., 4.)
-    before = env.ants[0].position.copy()
-    for x, y in [(0., 0.), (5., 4.), tuple(env.food)]:
+def test_wall_rejects_resources_and_nest_but_relocates_ants_to_both_sides():
+    env = EditableColony(1, ColonyConfig(ants=2))
+    env.foods[0].x, env.foods[0].y = 8., 8.
+    for x, y in [(0., 0.), (8., 8.)]:
         with pytest.raises(ValueError):
             env.add_wall(x, y, .25, 1.)
     assert not env.walls and not env.signals.trails.blocked.any()
-    np.testing.assert_array_equal(before, env.ants[0].position)
+    env.ants[0].position[:] = (4.9, 4.)
+    env.ants[1].position[:] = (5.1, 4.)
+    before = [(ant.heading, ant.exploration_left, ant.reserve_left, ant.carrying) for ant in env.ants]
+    wall = env.add_wall(5., 4., .25, 1.)
+    local = [wall.local(ant.position) for ant in env.ants]
+    assert local[0][0] < 0 < local[1][0]
+    assert all(not wall.overlaps(ant.position, .18) for ant in env.ants)
+    assert before == [(ant.heading, ant.exploration_left, ant.reserve_left, ant.carrying) for ant in env.ants]
     env.add_wall(3., 2., .25, 2.)
     with pytest.raises(ValueError):
         env.add_food(3., 2., 1)

@@ -18,6 +18,7 @@ export class LiveWorld {
   private following=false;
   onMove:(p:{x:number;y:number}|null)=>void=()=>{};
   onPlace:(p:{x:number;y:number})=>void=()=>{};
+  onWheel:(direction:number,p:{x:number;y:number}|null)=>boolean=()=>false;
   editing=false;world:World|null=null;
   constructor(host:HTMLElement,onSelect:(id:number)=>void){
     this.scene=new ColonyScene(host,true);
@@ -26,7 +27,7 @@ export class LiveWorld {
     const nest=new THREE.Mesh(new THREE.CylinderGeometry(.6,.65,.08,48),new THREE.MeshStandardMaterial({color:0x438c79}));
     nest.position.y=.06;this.scene.scene.add(nest,ring(1,0x66bcac,.5),ring(.65,0x9be2ca));
     const canvas=this.scene.renderer.domElement;
-    const ground=(e:PointerEvent):{x:number;y:number}|null=>{
+    const ground=(e:Pick<PointerEvent,'clientX'|'clientY'>):{x:number;y:number}|null=>{
       const box=canvas.getBoundingClientRect(),v=new THREE.Vector2((e.clientX-box.left)/box.width*2-1,1-(e.clientY-box.top)/box.height*2);
       const ray=new THREE.Raycaster();ray.setFromCamera(v,this.scene.camera);
       const p=ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),new THREE.Vector3());
@@ -36,6 +37,7 @@ export class LiveWorld {
     canvas.addEventListener('pointerleave',()=>this.onMove(null));
     let down=[0,0];canvas.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
     canvas.addEventListener('pointerup',e=>{if(!this.editing||e.button!==0||Math.hypot(e.clientX-down[0],e.clientY-down[1])>7)return;const p=ground(e);if(p)this.onPlace(p);});
+    canvas.addEventListener('wheel',e=>{if(this.editing&&this.onWheel(Math.sign(e.deltaY),ground(e)))e.preventDefault();},{passive:false});
     this.scene.fitArena();
   }
   setEditing(value:boolean):void{this.editing=value;this.scene.interactive=!value;this.scene.renderer.domElement.style.cursor=value?'crosshair':'grab';}

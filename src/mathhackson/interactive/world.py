@@ -6,7 +6,7 @@ import math
 
 import numpy as np
 
-from mathhackson.colony.geometry import Wall
+from mathhackson.colony.geometry import Wall, relocate_for_wall
 from mathhackson.training.direction.policy import DirectionAction
 from mathhackson.training.foraging.colony import ColonyConfig, ColonyInteraction
 from mathhackson.training.foraging.disturbance import DisturbanceConfig
@@ -114,31 +114,39 @@ class EditableColony(RevivingColony):
         self.supplied_stock += stock
         return food
 
-    def wall_placement_error(self, wall: Wall) -> str | None:
+    def plan_wall(self, wall: Wall) -> tuple[np.ndarray | None, str | None]:
         if (not all(math.isfinite(v) for v in (wall.x, wall.y, wall.hx, wall.hy, wall.angle))
                 or not .2 <= wall.hx <= 4. or not .2 <= wall.hy <= 4.):
-            return "墙体尺寸或位置无效"
+            return None, "墙体尺寸或位置无效"
         if np.any(np.abs((wall.x, wall.y)) + wall.extent > self.signals.trails.half):
-            return "墙体超出场地"
+            return None, "墙体超出场地"
         if wall.overlaps(self.home, 1.):
-            return "墙体不能覆盖巢穴"
+            return None, "墙体不能覆盖巢穴"
         if any(wall.overlaps(np.asarray([f.x, f.y]), .4) for f in self.foods):
-            return "墙体不能覆盖食物"
+            return None, "墙体不能覆盖食物"
         if any(wall.intersects(other) for other in self.walls):
-            return "墙体位置重叠"
+            return None, "墙体位置重叠"
         if any(wall.overlaps(np.asarray([t.x, t.y]), t.radius + t.motion_amplitude) for t in self.traps):
-            return "墙体覆盖作用区或其移动范围"
-        if any(not ant.exhausted and wall.overlaps(ant.position, .18) for ant in self.ants):
-            return "墙体覆盖活动个体"
+            return None, "墙体覆盖作用区或其移动范围"
         if len(self.walls) >= 32:
-            return "墙体已达到32个上限"
-        return None
+            return None, "墙体已达到32个上限"
+        positions = np.stack([ant.position for ant in self.ants])
+        relocated = relocate_for_wall(positions, wall, self.walls, self.signals.trails.half, .18)
+        if relocated is None:
+            return None, "墙体两侧没有足够空间安置个体"
+        return relocated, None
+
+    def wall_placement_error(self, wall: Wall) -> str | None:
+        return self.plan_wall(wall)[1]
 
     def add_wall(self, x: float, y: float, hx: float, hy: float, angle: float = 0.) -> Wall:
         wall = Wall(max((w.id for w in self.walls), default=-1) + 1, x, y, hx, hy, angle)
-        error = self.wall_placement_error(wall)
+        positions, error = self.plan_wall(wall)
         if error:
             raise ValueError(error)
+        assert positions is not None
+        for ant, position in zip(self.ants, positions, strict=True):
+            ant.position = position
         self.walls.append(wall)
         self.signals.trails.set_walls(self.walls)
         return wall

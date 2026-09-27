@@ -157,7 +157,12 @@ function movePreview(p:{x:number;y:number}|null,world:LiveWorld):void{
     worlds.forEach(w=>w.showPreview(edit,result.valid));$('placement').textContent=result.message;$('placement').className=`placement ${result.valid?'positive':'negative'}`;
   }),90);
 }
-worlds.forEach(world=>{world.onMove=p=>movePreview(p,world);world.onPlace=p=>void attempt(async()=>{
+worlds.forEach(world=>{world.onMove=p=>movePreview(p,world);world.onWheel=(direction,p)=>{
+  if(tool!=='wall'||!direction||!p)return false;
+  const angle=$<HTMLInputElement>('wall-angle'),current=Number(angle.value);
+  angle.value=String(((current+direction*15+180)%360+360)%360-180);
+  movePreview(p,world);return true;
+};world.onPlace=p=>void attempt(async()=>{
   if(busy||!connected||replayTick!==null||live?.done||live?.error)return;
   const edit=makeEdit(p,world);if(!edit)return;
   mutationVersion++;busy=true;renderControls();
