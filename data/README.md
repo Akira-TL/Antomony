@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [方向归一化配对原始记录](plastic-projection/README.md) - 460项原件已固定并逐项核对散列，尚未汇总效果。
+- [方向归一化配对原始记录](plastic-projection/README.md) - 460项原件、28结构点及589824评价帧已审计，完整负结果保留。
 
 - [可塑方向基础课程原始记录](feedback-plasticity-course/README.md) - 129项固定输入及147456评价帧已完成机械审计，原件和全部负结果保留。
 
@@ -47,7 +47,7 @@
 
 ## Relations
 
-- [方向归一化配对数据](plastic-projection/README.md) → [真实实施](../study/plastic-projection/README.md)、[分析计划](../analysis/plastic-projection/README.md)。计划已在首次汇总前登记，不以数据存在声明效果。
+- [方向归一化配对数据](plastic-projection/README.md) → [真实实施](../study/plastic-projection/README.md)、[配对结果](../analysis/plastic-projection/README.md)。实际审计通过不等于课程门槛通过。
 
 - [可塑方向基础课程数据](feedback-plasticity-course/README.md) → [真实实施](../study/feedback-plasticity-course/README.md)、[配对评价结果](../analysis/feedback-plasticity-course/README.md)。输入有效不等于学习效果通过。
 

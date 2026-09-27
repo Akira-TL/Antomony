@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [方向归一化配对实施](plastic-projection/README.md) - 两模式各两个初始化完整执行、整批退出0；固定数据已登记，尚未汇总效果。
+- [方向归一化配对实施](plastic-projection/README.md) - 两模式各两个初始化完整执行、整批退出0；固定数据与配对负结果已另行登记。
 
 - [可塑方向基础课程实施](feedback-plasticity-course/README.md) - 两初始化完整执行，内部125.33秒，配对评价及负结果已另行登记。
 

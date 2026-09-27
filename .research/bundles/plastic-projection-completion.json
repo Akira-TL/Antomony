@@ -1,0 +1,39 @@
+{
+  "slug": "plastic-projection",
+  "title": "方向归一化方式与训练前后配对评价",
+  "analysis_mode": "exploratory",
+  "status": "completed",
+  "design_slug": "plastic-projection",
+  "target_uncertainty": "只改变方向归一化方式，能否在两个新初始化分别提高课程方向收益，并产生有益的接受与跳过；训练后相对同初始化训练前是否改善。",
+  "estimand": "分别报告每个初始化、三条件的第5至96帧和第73至96帧平均方向奖励。主要对比为候选减旧模式的训练后学得接受，以及候选训练后减同初始化训练前的学得接受；同时保留每种架构内学得接受减全部跳过、全部接受和等次数随机接受。",
+  "unit_of_inference": "独立外层初始化1711和1712；两架构、训练前后、条件、回合及四组在初始化内配对相关。",
+  "primary_analysis": "先核验两架构、两个结构时点及四组的完整来源和配对，再逐初始化计算两窗口配对奖励差、接受跳过比例与真实写入；执行设计全部原课程资格、架构增益及训练增益门槛，候选两个初始化都满足才通过。不重设门槛、不挑保存点。",
+  "analysis_path": "analysis/plastic-projection/README.md",
+  "code_path": "scripts/analyses/plastic_projection.py",
+  "completed_at": "2026-09-27T00:18:20Z",
+  "dataset_slugs": ["plastic-projection"],
+  "artifacts": [
+    {"path": "analysis/plastic-projection/summary.json", "role": "estimate", "timing_role": "result"},
+    {"path": ".research/analysis/plastic-projection/A001/outputs/summary.json", "role": "diagnostic", "timing_role": "result", "git_tracking": "not_required", "tracking_reason": "完整1045974字节结果保留执行目录，含460原件身份及所有逐回合记录/差数组，SHA-256为7f887ebcbff5366ddf2980561e376e78e0d25c04bad70efa66143ac08785bd45；规范汇总保留全部标量及判据，未重算或丢弃负值。"}
+  ],
+  "observations": [
+    {
+      "statement": "两种方向模式训练后，1711的合并接受比例均为0且真实写入0，1712均为1且真实写入3072。两个初始化均未通过旧课程四项联合资格、新架构增益、训练增益及总继续门槛；原方向保持单项仍通过。",
+      "source_path": "analysis/plastic-projection/summary.json",
+      "source_locator": "evaluations[structure_update=150].assessments及decisions",
+      "scope": "两个外层初始化的固定合成方向课程；停止此有界配置，不替换8775，不等于所有自训练不可行，不证明具体失败机制。"
+    },
+    {
+      "statement": "候选训练后持续关联相对全部跳过，1711的两个窗口差均0，1712为+0.000053573050536215305与-0.0010719509446062148。候选训练后相对旧模式训练后，1711均0，1712为+0.0003603820223361254与+0.0012203140649944544。",
+      "source_path": "analysis/plastic-projection/summary.json",
+      "source_locator": "evaluations[direction_mode=bounded,structure_update=150].assessments.contrasts及contrasts[condition=association,comparison=architecture]",
+      "scope": "差值按同初始化和回合配对；小正差未达到固定门槛，不以其单独声称学会控制自训练。"
+    },
+    {
+      "statement": "候选训练后相对同初始化训练前的持续关联配对差，1711为+0.000904389686184004与+0.0015984946221578866，1712为+0.00006765167927369475与-0.0006769818719476461；两初始化均未通过训练增益条件。",
+      "source_path": "analysis/plastic-projection/summary.json",
+      "source_locator": "contrasts[condition=association,comparison=training]及decisions",
+      "scope": "仅限本批两个初始化、固定150轮和方向任务，不作普遍优势或生态效果推断；完整其他条件及负差值保留。"
+    }
+  ]
+}

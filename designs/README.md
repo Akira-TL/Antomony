@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [方向读出归一化配对](plastic-projection.md) - 已冻结并完成真实实施；固定数据和分析计划已登记，尚未汇总效果。
+- [方向读出归一化配对](plastic-projection.md) - 已完成；两个初始化均未通过原课程联合资格及架构、训练增益门槛，停止本有界配置。
 
 - [直接行动反馈驱动的可塑方向连接课程](feedback-plasticity-course.md) - 已完成固定配对评价，两个初始化均全部接受、均未通过；不延长该配置。
 
@@ -46,7 +46,7 @@
 
 ## Relations
 
-- [方向读出归一化配对](plastic-projection.md) → [总体研究目标](ant-self-training-adaptation.md)、[前一课程结果](../analysis/feedback-plasticity-course/README.md)、[真实实施](../study/plastic-projection/README.md)、[固定数据](../data/plastic-projection/README.md)、[分析计划](../analysis/plastic-projection/README.md)。这是旧失败可见后的Agent探索，不冒充结果前预测。
+- [方向读出归一化配对](plastic-projection.md) → [总体研究目标](ant-self-training-adaptation.md)、[前一课程结果](../analysis/feedback-plasticity-course/README.md)、[真实实施](../study/plastic-projection/README.md)、[固定数据](../data/plastic-projection/README.md)、[配对结果](../analysis/plastic-projection/README.md)。这是旧失败可见后的Agent探索，不冒充结果前预测。
 
 - [可塑方向基础课程](feedback-plasticity-course.md) → [总体研究问题](ant-self-training-adaptation.md)、[旧候选覆盖依据](../analysis/candidate-label-coverage/README.md)、[真实实施](../study/feedback-plasticity-course/README.md)、[固定数据](../data/feedback-plasticity-course/README.md)、[配对评价结果](../analysis/feedback-plasticity-course/README.md)。方法来源见设计中的Backpropamine第3.2节，旧冻结计划与负结果均保留。
 
