@@ -2,7 +2,7 @@
 
 ## Objects
 
-- [同情境独立试行回报基线](plastic-paired-baseline/README.md) - 计划中；508项原始记录固定，尚未汇总效果。
+- [同情境独立试行回报基线](plastic-paired-baseline/README.md) - 分析未完成；首次执行在配对情境审计处停止，未生成效果摘要。
 
 - [方向归一化方式与训练前后配对评价](plastic-projection/README.md) - 已完成；两架构均一初始化全部跳过、另一全部接受，旧课程联合资格及新增两类增益均未通过，停止本配置。
 

@@ -1,0 +1,11 @@
+{
+  "analysis_slug": "plastic-paired-baseline",
+  "attempt_key": "A001",
+  "status": "invalid",
+  "git_commit": "17c1cedccbe1c552040dda222b5478d80de7d39f",
+  "config_path": ".research/analysis/plastic-paired-baseline/A001/config.json",
+  "output_path": ".research/analysis/plastic-paired-baseline/A001/logs/stderr.log",
+  "started_at": "2026-09-27T00:57:39Z",
+  "reason": "分析26已在首次执行前登记。按A001配置的实际命令执行，工具记录wall_time_seconds=0.907052715、exit_code=1；训练配对情境的冻结方向审计未通过，未生成summary，未读取效果。标准错误由主线实际工具输出原样补存，不冒充进程直接重定向产物。",
+  "decision_reason": "本次审计中断执行不能作为有效结果采用，标记无效执行而非模型科学阴性。Analysis保持未完成，Study22和Dataset23保持完成；不放宽容差、不追加训练、不覆盖原始数据。启动字段来源为执行前主线时钟；取回退出的UTC时刻未独立记录，completed_at留空，不按工具耗时推算精确退出时刻。"
+}
